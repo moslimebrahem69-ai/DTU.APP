@@ -27,9 +27,10 @@ export function StudyTimer() {
   } = useTimer();
 
   const formatTime = (seconds: number) => {
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
+    const validSeconds = Math.max(0, seconds || 0);
+    const hours = Math.floor(validSeconds / 3600);
+    const minutes = Math.floor((validSeconds % 3600) / 60);
+    const secs = validSeconds % 60;
     return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -63,6 +64,7 @@ export function StudyTimer() {
           } : {}}
           transition={{ duration: 6, repeat: Infinity, delay: 2 }}
         />
+        
         {/* Timer Display */}
         <div className="text-center mb-8 relative z-10">
           <motion.div
@@ -75,7 +77,8 @@ export function StudyTimer() {
               ]
             } : {}}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-            className="text-6xl md:text-8xl font-mono font-bold text-primary mb-4 relative"
+            dir="ltr"
+            className="text-6xl md:text-8xl font-mono font-bold text-primary mb-4 relative inline-block tracking-widest"
           >
             {formatTime(timeLeft)}
             {isRunning && animationsEnabled && (
@@ -125,21 +128,21 @@ export function StudyTimer() {
             whileTap={animationsEnabled ? { scale: 0.95 } : {}}
           >
             <Button
-            onClick={isRunning ? pauseTimer : startTimer}
-            size="lg"
-            className="px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-shadow"
+              onClick={isRunning ? pauseTimer : startTimer}
+              size="lg"
+              className="px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-shadow"
             >
-            {isRunning ? (
-              <>
-                <Pause className="h-5 w-5 mr-2 rtl:ml-2" />
-                {t('pause')}
-              </>
-            ) : (
-              <>
-                <Play className="h-5 w-5 mr-2 rtl:ml-2" />
-                {isPaused ? t('resume') : t('start')}
-              </>
-            )}
+              {isRunning ? (
+                <>
+                  <Pause className="h-5 w-5 mr-2 rtl:ml-2" />
+                  {t('pause')}
+                </>
+              ) : (
+                <>
+                  <Play className="h-5 w-5 mr-2 rtl:ml-2" />
+                  {isPaused ? t('resume') : t('start')}
+                </>
+              )}
             </Button>
           </motion.div>
           
@@ -148,13 +151,13 @@ export function StudyTimer() {
             whileTap={animationsEnabled ? { scale: 0.95 } : {}}
           >
             <Button
-            onClick={resetTimer}
-            variant="outline"
-            size="lg"
-            className="px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-shadow"
+              onClick={resetTimer}
+              variant="outline"
+              size="lg"
+              className="px-8 py-3 text-lg shadow-lg hover:shadow-xl transition-shadow"
             >
-            <RotateCcw className="h-5 w-5 mr-2 rtl:ml-2" />
-            {t('reset')}
+              <RotateCcw className="h-5 w-5 mr-2 rtl:ml-2" />
+              {t('reset')}
             </Button>
           </motion.div>
         </div>
@@ -171,12 +174,12 @@ export function StudyTimer() {
               <label className="block text-sm font-medium mb-2">{t('hours')}</label>
               <motion.div whileFocus={animationsEnabled ? { scale: 1.02 } : {}}>
                 <Input
-                type="number"
-                min="0"
-                max="23"
-                value={settings.hours}
-                onChange={(e) => updateSettings('hours', parseInt(e.target.value) || 0)}
-                className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
+                  type="number"
+                  min="0"
+                  max="23"
+                  value={settings.hours}
+                  onChange={(e) => updateSettings('hours', parseInt(e.target.value) || 0)}
+                  className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
                 />
               </motion.div>
             </div>
@@ -184,12 +187,12 @@ export function StudyTimer() {
               <label className="block text-sm font-medium mb-2">{t('minutes')}</label>
               <motion.div whileFocus={animationsEnabled ? { scale: 1.02 } : {}}>
                 <Input
-                type="number"
-                min="0"
-                max="59"
-                value={settings.minutes}
-                onChange={(e) => updateSettings('minutes', parseInt(e.target.value) || 0)}
-                className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={settings.minutes}
+                  onChange={(e) => updateSettings('minutes', parseInt(e.target.value) || 0)}
+                  className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
                 />
               </motion.div>
             </div>
@@ -197,12 +200,12 @@ export function StudyTimer() {
               <label className="block text-sm font-medium mb-2">{t('seconds')}</label>
               <motion.div whileFocus={animationsEnabled ? { scale: 1.02 } : {}}>
                 <Input
-                type="number"
-                min="0"
-                max="59"
-                value={settings.seconds}
-                onChange={(e) => updateSettings('seconds', parseInt(e.target.value) || 0)}
-                className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
+                  type="number"
+                  min="0"
+                  max="59"
+                  value={settings.seconds}
+                  onChange={(e) => updateSettings('seconds', parseInt(e.target.value) || 0)}
+                  className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
                 />
               </motion.div>
             </div>
@@ -218,8 +221,8 @@ export function StudyTimer() {
             <label className="text-sm font-medium">{t('pomodoroMode')}</label>
             <motion.div whileTap={animationsEnabled ? { scale: 0.95 } : {}}>
               <Switch
-              checked={settings.pomodoroMode}
-              onCheckedChange={(checked) => updateSettings('pomodoroMode', checked)}
+                checked={settings.pomodoroMode}
+                onCheckedChange={(checked) => updateSettings('pomodoroMode', checked)}
               />
             </motion.div>
           </motion.div>
@@ -236,12 +239,12 @@ export function StudyTimer() {
                 <label className="block text-sm font-medium mb-2">{t('workTime')} ({t('minutes')})</label>
                 <motion.div whileFocus={animationsEnabled ? { scale: 1.02 } : {}}>
                   <Input
-                  type="number"
-                  min="1"
-                  max="120"
-                  value={settings.workDuration}
-                  onChange={(e) => updateSettings('workDuration', parseInt(e.target.value) || 25)}
-                  className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
+                    type="number"
+                    min="1"
+                    max="120"
+                    value={settings.workDuration}
+                    onChange={(e) => updateSettings('workDuration', parseInt(e.target.value) || 25)}
+                    className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
                   />
                 </motion.div>
               </div>
@@ -249,12 +252,12 @@ export function StudyTimer() {
                 <label className="block text-sm font-medium mb-2">{t('breakTime')} ({t('minutes')})</label>
                 <motion.div whileFocus={animationsEnabled ? { scale: 1.02 } : {}}>
                   <Input
-                  type="number"
-                  min="1" 
-                  max="60"
-                  value={settings.breakDuration}
-                  onChange={(e) => updateSettings('breakDuration', parseInt(e.target.value) || 5)}
-                  className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
+                    type="number"
+                    min="1" 
+                    max="60"
+                    value={settings.breakDuration}
+                    onChange={(e) => updateSettings('breakDuration', parseInt(e.target.value) || 5)}
+                    className="text-center transition-all duration-200 focus:ring-4 focus:ring-primary/20"
                   />
                 </motion.div>
               </div>
@@ -276,16 +279,16 @@ export function StudyTimer() {
                 whileFocus={animationsEnabled ? { scale: 1.01 } : {}}
               >
                 <Select value={settings.soundType} onValueChange={(value) => updateSettings('soundType', value)}>
-                <SelectTrigger className="flex-1">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="bell">{t('bell')}</SelectItem>
-                  <SelectItem value="piano">{t('piano')}</SelectItem>
-                  <SelectItem value="glockenspiel">{t('glockenspiel')}</SelectItem>
-                  <SelectItem value="violin">{t('violin')}</SelectItem>
-                  <SelectItem value="whistle">{t('whistle')}</SelectItem>
-                </SelectContent>
+                  <SelectTrigger className="flex-1">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="bell">{t('bell')}</SelectItem>
+                    <SelectItem value="piano">{t('piano')}</SelectItem>
+                    <SelectItem value="glockenspiel">{t('glockenspiel')}</SelectItem>
+                    <SelectItem value="violin">{t('violin')}</SelectItem>
+                    <SelectItem value="whistle">{t('whistle')}</SelectItem>
+                  </SelectContent>
                 </Select>
               </motion.div>
               <motion.div
@@ -293,13 +296,13 @@ export function StudyTimer() {
                 whileTap={animationsEnabled ? { scale: 0.9 } : {}}
               >
                 <Button
-                variant="outline"
-                size="sm"
-                onClick={playSound}
-                className="px-3 shadow-md hover:shadow-lg transition-shadow"
+                  variant="outline"
+                  size="sm"
+                  onClick={playSound}
+                  className="px-3 shadow-md hover:shadow-lg transition-shadow"
                 >
-                <Volume2 className="h-4 w-4" />
-                {t('preview')}
+                  <Volume2 className="h-4 w-4" />
+                  {t('preview')}
                 </Button>
               </motion.div>
             </div>
@@ -344,12 +347,12 @@ export function StudyTimer() {
               className="h-full bg-gradient-to-r from-primary to-primary/80 rounded-full"
               initial={{ width: "0%" }}
               animate={{ 
-                width: `${((settings.pomodoroMode 
+                width: `${Math.min(100, Math.max(0, ((settings.pomodoroMode 
                   ? (currentSession === 'work' ? settings.workDuration : settings.breakDuration) * 60 
                   : settings.hours * 3600 + settings.minutes * 60 + settings.seconds) - timeLeft) / 
                   (settings.pomodoroMode 
                     ? (currentSession === 'work' ? settings.workDuration : settings.breakDuration) * 60 
-                    : settings.hours * 3600 + settings.minutes * 60 + settings.seconds) * 100}%`
+                    : settings.hours * 3600 + settings.minutes * 60 + settings.seconds) * 100))}%`
               }}
               transition={{ duration: 0.5 }}
             />

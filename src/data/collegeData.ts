@@ -147,7 +147,80 @@ export const year1MechatronicsCourses: Record<string, Course[]> = {
       ]
     }
   ],
-  semester2: []
+  semester2: [
+    {
+      id: 'computer-kinematics',
+      name: 'الحركية بالحاسب',
+      nameKey: 'computerKinematics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Hg7v7gzdja6ieLvwOIFQv_JCHIS8gSF_?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1jPQ_KFJYUhN24PIrtVzwLxYjeZ0lcTAB?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1sSoc2s3ZHPlYpJAzMsyxaKDh4ScMZ4ev?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'english-2',
+      name: 'انجليزي 2',
+      nameKey: 'english2',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1rBLHzcwTTLYEWWLXXUQpWfUtfjUpA2Ah?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1Ko9CWtRezoQ7wXwgCd0sIRFEWpwBCOms?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1zV08TF_N3bPPJGdzPf9LhwC9jw02KhXk?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'engineering-design',
+      name: 'تصميم هندسي',
+      nameKey: 'engineeringDesign',
+      materials: [
+        { name: 'كتاب المادة', url: 'https://drive.google.com/', type: 'notes' },
+        { name: 'تمارين سوليد', url: 'https://drive.google.com/', type: 'sheets' },
+        { name: 'تمارين كاد', url: 'https://drive.google.com/', type: 'sheets' }
+      ]
+    },
+    {
+      id: 'computer-technology',
+      name: 'تكنولوجيا الحاسب',
+      nameKey: 'computerTechnology',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1mllTDHif7_VwBpI-S1l9xwNkjfPWSv_j?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1jMrCpgPXXI9wY3GFvDNhLy0MmEWiydy1?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1eBN00zktUi-uN2It2iFke2wsnYl2JgbX?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1HftGgdLL7xlWPA2E_JFo40JxuL8d6SCM?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'environmental-studies',
+      name: 'دراسات بيئية',
+      nameKey: 'environmentalStudies',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/15c8tnDb_ulNz0aNv6XFD09Tctsm0dhhz?usp=drive_link', type: 'lectures' },
+        { name: 'ملخصات', url: 'https://drive.google.com/drive/folders/1t0eJt-p9U7R-xQ-KlDeeDTXtRntCYbd_?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'electric-circuits',
+      name: 'دوائر كهربائية',
+      nameKey: 'electricCircuits',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1atMUOsiNMCnJXYrci9JwLUwnJv6uQS-H?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1sxZQra4o1VEU9yzgKn7OP4SwzUEVksLH?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1Tns1j9YK1iu0SG9APaP_m1tpa1LwoCid?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1y44hE0aOnOsOZSbMtRoDqy2ELAQslVmY?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'mechatronics-workshops',
+      name: 'مبادئ ورش الميكاترونيكس',
+      nameKey: 'mechatronicsWorkshops',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1rU1lNC9E6bAETA8dguZr4K3D5Ztmsu93?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1vEb_Fo2xk4xuKq9mfXaK_qqX9KoeEvti?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1ug8H-sFlG35YALl9iQh8uTXvrBM2eNJB?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1rhB-NYrVClyDKDEtdqYdCVg7UCc-OLWb?usp=drive_link', type: 'exams' }
+      ]
+    }
+  ]
 };
 
 export const year3MechatronicsCourses: Record<string, Course[]> = {

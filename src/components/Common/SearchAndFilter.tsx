@@ -1,5 +1,6 @@
 import React from 'react';
 import { Search, Filter, X } from 'lucide-react';
+import * as Icons from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Input } from '../ui/input';
@@ -8,12 +9,17 @@ import { Button } from '../ui/button';
 import { useTheme } from '../../contexts/ThemeContext';
 import { useDebounce } from '../../hooks/useDebounce';
 
+interface CategoryItem {
+  name: string;
+  iconName?: string;
+}
+
 interface SearchAndFilterProps {
   searchTerm: string;
   onSearchChange: (term: string) => void;
   category: string;
   onCategoryChange: (category: string) => void;
-  categories: Record<string, string>;
+  categories: Record<string, string | CategoryItem>;
   showLanguageFilter?: boolean;
   languageFilter?: string;
   onLanguageFilterChange?: (lang: string) => void;
@@ -50,6 +56,13 @@ export function SearchAndFilter({
     onSearchChange('');
   };
 
+  // دالة مساعدة لجلب الأيقونة ديناميكياً
+  const renderIcon = (iconName?: string) => {
+    if (!iconName) return null;
+    const IconComponent = (Icons as Record<string, any>)[iconName];
+    return IconComponent ? <IconComponent className="h-4 w-4 ml-2 inline-block shrink-0" /> : null;
+  };
+
   return (
     <motion.div 
       className="mb-8 space-y-6"
@@ -76,11 +89,11 @@ export function SearchAndFilter({
           } : {}}
         >
           <Input
-          type="text"
-          placeholder={t('searchPlaceholder')}
-          value={searchTerm}
-          onChange={(e) => onSearchChange(e.target.value)}
-          className="pl-10 rtl:pr-10 h-12 text-base transition-all duration-200"
+            type="text"
+            placeholder={t('searchPlaceholder')}
+            value={searchTerm}
+            onChange={(e) => onSearchChange(e.target.value)}
+            className="pl-10 rtl:pr-10 h-12 text-base transition-all duration-200"
           />
         </motion.div>
         
@@ -117,9 +130,18 @@ export function SearchAndFilter({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">{t('allCategories')}</SelectItem>
-              {Object.entries(categories).map(([key, value]) => (
-                <SelectItem key={key} value={key}>{value}</SelectItem>
-              ))}
+              {Object.entries(categories).map(([key, value]) => {
+                const label = typeof value === 'string' ? value : value.name;
+                const iconName = typeof value === 'object' ? value.iconName : undefined;
+                return (
+                  <SelectItem key={key} value={key}>
+                    <div className="flex items-center gap-2">
+                      {renderIcon(iconName)}
+                      <span>{label}</span>
+                    </div>
+                  </SelectItem>
+                );
+              })}
             </SelectContent>
           </Select>
         </motion.div>

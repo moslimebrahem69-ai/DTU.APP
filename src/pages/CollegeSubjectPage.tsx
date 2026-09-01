@@ -1,9 +1,8 @@
-import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { ArrowLeft, ExternalLink, FileText, BookOpen, ClipboardList, StickyNote } from 'lucide-react';
-import { year3MechatronicsCourses } from '../data/collegeData';
+import { year1MechatronicsCourses, year3MechatronicsCourses } from '../data/collegeData';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useTheme } from '../contexts/ThemeContext';
@@ -20,19 +19,34 @@ export function CollegeSubjectPage() {
   const { t } = useTranslation();
   const { animationsEnabled } = useTheme();
 
-  // For now, only year3 mechatronics is supported
-  if (yearId !== 'year3' || deptId !== 'mechatronics') {
+  // Map requested courses based on year and department
+  const getCourseData = () => {
+    if (deptId === 'mechatronics') {
+      if (yearId === 'year1') return year1MechatronicsCourses;
+      if (yearId === 'year3') return year3MechatronicsCourses;
+    }
+    return null;
+  };
+
+  const courses = getCourseData();
+
+  // Show fallback if selected year/dept is not supported yet
+  if (!courses) {
     return (
       <div className="text-center py-12">
         <p className="text-muted-foreground mb-4">{t('comingSoon')}</p>
-        <Button asChild>
-          <Link to="/college">العودة للأقسام</Link>
-        </Button>
+        <Link to="/college">
+          <Button>العودة للأقسام</Button>
+        </Link>
       </div>
     );
   }
 
-  const courses = year3MechatronicsCourses;
+  // Dynamic titles according to selected year
+  const yearTitle = yearId === 'year1' ? t('year1') : t('year3');
+  const yearDescription = yearId === 'year1' 
+    ? 'جميع مواد الفرقة الأولى قسم ميكاترونكس' 
+    : 'جميع مواد الفرقة الثالثة قسم ميكاترونكس';
 
   return (
     <div>
@@ -41,18 +55,18 @@ export function CollegeSubjectPage() {
         animate={{ y: 0, opacity: 1 }}
         className="mb-8"
       >
-        <Button asChild variant="ghost" className="mb-4">
-          <Link to="/college">
+        <Link to="/college" className="inline-block mb-4">
+          <Button variant="ghost">
             <ArrowLeft className="h-4 w-4 mr-2 rtl:ml-2" />
             العودة للأقسام
-          </Link>
-        </Button>
+          </Button>
+        </Link>
         
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          {t('year3')} - {t('mechatronics')}
+          {yearTitle} - {t('mechatronics')}
         </h1>
         <p className="text-muted-foreground">
-          جميع مواد الفرقة الثالثة قسم ميكاترونكس
+          {yearDescription}
         </p>
       </motion.div>
 
