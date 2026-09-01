@@ -31,9 +31,9 @@ export const collegeData: Year[] = [
     id: 'year1',
     name: 'الفرقة الأولى',
     nameKey: 'year1',
-    enabled: false,
+    enabled: true,
     departments: [
-      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: false },
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: true },
       { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
@@ -84,6 +84,71 @@ export const collegeData: Year[] = [
     ]
   }
 ];
+
+export const year1MechatronicsCourses: Record<string, Course[]> = {
+  semester1: [
+    {
+      id: 'applied-science-math',
+      name: 'تطبيقات العلوم والرياضة',
+      nameKey: 'appliedScienceMath',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1noCag9prqYdrH_G88y4qzqhL8hC2S3vS', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1mFXLPQkBpNK7sTsI49jUEBGZ9m3wMpOR', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/16OjGx-RMd6_gTWLLmBDP1n6TWXzaFb5l', type: 'exams' }
+      ]
+    },
+    {
+      id: 'mathematics-1',
+      name: 'الرياضيات',
+      nameKey: 'mathematics1',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1JW3SldG1_fP9OIyRLl9nurBTy8kQMfd-', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1jlN8gDPDsGQubPCGvNQMRjDZHISTmI6o', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1xTWn5HFdiEdCMyprpVToK48ZRsR2TAYl', type: 'exams' }
+      ]
+    },
+    {
+      id: 'safety',
+      name: 'السفتي',
+      nameKey: 'safety',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1GGR-0iXjA4j49Qz4ku04XP3Jr38Wp42d', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1QGcWckmn72b-E1UUSb11Gn2MTTFNhEeb', type: 'sheets' }
+      ]
+    },
+    {
+      id: 'physics',
+      name: 'الفيزياء',
+      nameKey: 'physics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1_cbhEehuCbB13EwEOAlaYst68b9LDFT6', type: 'lectures' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1eLtUCAOJnXBV1lPEB_p6opTKe49A-kTb', type: 'exams' }
+      ]
+    },
+    {
+      id: 'english-1',
+      name: 'انجليزي 1',
+      nameKey: 'english1',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1k5GCZh8Y6WIr7MBw-Qy8UaOGJ-2WC6aU', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1oLCb3OCqJcgIUbP-nexAxu4HOBGGI4Pl', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1ku-8KomkF_tlzsY6u3s-8ump8f2XRm8A', type: 'exams' }
+      ]
+    },
+    {
+      id: 'communication-skills',
+      name: 'مهارات التواصل',
+      nameKey: 'communicationSkills',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1PfAt5nFmKpEs3acXmvaSLaYBb-JnimEZ', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1RZk5kOu8wGfd-YkQ2b0pr7_kp6u_b9Rh', type: 'sheets' },
+        { name: 'ملخصات', url: 'https://drive.google.com/drive/folders/1x8FXsl0EjzSq6ge9oez8V7XcUIouBcH9', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1KEGNTcihDp9k7hzAPZ6fLHeSxteTqTPJ', type: 'exams' }
+      ]
+    }
+  ],
+  semester2: []
+};
 
 export const year3MechatronicsCourses: Record<string, Course[]> = {
   semester1: [

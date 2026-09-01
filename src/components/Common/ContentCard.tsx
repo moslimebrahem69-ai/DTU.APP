@@ -1,6 +1,6 @@
 import React from 'react';
-import { ExternalLink, Copy, Share2, Star, Zap } from 'lucide-react';
-import { motion } from 'framer-motion';
+import { ExternalLink, Copy, Share2, Star } from 'lucide-react';
+import { motion, Variants } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Button } from '../ui/button';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -22,7 +22,6 @@ export function ContentCard({
   url, 
   paid, 
   language,
-  category,
   index = 0 
 }: ContentCardProps) {
   const { t } = useTranslation();
@@ -32,7 +31,6 @@ export function ContentCard({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      // Show toast notification (you could implement a toast system)
       console.log(t('linkCopied'));
     } catch (err) {
       console.error('Failed to copy: ', err);
@@ -55,7 +53,7 @@ export function ContentCard({
     }
   };
 
-  const cardVariants = {
+  const combinedVariants: Variants = {
     hidden: { y: 50, opacity: 0 },
     visible: {
       y: 0,
@@ -66,10 +64,7 @@ export function ContentCard({
         type: "spring",
         stiffness: 100
       }
-    }
-  };
-
-  const hoverVariants = {
+    },
     hover: {
       y: -8,
       scale: 1.02,
@@ -81,14 +76,14 @@ export function ContentCard({
       }
     }
   };
+
   return (
     <motion.div
-      ref={elementRef}
-      variants={cardVariants}
+      ref={elementRef as React.RefObject<HTMLDivElement>}
+      variants={animationsEnabled ? combinedVariants : undefined}
       initial={animationsEnabled ? "hidden" : "visible"}
       animate={isIntersecting ? "visible" : "hidden"}
-      whileHover={animationsEnabled ? "hover" : {}}
-      variants={animationsEnabled ? { ...cardVariants, ...hoverVariants } : {}}
+      whileHover={animationsEnabled ? "hover" : undefined}
       className="bg-card border border-border rounded-2xl p-6 shadow-sm hover:shadow-lg transition-all duration-300 relative overflow-hidden group card-enhanced glass-morphism"
     >
       {/* Animated background gradient */}
@@ -152,7 +147,7 @@ export function ContentCard({
       <div className="flex justify-between items-start mb-3">
         <motion.h3 
           className="font-semibold text-foreground text-lg leading-tight relative z-10"
-          whileHover={animationsEnabled ? { x: 4, scale: 1.02 } : {}}
+          whileHover={animationsEnabled ? { x: 4, scale: 1.02 } : undefined}
           transition={{ type: "spring", stiffness: 300 }}
         >
           {title}
@@ -160,7 +155,7 @@ export function ContentCard({
         <div className="flex space-x-1 rtl:space-x-reverse">
           {paid !== undefined && (
             <motion.span 
-              whileHover={animationsEnabled ? { scale: 1.1, rotate: 2 } : {}}
+              whileHover={animationsEnabled ? { scale: 1.1, rotate: 2 } : undefined}
               transition={{ type: "spring", stiffness: 400 }}
               className={`px-3 py-1 rounded-full text-xs font-medium relative z-10 backdrop-blur-sm ${
               paid 
@@ -182,7 +177,7 @@ export function ContentCard({
           )}
           {language && (
             <motion.span 
-              whileHover={animationsEnabled ? { scale: 1.1, rotate: -2 } : {}}
+              whileHover={animationsEnabled ? { scale: 1.1, rotate: -2 } : undefined}
               transition={{ type: "spring", stiffness: 400 }}
               className="px-3 py-1 rounded-full text-xs font-medium bg-blue-100/80 text-blue-800 dark:bg-blue-900/40 dark:text-blue-300 relative z-10 backdrop-blur-sm border border-blue-200 dark:border-blue-800"
             >
@@ -194,7 +189,7 @@ export function ContentCard({
       
       <motion.p 
         className="text-muted-foreground text-sm mb-4 leading-relaxed relative z-10"
-        whileHover={animationsEnabled ? { x: 2, color: "hsl(var(--foreground))" } : {}}
+        whileHover={animationsEnabled ? { x: 2, color: "hsl(var(--foreground))" } : undefined}
         transition={{ duration: 0.3 }}
       >
         {description}
@@ -203,45 +198,45 @@ export function ContentCard({
       <div className="flex items-center space-x-2 rtl:space-x-reverse relative z-10">
         <motion.div 
           className="flex-1"
-          whileHover={animationsEnabled ? { scale: 1.03, y: -2 } : {}}
-          whileTap={animationsEnabled ? { scale: 0.97 } : {}}
+          whileHover={animationsEnabled ? { scale: 1.03, y: -2 } : undefined}
+          whileTap={animationsEnabled ? { scale: 0.97 } : undefined}
           transition={{ type: "spring", stiffness: 300 }}
         >
-          <Button asChild size="sm" className="w-full btn-enhanced ripple-effect shadow-md hover:shadow-lg">
-          <a href={url} target="_blank" rel="noopener noreferrer">
-            <ExternalLink className="h-4 w-4 mr-1 rtl:ml-1" />
-            زيارة
+          <a href={url} target="_blank" rel="noopener noreferrer" className="w-full inline-block">
+            <Button size="sm" className="w-full btn-enhanced ripple-effect shadow-md hover:shadow-lg">
+              <ExternalLink className="h-4 w-4 mr-1 rtl:ml-1" />
+              زيارة
+            </Button>
           </a>
+        </motion.div>
+        
+        <motion.div
+          whileHover={animationsEnabled ? { scale: 1.15, rotate: 10, y: -2 } : undefined}
+          whileTap={animationsEnabled ? { scale: 0.85 } : undefined}
+          transition={{ type: "spring", stiffness: 400 }}
+        >
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleCopyLink}
+            className="px-3 btn-enhanced shadow-md hover:shadow-lg backdrop-blur-sm"
+          >
+            <Copy className="h-4 w-4" />
           </Button>
         </motion.div>
         
         <motion.div
-          whileHover={animationsEnabled ? { scale: 1.15, rotate: 10, y: -2 } : {}}
-          whileTap={animationsEnabled ? { scale: 0.85 } : {}}
+          whileHover={animationsEnabled ? { scale: 1.15, rotate: -10, y: -2 } : undefined}
+          whileTap={animationsEnabled ? { scale: 0.85 } : undefined}
           transition={{ type: "spring", stiffness: 400 }}
         >
           <Button
-          variant="outline"
-          size="sm"
-          onClick={handleCopyLink}
-          className="px-3 btn-enhanced shadow-md hover:shadow-lg backdrop-blur-sm"
+            variant="outline" 
+            size="sm"
+            onClick={handleShare}
+            className="px-3 btn-enhanced shadow-md hover:shadow-lg backdrop-blur-sm"
           >
-          <Copy className="h-4 w-4" />
-          </Button>
-        </motion.div>
-        
-        <motion.div
-          whileHover={animationsEnabled ? { scale: 1.15, rotate: -10, y: -2 } : {}}
-          whileTap={animationsEnabled ? { scale: 0.85 } : {}}
-          transition={{ type: "spring", stiffness: 400 }}
-        >
-          <Button
-          variant="outline" 
-          size="sm"
-          onClick={handleShare}
-          className="px-3 btn-enhanced shadow-md hover:shadow-lg backdrop-blur-sm"
-          >
-          <Share2 className="h-4 w-4" />
+            <Share2 className="h-4 w-4" />
           </Button>
         </motion.div>
       </div>
