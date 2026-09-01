@@ -1,0 +1,204 @@
+export interface CourseMaterial {
+  name: string;
+  url: string;
+  type: 'lectures' | 'sheets' | 'exams' | 'notes';
+}
+
+export interface Course {
+  id: string;
+  name: string;
+  nameKey: string;
+  materials: CourseMaterial[];
+}
+
+export interface Department {
+  id: string;
+  name: string;
+  nameKey: string;
+  enabled: boolean;
+}
+
+export interface Year {
+  id: string;
+  name: string;
+  nameKey: string;
+  departments: Department[];
+  enabled: boolean;
+}
+
+export const collegeData: Year[] = [
+  {
+    id: 'year1',
+    name: 'الفرقة الأولى',
+    nameKey: 'year1',
+    enabled: false,
+    departments: [
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: false },
+      { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
+      { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
+      { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
+      { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+    ]
+  },
+  {
+    id: 'year2',
+    name: 'الفرقة الثانية',
+    nameKey: 'year2',
+    enabled: false,
+    departments: [
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: false },
+      { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
+      { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
+      { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
+      { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+    ]
+  },
+  {
+    id: 'year3',
+    name: 'الفرقة الثالثة',
+    nameKey: 'year3',
+    enabled: true,
+    departments: [
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: true },
+      { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
+      { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
+      { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
+      { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+    ]
+  },
+  {
+    id: 'year4',
+    name: 'الفرقة الرابعة', 
+    nameKey: 'year4',
+    enabled: false,
+    departments: [
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: false },
+      { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
+      { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
+      { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
+      { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+    ]
+  }
+];
+
+export const year3MechatronicsCourses: Record<string, Course[]> = {
+  semester1: [
+    {
+      id: '3d-cad',
+      name: '3D CAD',
+      nameKey: '3dCad',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1P0HXpJRdNjvzYc1udkFyXte3QhrEEh92?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1Jt8YBSrRxQamBdD05PnCcLyMKvWXrao-?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1ebvvhu_703eW2mgPVcmVjwyrbVObJqGL?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/1Ol3EBQjoPQhV_W2Xh7izbEzFJYsAgxMP?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'mathematics',
+      name: 'Mathematics',
+      nameKey: 'mathematics',
+      materials: [
+        { name: 'محاضرات التفاضل', url: 'https://drive.google.com/drive/folders/1mp9st8Rv-QYDvb5oy7gglgTROM5P1lhn?usp=drive_link', type: 'lectures' },
+        { name: 'محاضرات التكامل', url: 'https://drive.google.com/drive/folders/1S_dYWb8auj-6WH0UZqRuJdN33vF7EnNy?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1cL82QivlBdKUlXJgNhvRB3Q0n3zxY6oH?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1XGdmwprk2HePuOIcArUqnKhGqeD-JHoe?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/176Jr35qEF5Emof1g0twefdXwTWSd0G7S?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'robotics',
+      name: 'Robotics',
+      nameKey: 'robotics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Mp7zeDvtxyp7XVswNvYngsfybVw0l4Vt?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1zsY0x8OaID2Slr6gOikavNTHpj-HuRXb?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1U0r1h6Ikgd82liSs0TIXQY8a7wajyjYi?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/15ttRMtIg7V6BtcJ-3jHCAurd9d2TJjeC?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'sensors',
+      name: 'Sensors',
+      nameKey: 'sensors',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Ih4sZqw3MR0Y_lPxK3Noqc6QxaYRQdh9?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/14wixnIsWpViQrkPGgffGsglXrGKFn3In?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1DEYr5oFFhWIPsGIFij4WENLbv95VNhS4?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/19nURZM7im0iFRAptOtBQz-M4v9ILjXQe?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'automatic-control',
+      name: 'تحكم آلي',
+      nameKey: 'automaticControl',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1mMsFb62zDhiwJVAosaePiGwq3VVikAHE?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1N8Rfc0IkNE4Ji0Yvr978GQBBtzK2XdcO?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1DGZ4ZsjEJyUesabVBp4mC4u9Dt2VeakL?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/1KMMI9S7AdWuC18iNR0HTcxlMyoAvZ324?usp=drive_link', type: 'notes' }
+      ]
+    }
+  ],
+  semester2: [
+    {
+      id: 'cnc-technology',
+      name: 'C N C Technology',
+      nameKey: 'cncTechnology',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Oc6nyWqWYF5DzLzG4zS6vNLEVgpMQo6d?usp=drive_link', type: 'lectures' },
+        { name: 'الشيتات', url: 'https://drive.google.com/drive/folders/1jFh1VZeGb0SP2olvAWvTuFfTLzWueNV1?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1MHjY6uNxKdcFd6EMhYB-LXCgMn_dSZVc?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/1vOdu5rh9OxV9x7D8MAVEhdlAXp1RDpVI?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'mechanism-design',
+      name: 'Mechanism Design',
+      nameKey: 'mechanismDesign',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/13GM2Dds5I4sJ-s2SYlqamKSbEjcnlQLD?usp=drive_link', type: 'lectures' },
+        { name: 'الشيتات', url: 'https://drive.google.com/drive/folders/15talokoALOXRS5279YHwmZg9cKSSYI14?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1gUe21kDmPskcTfWXRlGHnrYWlai7zek_?usp=drive_link', type: 'exams' },
+        { name: 'ملاحظات', url: 'https://drive.google.com/drive/folders/1oBR4thQPosBF0iMysPTkwPeaWCOOXgW7?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'microprocessor',
+      name: 'Microprocessor',
+      nameKey: 'microprocessor',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1tddJln7fWGtVz9mxwDHvRk5Dyxp7dJCo?usp=drive_link', type: 'lectures' },
+        { name: 'الشيتات', url: 'https://drive.google.com/drive/folders/1dHhYkDjha8_ZE0BYRScuw-5b6hCRH2b7?usp=drive_link', type: 'sheets' },
+        { name: 'الامتحانات', url: 'https://drive.google.com/drive/folders/1Rt24IaeJy-guQ8sGTp72pMqKVAllGqwi?usp=drive_link', type: 'exams' },
+        { name: 'الملاحظات', url: 'https://drive.google.com/drive/folders/1qGQW0MKDA_sTk8MFQecg_b3VgYLaUlYt?usp=drive_link', type: 'notes' }
+      ]
+    },
+    {
+      id: 'power-electronics',
+      name: 'Power Electronics',
+      nameKey: 'powerElectronics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1PZpsrXwUwhYNk4N8pgGhCskGvqTux0-h?usp=drive_link', type: 'lectures' },
+        { name: 'الشيتات', url: 'https://drive.google.com/drive/folders/1GTRL53k0KuYJLQBojBJRIja6Tfbny_sk?usp=drive_link', type: 'sheets' },
+        { name: 'الملاحظات', url: 'https://drive.google.com/drive/folders/15Kco8Zsi1LgB-403kGbHgmALKz-7w67d?usp=drive_link', type: 'notes' },
+        { name: 'الامتحانات السابقة', url: 'https://drive.google.com/drive/folders/1F5DFnKsQRPKxXSXb2LC1LEo1u2qqBD8f?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'production-planning',
+      name: 'Production and Planning',
+      nameKey: 'productionPlanning',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/14K8pksEdoC5n1BuwbqZSVXgpU8uQ4GDf?usp=drive_link', type: 'lectures' },
+        { name: 'الشيتات', url: 'https://drive.google.com/drive/folders/1SFL9PRuvTi3OpRXgUEi8PuLdAtpBiG5G?usp=drive_link', type: 'sheets' },
+        { name: 'الملاحظات', url: 'https://drive.google.com/drive/folders/1DJxTKb_F8E92_jpHw9kNApSu10kIhgcm?usp=drive_link', type: 'notes' },
+        { name: 'الامتحانات', url: 'https://drive.google.com/drive/folders/1F_4y2YuFtrqEcjoVvoa94dRdCS51lxQE?usp=drive_link', type: 'exams' }
+      ]
+    }
+  ]
+};
