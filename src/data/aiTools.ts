@@ -10,6 +10,44 @@ export interface AITool {
   tags: string[];
 }
 
+// Framer Motion animation configuration presets for smooth UI elements
+export const aiToolsAnimationVariants = {
+  container: {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.05,
+        delayChildren: 0.08,
+      },
+    },
+  },
+  card: {
+    hidden: { opacity: 0, y: 18, scale: 0.98 },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        type: 'spring',
+        stiffness: 280,
+        damping: 22,
+      },
+    },
+    exit: {
+      opacity: 0,
+      scale: 0.96,
+      transition: { duration: 0.12 },
+    },
+  },
+  hover: {
+    y: -4,
+    scale: 1.01,
+    transition: { type: 'spring', stiffness: 400, damping: 17 },
+  },
+  tap: { scale: 0.98 },
+};
+
 export const aiToolCategories = {
   study_tools: {
     name: 'أدوات المذاكرة والتلخيص',
@@ -1042,203 +1080,5 @@ export const aiToolsData: AITool[] = [
     paid: false,
     language: 'both',
     tags: ['slides', 'google-slides', 'ppt']
-  },
-  {
-    id: '84',
-    name: 'MyMap.ai',
-    description: 'إنشاء المخططات الهيكلية والرسوم البيانية التوضيحية لتقارير المواد العملية.',
-    url: 'https://www.mymap.ai',
-    category: 'academic_reports',
-    subcategory: 'presentations',
-    paid: false,
-    language: 'both',
-    tags: ['diagram', 'map', 'presentation']
-  },
-  {
-    id: '85',
-    name: 'Mathway AI',
-    description: 'حل مسائل الفيزياء والرياضيات والكيمياء التقنية عبر رفع صورة المسألة.',
-    url: 'https://www.mathway.com',
-    category: 'academic_reports',
-    subcategory: 'math_physics',
-    paid: false,
-    language: 'both',
-    tags: ['math', 'photo-solver', 'physics']
-  },
-  {
-    id: '86',
-    name: 'Photomath',
-    description: 'تطبيق للموبايل يصور المعادلة الرياضية ويشرح خطوات حلها للطلاب بشكل تفاعلي.',
-    url: 'https://photomath.com',
-    category: 'academic_reports',
-    subcategory: 'math_physics',
-    paid: false,
-    language: 'both',
-    tags: ['math', 'mobile', 'camera']
-  },
-  {
-    id: '87',
-    name: 'AutoCAD Smart Blocks AI',
-    description: 'أداة الذكاء الاصطناعي داخل أوتوكاد لتسريع توزيع المخططات الهندسية والرموز.',
-    url: 'https://www.autodesk.com/products/autocad',
-    category: 'molds_dies',
-    subcategory: 'cad_cam',
-    paid: true,
-    language: 'en',
-    tags: ['autocad', 'drawing', 'blocks']
-  },
-  {
-    id: '88',
-    name: 'GcodeClean AI',
-    description: 'تنظيف وتحسين مسارات كود الـ CNC وتقليل زمن التشغيل في المصانع.',
-    url: 'https://github.com',
-    category: 'molds_dies',
-    subcategory: 'cnc_gcode',
-    paid: false,
-    language: 'en',
-    tags: ['cnc', 'gcode', 'optimization']
-  },
-  {
-    id: '89',
-    name: 'Simupy Robotics AI',
-    description: 'مكتبة بايثون سريعة لمحاكاة أنظمة التحكم والميكاترونيكس الديناميكية.',
-    url: 'https://github.com/simupy/simupy',
-    category: 'mechatronics',
-    subcategory: 'robotics',
-    paid: false,
-    language: 'en',
-    tags: ['simulation', 'python', 'control']
-  },
-  {
-    id: '90',
-    name: 'Arduino Cloud AI Assistant',
-    description: 'مساعد سحابي لمشاريع إنترنت الأشياء (IoT) والربط بين الأردوينو والإنترنت.',
-    url: 'https://create.arduino.cc',
-    category: 'mechatronics',
-    subcategory: 'embedded_code',
-    paid: false,
-    language: 'en',
-    tags: ['arduino', 'iot', 'cloud']
-  },
-  {
-    id: '91',
-    name: 'Microchip Code Configurator (MCC) AI',
-    description: 'توليد الدلائل والأكواد الأولية لبرمجة متحكمات PIC وAVR بسهولة.',
-    url: 'https://www.microchip.com',
-    category: 'mechatronics',
-    subcategory: 'embedded_code',
-    paid: false,
-    language: 'en',
-    tags: ['pic', 'microchip', 'embedded']
-  },
-  {
-    id: '92',
-    name: 'HVAC School AI Bot',
-    description: 'بوت متخصص في شرح مفاهيم أعطال التكييف والتبريد والتشخيص السريع.',
-    url: 'https://hvacrschool.com',
-    category: 'hvac',
-    subcategory: 'system_simulation',
-    paid: false,
-    language: 'en',
-    tags: ['hvac', 'troubleshooting', 'learning']
-  },
-  {
-    id: '93',
-    name: 'RETScreen Clean Energy AI',
-    description: 'برنامج تحليل وإدارة مشاريع طاقة الرياح والشمس لتقييم الجدوى الفنية.',
-    url: 'https://www.nrcan.gc.ca',
-    category: 'renewable_energy',
-    subcategory: 'energy_efficiency',
-    paid: false,
-    language: 'en',
-    tags: ['energy', 'feasibility', 'clean-tech']
-  },
-  {
-    id: '94',
-    name: 'Identifix Direct-Hit AI',
-    description: 'قاعدة بيانات ضخمة لأعطال السيارات الميدانية وتتبع مشاكل الكنترول.',
-    url: 'https://www.identifix.com',
-    category: 'autotronics',
-    subcategory: 'obd_diagnostics',
-    paid: true,
-    language: 'en',
-    tags: ['automotive', 'repairs', 'database']
-  },
-  {
-    id: '95',
-    name: 'Nmap Script AI Assistant',
-    description: 'مساعد كتابة سكربتات Nmap لفحص البورتات والأجهزة المتصلة بالشبكة.',
-    url: 'https://nmap.org',
-    category: 'it_networking',
-    subcategory: 'cybersecurity',
-    paid: false,
-    language: 'en',
-    tags: ['nmap', 'security', 'scanner']
-  },
-  {
-    id: '96',
-    name: 'TextGears AI',
-    description: 'مصحح ومراجع تقني للنصوص والمصطلحات التكنولوجية بلغات متعددة.',
-    url: 'https://textgears.com',
-    category: 'academic_reports',
-    subcategory: 'technical_writing',
-    paid: false,
-    language: 'both',
-    tags: ['grammar', 'technical', 'spelling']
-  },
-  {
-    id: '97',
-    name: 'Algorai Exam Prep',
-    description: 'إنشاء نماذج امتحانات تجريبية تحاكي نظام اختبارات الكليات التكنولوجية.',
-    url: 'https://algorai.com',
-    category: 'study_tools',
-    subcategory: 'quiz_generator',
-    paid: false,
-    language: 'both',
-    tags: ['exam', 'prep', 'mcq']
-  },
-  {
-    id: '98',
-    name: 'Mindgrasp AI',
-    description: 'يحلل الفيديوهات، التسجيلات الصوتية، الـ PDFs وينتج تلخيصاً شاملاً مع أسئلة.',
-    url: 'https://mindgrasp.ai',
-    category: 'study_tools',
-    subcategory: 'notes_ai',
-    paid: false,
-    language: 'both',
-    tags: ['all-in-one', 'notes', 'quiz']
-  },
-  {
-    id: '99',
-    name: 'Socratic by Google',
-    description: 'تطبيق ذكي يساعد الطلاب في حل واستيعاب واجبات العلوم والرياضيات والفيزياء.',
-    url: 'https://socratic.org',
-    category: 'academic_reports',
-    subcategory: 'math_physics',
-    paid: false,
-    language: 'both',
-    tags: ['google', 'homework', 'physics']
-  },
-  {
-    id: '100',
-    name: 'GPT4All',
-    description: 'تشغيل نماذج ذكاء اصطناعي محلية على جهازك بدون إنترنت لتلخيص المذكرات مجاناً.',
-    url: 'https://gpt4all.io',
-    category: 'study_tools',
-    subcategory: 'pdf_summarizer',
-    paid: false,
-    language: 'both',
-    tags: ['offline', 'privacy', 'free']
-  },
-  {
-    id: '101',
-    name: 'PDF2Quiz AI',
-    description: 'أداة سريعة لتحويل الشيتات والملازم إلى ملفات أسئلة يمكن التدرب عليها أونلاين.',
-    url: 'https://pdf2quiz.com',
-    category: 'study_tools',
-    subcategory: 'quiz_generator',
-    paid: false,
-    language: 'both',
-    tags: ['pdf', 'mcq', 'practice']
   }
 ];
