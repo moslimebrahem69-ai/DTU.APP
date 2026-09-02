@@ -69,12 +69,16 @@ const resources = {
       breakTime: "وقت الاستراحة",
       
       // Categories
-      programming: "البرمجة",
+      programming: "البرمجة والتكنولوجيا",
       design: "التصميم والجرافيك",
       business: "الإدارة والأعمال",
       education: "التعليم واللغات",
       science: "العلوم والمعرفة",
       productivity: "الإنتاجية وتطوير الذات",
+      study_tools: "أدوات الدراسة",
+      molds_dies: "فورم وديدات",
+      it_networking: "شبكات وتكنولوجيا",
+      academic_reports: "تقارير أكاديمية",
       
       // Actions
       copy: "نسخ",
@@ -90,9 +94,12 @@ const resources = {
       mechatronics: "ميكاترونكس",
       it: "تكنولوجيا المعلومات",
       refrigeration: "تبريد وتكييف",
+      hvac: "تبريد وتكييف (HVAC)",
       stamping: "اسطمبات",
       autotronics: "أوتوترونكس",
       renewableEnergy: "طاقة متجددة",
+      renewable_energy: "طاقة متجددة",
+      waterTreatment: "تكنولوجيا معالجة وتحلية المياه",
       comingSoon: "سيتم إضافتها قريباً - بالتوفيق يا صديقي!",
       
       // Course Materials
@@ -187,6 +194,10 @@ const resources = {
       education: "Education & Languages",
       science: "Science & Knowledge",
       productivity: "Productivity & Self Development",
+      study_tools: "Study Tools",
+      molds_dies: "Molds & Dies",
+      it_networking: "IT & Networking",
+      academic_reports: "Academic Reports",
       
       // Actions
       copy: "Copy",
@@ -202,9 +213,12 @@ const resources = {
       mechatronics: "Mechatronics",
       it: "Information Technology",
       refrigeration: "Refrigeration & Air Conditioning",
+      hvac: "HVAC",
       stamping: "Stamping",
       autotronics: "Autotronics",
       renewableEnergy: "Renewable Energy",
+      renewable_energy: "Renewable Energy",
+      waterTreatment: "Water Treatment Technology",
       comingSoon: "Coming Soon - Good luck my friend!",
       
       // Course Materials

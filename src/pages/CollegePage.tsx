@@ -2,9 +2,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, Cpu, Zap, Snowflake, Wrench, Car, Leaf } from 'lucide-react';
+import { BookOpen, Clock, Users, Cpu, Zap, Snowflake, Wrench, Car, Leaf, Droplets } from 'lucide-react';
 import { collegeData } from '../data/collegeData';
 import { useTheme } from '../contexts/ThemeContext';
+import { GlobalSearch } from '../components/Common/GlobalSearch';
 
 const departmentIcons = {
   mechatronics: Cpu,
@@ -13,6 +14,7 @@ const departmentIcons = {
   stamping: Wrench,
   autotronics: Car,
   renewable: Leaf,
+  waterTreatment: Droplets,
 };
 
 export function CollegePage() {
@@ -31,6 +33,11 @@ export function CollegePage() {
         <p className="text-muted-foreground">
           مواد الكلية منظمة بطريقة سهلة للوصول السريع
         </p>
+
+        {/* شريط البحث الشامل */}
+        <div className="mt-6">
+          <GlobalSearch />
+        </div>
       </motion.div>
 
       <div className="space-y-8">

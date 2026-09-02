@@ -26,6 +26,16 @@ export interface Year {
   enabled: boolean;
 }
 
+export interface SearchResultItem {
+  yearName: string;
+  deptName: string;
+  semesterName: string;
+  courseName: string;
+  materialName: string;
+  materialUrl: string;
+  materialType: 'lectures' | 'sheets' | 'exams' | 'notes';
+}
+
 export const collegeData: Year[] = [
   {
     id: 'year1',
@@ -39,7 +49,7 @@ export const collegeData: Year[] = [
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
       { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
-      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
+      { id: 'waterTreatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -54,7 +64,7 @@ export const collegeData: Year[] = [
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
       { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
-      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
+      { id: 'waterTreatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -69,7 +79,7 @@ export const collegeData: Year[] = [
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
       { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
-      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
+      { id: 'waterTreatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -84,7 +94,7 @@ export const collegeData: Year[] = [
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
       { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
-      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
+      { id: 'waterTreatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   }
 ];
@@ -343,4 +353,44 @@ export const year3MechatronicsCourses: Record<string, Course[]> = {
       ]
     }
   ]
+};
+
+// دالة البحث الشامل في جميع البيانات
+export const globalSearch = (query: string): SearchResultItem[] => {
+  if (!query || query.trim() === '') return [];
+  
+  const cleanQuery = query.toLowerCase().trim();
+  const results: SearchResultItem[] = [];
+
+  const allDatasets = [
+    { yearName: 'الفرقة الأولى', deptName: 'ميكاترونكس', data: year1MechatronicsCourses },
+    { yearName: 'الفرقة الثالثة', deptName: 'ميكاترونكس', data: year3MechatronicsCourses }
+  ];
+
+  allDatasets.forEach(group => {
+    Object.keys(group.data).forEach(semesterKey => {
+      const semesterName = semesterKey === 'semester1' ? 'الترم الأول' : 'الترم الثاني';
+      const courses = group.data[semesterKey];
+
+      courses.forEach(course => {
+        course.materials.forEach(material => {
+          const matchTarget = `${course.name} ${material.name} ${group.yearName} ${group.deptName}`.toLowerCase();
+          
+          if (matchTarget.includes(cleanQuery)) {
+            results.push({
+              yearName: group.yearName,
+              deptName: group.deptName,
+              semesterName,
+              courseName: course.name,
+              materialName: material.name,
+              materialUrl: material.url,
+              materialType: material.type
+            });
+          }
+        });
+      });
+    });
+  });
+
+  return results;
 };

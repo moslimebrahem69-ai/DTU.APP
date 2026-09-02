@@ -1,6 +1,20 @@
 import React from 'react';
-import { Search, Filter, X } from 'lucide-react';
-import * as Icons from 'lucide-react';
+import { 
+  Search, 
+  Filter, 
+  X, 
+  Grid, 
+  BookOpen, 
+  Cpu, 
+  Wind, 
+  Box, 
+  Car, 
+  Zap, 
+  Network, 
+  FileText, 
+  Code2,
+  Folder
+} from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { Input } from '../ui/input';
@@ -27,6 +41,19 @@ interface SearchAndFilterProps {
   paidFilter?: string;
   onPaidFilterChange?: (filter: string) => void;
 }
+
+const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
+  all: Grid,
+  study_tools: BookOpen,
+  mechatronics: Cpu,
+  hvac: Wind,
+  molds_dies: Box,
+  autotronics: Car,
+  renewable_energy: Zap,
+  it_networking: Network,
+  academic_reports: FileText,
+  programming: Code2,
+};
 
 export function SearchAndFilter({
   searchTerm,
@@ -56,11 +83,9 @@ export function SearchAndFilter({
     onSearchChange('');
   };
 
-  // دالة مساعدة لجلب الأيقونة ديناميكياً
-  const renderIcon = (iconName?: string) => {
-    if (!iconName) return null;
-    const IconComponent = (Icons as Record<string, any>)[iconName];
-    return IconComponent ? <IconComponent className="h-4 w-4 ml-2 inline-block shrink-0" /> : null;
+  const getCategoryIcon = (key: string) => {
+    const IconComponent = CATEGORY_ICONS[key] || Folder;
+    return <IconComponent className="h-4 w-4 shrink-0 text-muted-foreground" />;
   };
 
   return (
@@ -129,14 +154,18 @@ export function SearchAndFilter({
               <SelectValue placeholder={t('category')} />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">{t('allCategories')}</SelectItem>
+              <SelectItem value="all">
+                <div className="flex items-center gap-2">
+                  {getCategoryIcon('all')}
+                  <span>{t('allCategories')}</span>
+                </div>
+              </SelectItem>
               {Object.entries(categories).map(([key, value]) => {
                 const label = typeof value === 'string' ? value : value.name;
-                const iconName = typeof value === 'object' ? value.iconName : undefined;
                 return (
                   <SelectItem key={key} value={key}>
                     <div className="flex items-center gap-2">
-                      {renderIcon(iconName)}
+                      {getCategoryIcon(key)}
                       <span>{label}</span>
                     </div>
                   </SelectItem>
