@@ -38,7 +38,8 @@ export const collegeData: Year[] = [
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
-      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
+      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -52,7 +53,8 @@ export const collegeData: Year[] = [
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
-      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
+      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -66,7 +68,8 @@ export const collegeData: Year[] = [
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
-      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
+      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
   {
@@ -80,7 +83,8 @@ export const collegeData: Year[] = [
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
-      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false }
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
+      { id: 'water-treatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   }
 ];

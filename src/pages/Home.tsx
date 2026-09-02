@@ -1,4 +1,3 @@
-import React from 'react';
 import { motion } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,8 @@ import {
   Timer,
   Sparkles,
   ArrowRight,
-  TrendingUp
+  TrendingUp,
+  Wrench
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
@@ -45,6 +45,14 @@ const sections = [
     route: '/college'
   },
   {
+    id: 'engineering-software',
+    titleKey: 'engineeringSoftware',
+    customTitle: 'دليل البرامج الهندسية',
+    icon: Wrench,
+    gradient: 'from-cyan-500 to-blue-600',
+    route: '/engineering-software'
+  },
+  {
     id: 'timer',
     titleKey: 'studyTimer',
     icon: Timer,
@@ -61,15 +69,13 @@ export function Home() {
 
   return (
     <div className="space-y-8">
-      {/* Hero Section */}
       <motion.div
-        ref={heroRef}
+        ref={heroRef as React.RefObject<HTMLDivElement>}
         initial={animationsEnabled ? { y: 50, opacity: 0, scale: 0.9 } : {}}
         animate={heroInView ? { y: 0, opacity: 1, scale: 1 } : {}}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
         className="text-center py-16 relative overflow-hidden"
       >
-        {/* Animated background elements */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 rounded-3xl"
           animate={animationsEnabled ? {
@@ -150,16 +156,14 @@ export function Home() {
         </motion.div>
       </motion.div>
 
-      {/* Sections Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {sections.map((section, index) => (
+        {sections.map((section) => (
           <motion.button
             key={section.id}
             onClick={() => navigate(section.route)}
             initial={animationsEnabled ? { y: 60, opacity: 0, rotateX: 15 } : {}}
             animate={{ y: 0, opacity: 1, rotateX: 0 }}
             transition={{ 
-              delay: animationsEnabled ? index * 0.08 : 0,
               type: "spring",
               stiffness: 100,
               damping: 15
@@ -173,30 +177,10 @@ export function Home() {
             whileTap={animationsEnabled ? { scale: 0.97, rotateY: 0 } : {}}
             className="group relative bg-card border border-border rounded-3xl p-8 text-left hover:shadow-2xl transition-all duration-500 overflow-hidden perspective-1000"
           >
-            {/* Background Gradient */}
             <motion.div 
               className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-15 transition-opacity duration-500`}
-              whileHover={animationsEnabled ? {
-                background: [
-                  `linear-gradient(135deg, ${section.gradient.split(' ')[1]} 0%, transparent 100%)`,
-                  `linear-gradient(225deg, ${section.gradient.split(' ')[3]} 0%, transparent 100%)`,
-                  `linear-gradient(135deg, ${section.gradient.split(' ')[1]} 0%, transparent 100%)`
-                ]
-              } : {}}
-              transition={{ duration: 2, repeat: Infinity }}
             />
             
-            {/* Animated border */}
-            <motion.div
-              className="absolute inset-0 rounded-3xl border-2 border-transparent"
-              whileHover={animationsEnabled ? {
-                borderColor: "rgba(59, 130, 246, 0.3)",
-                boxShadow: "inset 0 0 20px rgba(59, 130, 246, 0.1)"
-              } : {}}
-              transition={{ duration: 0.3 }}
-            />
-            
-            {/* Content */}
             <div className="relative z-10">
               <motion.div 
                 className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${section.gradient} flex items-center justify-center mb-6 shadow-lg`}
@@ -207,32 +191,20 @@ export function Home() {
                 } : {}}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                <motion.div
-                  whileHover={animationsEnabled ? { rotate: 10, scale: 1.1 } : {}}
-                  transition={{ type: "spring", stiffness: 400 }}
-                >
-                  <section.icon className="h-8 w-8 text-white drop-shadow-sm" />
-                </motion.div>
+                <section.icon className="h-8 w-8 text-white drop-shadow-sm" />
               </motion.div>
               
               <motion.h3 
                 className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300"
-                whileHover={animationsEnabled ? { x: 4 } : {}}
               >
-                {t(section.titleKey)}
+                {t(section.titleKey) !== section.titleKey ? t(section.titleKey) : (section.customTitle || t(section.titleKey))}
               </motion.h3>
               
-              <motion.p 
-                className="text-muted-foreground text-sm leading-relaxed mb-4"
-                whileHover={animationsEnabled ? { x: 2 } : {}}
-              >
+              <motion.p className="text-muted-foreground text-sm leading-relaxed mb-4">
                 اكتشف أفضل الأدوات والموارد التعليمية
               </motion.p>
               
-              <motion.div
-                className="flex items-center text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-                whileHover={animationsEnabled ? { x: 4 } : {}}
-              >
+              <motion.div className="flex items-center text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <span>استكشف الآن</span>
                 <ArrowRight className="h-3 w-3 mr-1 rtl:ml-1" />
               </motion.div>
@@ -240,20 +212,20 @@ export function Home() {
           </motion.button>
         ))}
       </div>
-      
-      {/* Stats Section */}
+
       <motion.div
         initial={animationsEnabled ? { y: 50, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.8, type: "spring", stiffness: 100 }}
-        className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-16"
+        className="grid grid-cols-2 md:grid-cols-5 gap-6 mt-16"
       >
         {[
           { label: 'أدوات AI', value: '100+', icon: Bot },
           { label: 'قنوات تعليمية', value: '50+', icon: Youtube },
           { label: 'منصات تعلم', value: '25+', icon: GraduationCap },
-          { label: 'مواد دراسية', value: '30+', icon: BookOpen }
-        ].map((stat, index) => (
+          { label: 'مواد دراسية', value: '30+', icon: BookOpen },
+          { label: 'برامج هندسية', value: '15+', icon: Wrench }
+        ].map((stat) => (
           <motion.div
             key={stat.label}
             className="text-center p-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50"
@@ -261,21 +233,13 @@ export function Home() {
               scale: 1.05,
               backgroundColor: "rgba(59, 130, 246, 0.05)"
             } : {}}
-            transition={{ type: "spring", stiffness: 300 }}
           >
-            <motion.div
-              className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 flex items-center justify-center"
-              whileHover={animationsEnabled ? { rotate: 360 } : {}}
-              transition={{ duration: 0.6 }}
-            >
+            <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 flex items-center justify-center">
               <stat.icon className="h-6 w-6 text-primary" />
-            </motion.div>
-            <motion.div 
-              className="text-2xl font-bold text-foreground"
-              whileHover={animationsEnabled ? { scale: 1.1 } : {}}
-            >
+            </div>
+            <div className="text-2xl font-bold text-foreground">
               {stat.value}
-            </motion.div>
+            </div>
             <div className="text-sm text-muted-foreground">{stat.label}</div>
           </motion.div>
         ))}
