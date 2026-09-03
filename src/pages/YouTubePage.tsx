@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { SearchAndFilter } from '../components/Common/SearchAndFilter';
 import { ContentCard } from '../components/Common/ContentCard';
+import { UniversalViewerModal } from '../components/Common/UniversalViewerModal';
 import { youtubeChannelsData, youtubeCategories } from '../data/youtubeChannels';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -13,21 +14,32 @@ export function YouTubePage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [languageFilter, setLanguageFilter] = useState('both');
 
+  // حالة التحكم بالمعاينة داخل المودال
+  const [selectedItem, setSelectedItem] = useState<{ url: string; title: string } | null>(null);
+
   const filteredChannels = useMemo(() => {
     return youtubeChannelsData.filter(channel => {
       const matchesSearch = channel.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           channel.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           channel.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                            channel.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            channel.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesCategory = categoryFilter === 'all' || channel.category === categoryFilter;
       
       const matchesLanguage = languageFilter === 'both' || 
-                             channel.language === languageFilter || 
-                             channel.language === 'both';
+                              channel.language === languageFilter || 
+                              channel.language === 'both';
 
       return matchesSearch && matchesCategory && matchesLanguage;
     });
   }, [searchTerm, categoryFilter, languageFilter]);
+
+  const handleOpenViewer = (url: string, title: string) => {
+    setSelectedItem({ url, title });
+  };
+
+  const handleCloseViewer = () => {
+    setSelectedItem(null);
+  };
 
   return (
     <div>
@@ -63,6 +75,7 @@ export function YouTubePage() {
             language={channel.language}
             category={channel.category}
             index={index}
+            onOpen={handleOpenViewer}
           />
         ))}
       </div>
@@ -75,6 +88,15 @@ export function YouTubePage() {
         >
           <p className="text-muted-foreground">لم يتم العثور على قنوات تطابق البحث</p>
         </motion.div>
+      )}
+
+      {/* المودال الشامل لمعاينة وعرض القناة/الرابط */}
+      {selectedItem && (
+        <UniversalViewerModal
+          url={selectedItem.url}
+          title={selectedItem.title}
+          onClose={handleCloseViewer}
+        />
       )}
     </div>
   );

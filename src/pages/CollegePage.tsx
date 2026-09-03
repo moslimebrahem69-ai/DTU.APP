@@ -1,8 +1,7 @@
-import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { BookOpen, Clock, Users, Cpu, Zap, Snowflake, Wrench, Car, Leaf, Droplets } from 'lucide-react';
+import { BookOpen, Users, Cpu, Zap, Snowflake, Wrench, Car, Leaf, Droplets } from 'lucide-react';
 import { collegeData } from '../data/collegeData';
 import { useTheme } from '../contexts/ThemeContext';
 import { GlobalSearch } from '../components/Common/GlobalSearch';

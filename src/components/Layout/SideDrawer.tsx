@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
@@ -21,6 +21,7 @@ import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useTheme } from '../../contexts/ThemeContext';
+import { UniversalViewerModal } from '../Common/UniversalViewerModal';
 
 const socialLinks = [
   {
@@ -63,10 +64,22 @@ export function SideDrawer() {
   const { t, i18n } = useTranslation();
   const { theme, setTheme, animationsEnabled, toggleAnimations } = useTheme();
 
+  // حالة التحكم بفتح المعاينة داخل التطبيق
+  const [selectedItem, setSelectedItem] = useState<{ url: string; title: string } | null>(null);
+
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     localStorage.setItem('dtu-language', lang);
+  };
+
+  const handleOpenViewer = (e: React.MouseEvent, url: string, title: string) => {
+    e.preventDefault();
+    setSelectedItem({ url, title });
+  };
+
+  const handleCloseViewer = () => {
+    setSelectedItem(null);
   };
 
   return (
@@ -189,7 +202,7 @@ export function SideDrawer() {
           ))}
         </motion.div>
 
-        {/* Developer Name with Typing Animation */}
+        {/* Developer Name */}
         <motion.h3 
           className="font-bold text-foreground text-lg mb-2"
           initial={{ opacity: 0 }}
@@ -202,9 +215,8 @@ export function SideDrawer() {
         {/* Facebook Link */}
         <motion.a
           href="https://www.facebook.com/share/16ZRVqbrVC/"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex items-center space-x-2 rtl:space-x-reverse text-sm text-blue-600 hover:text-blue-700 transition-colors mb-2"
+          onClick={(e) => handleOpenViewer(e, 'https://www.facebook.com/share/16ZRVqbrVC/', 'صفحة المطور')}
+          className="inline-flex items-center space-x-2 rtl:space-x-reverse text-sm text-blue-600 hover:text-blue-700 transition-colors mb-2 cursor-pointer"
           whileHover={{ scale: 1.05, x: 2 }}
           whileTap={{ scale: 0.95 }}
         >
@@ -244,8 +256,7 @@ export function SideDrawer() {
               <motion.a
                 key={link.name}
                 href={link.url}
-                target="_blank"
-                rel="noopener noreferrer"
+                onClick={(e) => handleOpenViewer(e, link.url, t(link.name))}
                 initial={{ x: -50, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 exit={{ x: -50, opacity: 0 }}
@@ -260,7 +271,7 @@ export function SideDrawer() {
                   transition: { type: "spring", stiffness: 400 }
                 }}
                 whileTap={{ scale: 0.98 }}
-                className={`flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-xl transition-all duration-300 ${link.bgColor} ${link.hoverColor} group relative overflow-hidden`}
+                className={`flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-xl transition-all duration-300 ${link.bgColor} ${link.hoverColor} group relative overflow-hidden cursor-pointer`}
               >
                 {/* Animated background on hover */}
                 <motion.div
@@ -411,7 +422,7 @@ export function SideDrawer() {
         </div>
       </motion.div>
 
-      {/* Footer with animated elements */}
+      {/* Footer */}
       <motion.div 
         className="py-4 border-t border-border/50 text-center relative z-10"
         initial={{ opacity: 0 }}
@@ -431,6 +442,15 @@ export function SideDrawer() {
           <span>صُنع بحب في مصر</span>
         </motion.div>
       </motion.div>
+
+      {/* المودال الموحد للمعاينة */}
+      {selectedItem && (
+        <UniversalViewerModal
+          url={selectedItem.url}
+          title={selectedItem.title}
+          onClose={handleCloseViewer}
+        />
+      )}
     </div>
   );
 }

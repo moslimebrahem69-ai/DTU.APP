@@ -21,7 +21,6 @@ import { Input } from '../ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { Button } from '../ui/button';
 import { useTheme } from '../../contexts/ThemeContext';
-import { useDebounce } from '../../hooks/useDebounce';
 
 interface CategoryItem {
   name: string;
@@ -42,6 +41,7 @@ interface SearchAndFilterProps {
   onPaidFilterChange?: (filter: string) => void;
 }
 
+// cSpell:disable
 const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   all: Grid,
   study_tools: BookOpen,
@@ -54,6 +54,7 @@ const CATEGORY_ICONS: Record<string, React.ComponentType<{ className?: string }>
   academic_reports: FileText,
   programming: Code2,
 };
+// cSpell:enable
 
 export function SearchAndFilter({
   searchTerm,
@@ -70,7 +71,6 @@ export function SearchAndFilter({
 }: SearchAndFilterProps) {
   const { t } = useTranslation();
   const { animationsEnabled } = useTheme();
-  const debouncedSearch = useDebounce(searchTerm, 300);
   
   const hasActiveFilters = category !== 'all' || 
     (showLanguageFilter && languageFilter !== 'both') ||

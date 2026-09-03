@@ -1,4 +1,5 @@
-import { Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, BookOpen, Timer, Wrench } from 'lucide-react';
+import { useState } from 'react';
+import { Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, BookOpen, Timer, Wrench, Menu, X } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -20,6 +21,7 @@ export function Header() {
   const { animationsEnabled } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
     <motion.header
@@ -30,9 +32,13 @@ export function Header() {
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
+          {/* اللوجو واسم المنصة */}
           <motion.div 
-            className="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer"
-            onClick={() => navigate('/')}
+            className="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer select-none"
+            onClick={() => {
+              navigate('/');
+              setMobileMenuOpen(false);
+            }}
             whileHover={animationsEnabled ? { scale: 1.02 } : {}}
             whileTap={animationsEnabled ? { scale: 0.98 } : {}}
           >
@@ -44,12 +50,13 @@ export function Header() {
             </div>
             
             <div className="flex flex-col">
-              <h1 className="text-xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
                 DTU Learning Hub
               </h1>
             </div>
           </motion.div>
 
+          {/* القائمة الخاصة بالشاشات الكبيرة (Desktop) */}
           <div className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
             <AnimatePresence>
               {navigationItems.map((item, index) => {
@@ -86,8 +93,58 @@ export function Header() {
               })}
             </AnimatePresence>
           </div>
+
+          {/* زر القائمة للشاشات الصغيرة والموبايل */}
+          <div className="flex lg:hidden items-center">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="p-2 rounded-xl text-foreground hover:bg-accent transition-colors"
+              aria-label="Toggle Menu"
+            >
+              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
+          </div>
         </div>
       </div>
+
+      {/* المنيو المنسدلة المخصصة للموبايل */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: 'auto' }}
+            exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
+            className="lg:hidden bg-background/95 backdrop-blur-2xl border-b border-border/50 px-4 pt-2 pb-6 space-y-2 shadow-xl"
+          >
+            {navigationItems.map((item) => {
+              const isActive = location.pathname === item.path;
+              const Icon = item.icon;
+              const label = t(item.labelKey) !== item.labelKey ? t(item.labelKey) : item.defaultLabel;
+
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => {
+                    navigate(item.path);
+                    setMobileMenuOpen(false);
+                  }}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                    isActive
+                      ? 'bg-primary text-primary-foreground font-semibold shadow-md'
+                      : 'text-foreground hover:bg-accent'
+                  }`}
+                >
+                  <Icon className="h-5 w-5" />
+                  <span>{label}</span>
+                </button>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.header>
   );
 }

@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
 import { SearchAndFilter } from '../components/Common/SearchAndFilter';
 import { ContentCard } from '../components/Common/ContentCard';
+import { UniversalViewerModal } from '../components/Common/UniversalViewerModal';
 import { aiToolsData, aiToolCategories } from '../data/aiTools';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -44,6 +45,9 @@ export function AIToolsPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [languageFilter, setLanguageFilter] = useState('both');
   const [paidFilter, setPaidFilter] = useState('both');
+
+  // حالة التحكم في فتح المودال داخل الصفحة
+  const [activeViewer, setActiveViewer] = useState<{ title: string; url: string } | null>(null);
 
   const filteredTools = useMemo(() => {
     return aiToolsData.filter(tool => {
@@ -133,6 +137,7 @@ export function AIToolsPage() {
                 language={tool.language}
                 category={tool.category}
                 index={index}
+                onOpen={(url, title) => setActiveViewer({ url, title })}
               />
             </motion.div>
           ))}
@@ -153,6 +158,15 @@ export function AIToolsPage() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* المودال الشامل للعرض داخل نفس الصفحة */}
+      {activeViewer && (
+        <UniversalViewerModal
+          title={activeViewer.title}
+          url={activeViewer.url}
+          onClose={() => setActiveViewer(null)}
+        />
+      )}
     </div>
   );
 }

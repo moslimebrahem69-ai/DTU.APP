@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import { motion } from 'framer-motion';
 import { SearchAndFilter } from '../components/Common/SearchAndFilter';
 import { ContentCard } from '../components/Common/ContentCard';
+import { UniversalViewerModal } from '../components/Common/UniversalViewerModal';
 import { learningPlatformsData, learningPlatformCategories } from '../data/learningPlatforms';
 import { useTheme } from '../contexts/ThemeContext';
 
@@ -14,25 +15,36 @@ export function LearningPlatformsPage() {
   const [languageFilter, setLanguageFilter] = useState('both');
   const [paidFilter, setPaidFilter] = useState('both');
 
+  // حالة التحكم بالمعاينة داخل المودال
+  const [selectedItem, setSelectedItem] = useState<{ url: string; title: string } | null>(null);
+
   const filteredPlatforms = useMemo(() => {
     return learningPlatformsData.filter(platform => {
       const matchesSearch = platform.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           platform.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           platform.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
+                            platform.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                            platform.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()));
       
       const matchesCategory = categoryFilter === 'all' || platform.category === categoryFilter;
       
       const matchesLanguage = languageFilter === 'both' || 
-                             platform.language === languageFilter || 
-                             platform.language === 'both';
+                              platform.language === languageFilter || 
+                              platform.language === 'both';
       
       const matchesPaid = paidFilter === 'both' || 
-                         (paidFilter === 'free' && !platform.paid) ||
-                         (paidFilter === 'paid' && platform.paid);
+                          (paidFilter === 'free' && !platform.paid) ||
+                          (paidFilter === 'paid' && platform.paid);
 
       return matchesSearch && matchesCategory && matchesLanguage && matchesPaid;
     });
   }, [searchTerm, categoryFilter, languageFilter, paidFilter]);
+
+  const handleOpenViewer = (url: string, title: string) => {
+    setSelectedItem({ url, title });
+  };
+
+  const handleCloseViewer = () => {
+    setSelectedItem(null);
+  };
 
   return (
     <div>
@@ -72,6 +84,7 @@ export function LearningPlatformsPage() {
             language={platform.language}
             category={platform.category}
             index={index}
+            onOpen={handleOpenViewer}
           />
         ))}
       </div>
@@ -84,6 +97,15 @@ export function LearningPlatformsPage() {
         >
           <p className="text-muted-foreground">لم يتم العثور على منصات تطابق البحث</p>
         </motion.div>
+      )}
+
+      {/* المودال الشامل لمعاينة وعرض المنصة */}
+      {selectedItem && (
+        <UniversalViewerModal
+          url={selectedItem.url}
+          title={selectedItem.title}
+          onClose={handleCloseViewer}
+        />
       )}
     </div>
   );
