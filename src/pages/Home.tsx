@@ -68,16 +68,17 @@ export function Home() {
   const { elementRef: heroRef, isIntersecting: heroInView } = useIntersectionObserver();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 md:space-y-8 px-2 sm:px-0">
+      {/* Hero Section */}
       <motion.div
         ref={heroRef as React.RefObject<HTMLDivElement>}
-        initial={animationsEnabled ? { y: 50, opacity: 0, scale: 0.9 } : {}}
+        initial={animationsEnabled ? { y: 30, opacity: 0, scale: 0.95 } : {}}
         animate={heroInView ? { y: 0, opacity: 1, scale: 1 } : {}}
         transition={{ type: "spring", stiffness: 100, damping: 20 }}
-        className="text-center py-16 relative overflow-hidden"
+        className="text-center py-8 md:py-16 relative overflow-hidden rounded-2xl md:rounded-3xl"
       >
         <motion.div
-          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 rounded-3xl"
+          className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 rounded-2xl md:rounded-3xl"
           animate={animationsEnabled ? {
             background: [
               "linear-gradient(135deg, rgba(59, 130, 246, 0.05) 0%, transparent 50%, rgba(16, 185, 129, 0.05) 100%)",
@@ -92,41 +93,25 @@ export function Home() {
           animate={animationsEnabled ? { 
             rotate: 360,
             scale: [1, 1.1, 1],
-            filter: [
-              "drop-shadow(0 0 0px rgba(59, 130, 246, 0))",
-              "drop-shadow(0 0 20px rgba(59, 130, 246, 0.3))",
-              "drop-shadow(0 0 0px rgba(59, 130, 246, 0))"
-            ]
           } : {}}
           transition={{ 
             rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            scale: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-            filter: { duration: 3, repeat: Infinity, ease: "easeInOut" }
+            scale: { duration: 4, repeat: Infinity, ease: "easeInOut" }
           }}
-          className="inline-block mb-8 relative z-10"
+          className="inline-block mb-4 md:mb-6 relative z-10"
         >
-          <Sparkles className="h-16 w-16 text-primary mx-auto" />
+          <Sparkles className="h-10 w-10 md:h-16 md:w-16 text-primary mx-auto" />
         </motion.div>
         
         <motion.h1 
-          className="text-4xl md:text-6xl font-bold text-foreground mb-6 relative z-10"
-          animate={animationsEnabled ? {
-            backgroundPosition: ["0% 50%", "100% 50%", "0% 50%"]
-          } : {}}
-          transition={{ duration: 5, repeat: Infinity }}
-          style={{
-            background: "linear-gradient(90deg, currentColor 0%, rgba(59, 130, 246, 1) 50%, currentColor 100%)",
-            backgroundSize: "200% 100%",
-            WebkitBackgroundClip: "text",
-            backgroundClip: "text"
-          }}
+          className="text-2xl sm:text-4xl md:text-6xl font-bold text-foreground mb-3 md:mb-6 relative z-10"
         >
           DTU Learning Hub
         </motion.h1>
         
         <motion.p 
-          className="text-xl text-muted-foreground max-w-2xl mx-auto leading-relaxed relative z-10"
-          initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
+          className="text-sm sm:text-lg md:text-xl text-muted-foreground max-w-xl mx-auto leading-relaxed relative z-10 px-4"
+          initial={animationsEnabled ? { y: 15, opacity: 0 } : {}}
           animate={heroInView ? { y: 0, opacity: 1 } : {}}
           transition={{ delay: 0.3 }}
         >
@@ -134,90 +119,73 @@ export function Home() {
         </motion.p>
         
         <motion.div
-          className="mt-8 flex items-center justify-center space-x-6 rtl:space-x-reverse relative z-10"
-          initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
+          className="mt-5 md:mt-8 flex items-center justify-center space-x-4 md:space-x-6 rtl:space-x-reverse relative z-10"
+          initial={animationsEnabled ? { y: 15, opacity: 0 } : {}}
           animate={heroInView ? { y: 0, opacity: 1 } : {}}
           transition={{ delay: 0.5 }}
         >
-          <motion.div 
-            className="flex items-center text-sm text-muted-foreground"
-            whileHover={animationsEnabled ? { scale: 1.05 } : {}}
-          >
-            <TrendingUp className="h-4 w-4 mr-2 text-green-500" />
+          <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+            <TrendingUp className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 text-green-500" />
             أداء عالي
-          </motion.div>
-          <motion.div 
-            className="flex items-center text-sm text-muted-foreground"
-            whileHover={animationsEnabled ? { scale: 1.05 } : {}}
-          >
-            <Sparkles className="h-4 w-4 mr-2 text-blue-500" />
+          </div>
+          <div className="flex items-center text-xs md:text-sm text-muted-foreground">
+            <Sparkles className="h-3.5 w-3.5 md:h-4 md:w-4 mr-1.5 text-blue-500" />
             تجربة متطورة
-          </motion.div>
+          </div>
         </motion.div>
       </motion.div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      {/* Main Sections Grid */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-8">
         {sections.map((section) => (
           <motion.button
             key={section.id}
             onClick={() => navigate(section.route)}
-            initial={animationsEnabled ? { y: 60, opacity: 0, rotateX: 15 } : {}}
-            animate={{ y: 0, opacity: 1, rotateX: 0 }}
-            transition={{ 
-              type: "spring",
-              stiffness: 100,
-              damping: 15
-            }}
-            whileHover={animationsEnabled ? { 
-              y: -12, 
-              scale: 1.03,
-              rotateY: 5,
-              boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25)"
-            } : {}}
-            whileTap={animationsEnabled ? { scale: 0.97, rotateY: 0 } : {}}
-            className="group relative bg-card border border-border rounded-3xl p-8 text-left hover:shadow-2xl transition-all duration-500 overflow-hidden perspective-1000"
+            initial={animationsEnabled ? { y: 40, opacity: 0 } : {}}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ type: "spring", stiffness: 100, damping: 15 }}
+            whileHover={animationsEnabled ? { y: -6, scale: 1.02 } : {}}
+            whileTap={animationsEnabled ? { scale: 0.98 } : {}}
+            className="group relative bg-card border border-border rounded-2xl md:rounded-3xl p-5 md:p-8 text-left hover:shadow-xl transition-all duration-300 overflow-hidden"
           >
             <motion.div 
-              className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-15 transition-opacity duration-500`}
+              className={`absolute inset-0 bg-gradient-to-br ${section.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-300`}
             />
             
-            <div className="relative z-10">
+            <div className="relative z-10 flex items-center sm:block">
               <motion.div 
-                className={`w-16 h-16 rounded-2xl bg-gradient-to-br ${section.gradient} flex items-center justify-center mb-6 shadow-lg`}
-                whileHover={animationsEnabled ? { 
-                  scale: 1.15,
-                  rotate: 5,
-                  boxShadow: "0 10px 30px rgba(0, 0, 0, 0.2)"
-                } : {}}
-                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className={`w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-br ${section.gradient} flex items-center justify-center mb-0 sm:mb-6 ml-4 sm:ml-0 shadow-md shrink-0`}
               >
-                <section.icon className="h-8 w-8 text-white drop-shadow-sm" />
+                <section.icon className="h-6 w-6 sm:h-8 sm:w-8 text-white" />
               </motion.div>
               
-              <motion.h3 
-                className="text-xl font-bold text-foreground mb-3 group-hover:text-primary transition-colors duration-300"
-              >
-                {t(section.titleKey) !== section.titleKey ? t(section.titleKey) : (section.customTitle || t(section.titleKey))}
-              </motion.h3>
-              
-              <motion.p className="text-muted-foreground text-sm leading-relaxed mb-4">
-                اكتشف أفضل الأدوات والموارد التعليمية
-              </motion.p>
-              
-              <motion.div className="flex items-center text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                <span>استكشف الآن</span>
-                <ArrowRight className="h-3 w-3 mr-1 rtl:ml-1" />
-              </motion.div>
+              <div>
+                <motion.h3 
+                  className="text-base sm:text-xl font-bold text-foreground mb-1 sm:mb-3 group-hover:text-primary transition-colors duration-300"
+                >
+                  {t(section.titleKey) !== section.titleKey ? t(section.titleKey) : (section.customTitle || t(section.titleKey))}
+                </motion.h3>
+                
+                <p className="text-muted-foreground text-xs sm:text-sm leading-relaxed mb-0 sm:mb-4">
+                  اكتشف أفضل الأدوات والموارد التعليمية
+                </p>
+                
+                <div className="hidden sm:flex items-center text-xs text-primary opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                  <span>استكشف الآن</span>
+                  <ArrowRight className="h-3 w-3 mr-1 rtl:ml-1" />
+                </div>
+              </div>
             </div>
           </motion.button>
         ))}
       </div>
 
+      {/* Stats Grid */}
       <motion.div
-        initial={animationsEnabled ? { y: 50, opacity: 0 } : {}}
+        initial={animationsEnabled ? { y: 30, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.8, type: "spring", stiffness: 100 }}
-        className="grid grid-cols-2 md:grid-cols-5 gap-6 mt-16"
+        transition={{ delay: 0.6, type: "spring", stiffness: 100 }}
+        className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3 md:gap-6 mt-10 md:mt-16"
       >
         {[
           { label: 'أدوات AI', value: '100+', icon: Bot },
@@ -228,19 +196,16 @@ export function Home() {
         ].map((stat) => (
           <motion.div
             key={stat.label}
-            className="text-center p-4 bg-card/50 backdrop-blur-sm rounded-2xl border border-border/50"
-            whileHover={animationsEnabled ? { 
-              scale: 1.05,
-              backgroundColor: "rgba(59, 130, 246, 0.05)"
-            } : {}}
+            className="text-center p-3 md:p-4 bg-card/50 backdrop-blur-sm rounded-xl md:rounded-2xl border border-border/50"
+            whileHover={animationsEnabled ? { scale: 1.03 } : {}}
           >
-            <div className="w-12 h-12 mx-auto mb-2 rounded-xl bg-primary/10 flex items-center justify-center">
-              <stat.icon className="h-6 w-6 text-primary" />
+            <div className="w-9 h-9 md:w-12 md:h-12 mx-auto mb-1.5 md:mb-2 rounded-lg md:rounded-xl bg-primary/10 flex items-center justify-center">
+              <stat.icon className="h-4 w-4 md:h-6 md:w-6 text-primary" />
             </div>
-            <div className="text-2xl font-bold text-foreground">
+            <div className="text-lg md:text-2xl font-bold text-foreground">
               {stat.value}
             </div>
-            <div className="text-sm text-muted-foreground">{stat.label}</div>
+            <div className="text-xs md:text-sm text-muted-foreground">{stat.label}</div>
           </motion.div>
         ))}
       </motion.div>

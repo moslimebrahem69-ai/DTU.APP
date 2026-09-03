@@ -1,7 +1,12 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App.tsx';
+import { registerSW } from 'virtual:pwa-register';
+import { OfflineNotifier } from './components/Common/OfflineNotifier';
 import './index.css';
+
+// Register PWA Service Worker for Offline functionality
+registerSW({ immediate: true });
 
 // Performance monitoring
 const startTime = performance.now();
@@ -27,6 +32,7 @@ const initializeApp = () => {
   
   root.render(
     <React.StrictMode>
+      <OfflineNotifier />
       <App />
     </React.StrictMode>
   );
@@ -36,14 +42,17 @@ const initializeApp = () => {
   console.log(`App initialized in ${endTime - startTime}ms`);
   
   // Track Core Web Vitals
+  // Track Core Web Vitals (Updated for web-vitals v3/v4)
+  // Track Core Web Vitals (Modern web-vitals v3/v4 API)
   if ('web-vitals' in window) {
-    import('web-vitals').then(({ getCLS, getFID, getFCP, getLCP, getTTFB }) => {
-      getCLS(console.log);
-      getFID(console.log);
-      getFCP(console.log);
-      getLCP(console.log);
-      getTTFB(console.log);
-    });
+    import('web-vitals').then((vitals: any) => {
+      const { onCLS, onINP, onFCP, onLCP, onTTFB } = vitals;
+      if (onCLS) onCLS(console.log);
+      if (onINP) onINP(console.log);
+      if (onFCP) onFCP(console.log);
+      if (onLCP) onLCP(console.log);
+      if (onTTFB) onTTFB(console.log);
+    }).catch(() => {});
   }
 };
 
