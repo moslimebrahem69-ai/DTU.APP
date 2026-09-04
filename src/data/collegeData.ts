@@ -48,7 +48,7 @@ export const collegeData: Year[] = [
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
       { id: 'autotronics', name: 'أوتوترونكس', nameKey: 'autotronics', enabled: false },
-      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: false },
+      { id: 'renewable', name: 'طاقة متجددة', nameKey: 'renewableEnergy', enabled: true },
       { id: 'waterTreatment', name: 'تكنولوجيا معالجة وتحلية المياه', nameKey: 'waterTreatment', enabled: false }
     ]
   },
@@ -237,6 +237,162 @@ export const year1MechatronicsCourses: Record<string, Course[]> = {
   ]
 };
 
+export const year1RenewableCourses: Record<string, Course[]> = {
+  semester1: [
+    {
+      id: 'engineering-design-renewable',
+      name: 'التصميم الهندسي',
+      nameKey: 'engineeringDesign',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1dNBeHjdNfn5pJvNmd3ouIY227l_aw_RR', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1P9LCFATMgbFMnGnn69SBnDX48BVJ8Zyx', type: 'sheets' },
+        { name: 'مراجعات', url: 'https://drive.google.com/drive/folders/1ARVro3OSQmEE3wQyZ8WxKAEWd0tIycmj', type: 'notes' }
+      ]
+    },
+    {
+      id: 'math-1-renewable',
+      name: 'رياضيات 1',
+      nameKey: 'math1',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/182A-lD4I9qvor44QFKNihLkKNxPudGSX', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1W8hBjmCRQgR0ubKo1zPyOmETcciSPA3l', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1lspwgzlf8RvOfOOr-7qSDFtfKFsne7s6', type: 'sheets' },
+        { name: 'تقارير', url: 'https://drive.google.com/drive/folders/1wqlpi92wDKFqHiv4yDKC5zSIZ07tn3pe', type: 'notes' },
+        { name: 'مراجعات', url: 'https://drive.google.com/drive/folders/1dKIjPTUCzCYAJckcB4J63eYbQzqyyC_Y', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1HEa_X-RiAIqmAO748HW6wE0koSvNc3hC', type: 'exams' }
+      ]
+    },
+    {
+      id: 'english-1-renewable',
+      name: 'انجليزي 1',
+      nameKey: 'english1',
+      materials: [
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1H4w5mXx1X3TbaF8kfrBGvAV3_ecwrQ_Y', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1B53D146kCjW3pEmucli8CVvnchzbQWGV', type: 'sheets' },
+        { name: 'مراجعات', url: 'https://drive.google.com/drive/folders/1HVbxrga53_BAlq-Vym9YDx3TETY65oI9', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1W7tLJFVS2Q18lXzdC4dG_jlfI0a-PjVx', type: 'exams' }
+      ]
+    },
+    {
+      id: 'renewable-energy',
+      name: 'طاقة متجددة',
+      nameKey: 'renewableEnergyCourse',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1geXGjLO5SHSKl6Q5BbiIMsARKUcnvVdf', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1YwTJJmPvwrE_83iDBqaZwbBtZWOSqc25', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1VWz4Tp09gQtVmrDbsN2aGuSxkmGUvOgg', type: 'sheets' },
+        { name: 'تجارب', url: 'https://drive.google.com/drive/folders/1LjgHg2jU-uL26uxkk6_BS5d57PksR2Bd', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1trBqbPJrR0HxQ_USPjhlUcoHjn9cHfJZ', type: 'exams' }
+      ]
+    },
+    {
+      id: 'matlab',
+      name: 'ماتلاب',
+      nameKey: 'matlab',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Mp1xZWMo4w2wbcos6mUcTyB6TFJj9gZN', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/18hrluETPEY-sXXskUeyY7yCE3EuYFB9K', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/19XePPf_x-gix0irxJ_Uz4b92w3EJUA0a', type: 'exams' }
+      ]
+    },
+    {
+      id: 'electrical-principles',
+      name: 'مبادئ كهربائية',
+      nameKey: 'electricalPrinciples',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1p3b8IG5R65i358FSdaOdb-L8dFiRfDGH', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1ZQA4l6y-gy1EqGYCchF-vxmS-gLGgivN', type: 'sheets' },
+        { name: 'تجارب', url: 'https://drive.google.com/drive/folders/14w-lVAzn4tLP2Cjk1XsyUgixn5fk-NsB', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1GWniwyOll4P7ZqlA1Uaxd9pMxBX883Mg', type: 'exams' }
+      ]
+    }
+  ],
+  semester2: [
+    {
+      id: 'digital-electronics',
+      name: 'الكترونات رقمية',
+      nameKey: 'digitalElectronics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1EPp_pnTfcArNplyimX1_FNDmiyqMOIkh', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/19_muEH4_QkavHwlY9xpHf-n2zcUxyVgI', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1vFLcRWRXHNz0YKBIEQY80x1lm5oUurwg', type: 'sheets' },
+        { name: 'شيتات بالحل', url: 'https://drive.google.com/drive/folders/123-XYOhT-dqBHPq59dUsf_btOSI-D6eT', type: 'sheets' },
+        { name: 'تجارب', url: 'https://drive.google.com/drive/folders/1t3O7IjlvTQqdREb8dGF7bT0EFjOzB-o4', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1Np2vE4rVHznOkCJ2pm2XH4Axbbj45rGd', type: 'exams' }
+      ]
+    },
+    {
+      id: 'safety-renewable',
+      name: 'السفتي',
+      nameKey: 'safety',
+      materials: [
+        { name: 'شباتر', url: 'https://drive.google.com/drive/folders/1cHFOSna-rRrJuIqNBZtOa_S-CwmDsLdn', type: 'lectures' },
+        { name: 'ملخصات', url: 'https://drive.google.com/drive/folders/1_7DGNCRmlySbHDlFQWczSV6NKo4oWWf-', type: 'notes' }
+      ]
+    },
+    {
+      id: 'english-2-renewable',
+      name: 'انجليزي 2',
+      nameKey: 'english2',
+      materials: [
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1qYAhHQxAVrAxQ2lSVS29hlQWxxZsVLYq', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1w47gDkHojEbNBzl59AU20QOOOk-cxHEh', type: 'sheets' },
+        { name: 'شيتات بالحل', url: 'https://drive.google.com/drive/folders/1Ah0ogND3Ppm3zNP39hqwkUyUZK9th1nx', type: 'sheets' },
+        { name: 'مراجعات', url: 'https://drive.google.com/drive/folders/1JOkfupApAF7Jl1TS1vc2xZQXxzji_TN7', type: 'notes' },
+        { name: 'اختبارات', url: 'https://drive.google.com/drive/folders/1ENq9I7B6O11TGR6VzsLKMWp1npceRnM0', type: 'exams' }
+      ]
+    },
+    {
+      id: 'human-rights',
+      name: 'حقوق الانسان',
+      nameKey: 'humanRights',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1M14uh1-cgFfImRAzUzvse7Gip6f3Z8dy', type: 'lectures' },
+        { name: 'تقارير', url: 'https://drive.google.com/drive/folders/1mzD4oHsWmxLYLA_XNWX4QnWmnqdWJF6H', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/16nZi5aU51xnyibf2FAcp606XZH4Utuqm', type: 'exams' }
+      ]
+    },
+    {
+      id: 'math-2-renewable',
+      name: 'رياضيات 2',
+      nameKey: 'math2',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1KxE42bjj4cj_eUrPAtDTVuzIB4J6ddIb', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1so0KzQZs_IcLWHLem6TFfvj_WG27zzV3', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1jQikxwIvY2qlpC1ns8MLcrMpZfy-ujYt', type: 'sheets' },
+        { name: 'تقارير', url: 'https://drive.google.com/drive/folders/17HrPB64CA8MUeJgUK824Cjebccxqi5LP', type: 'notes' },
+        { name: 'مراجعات', url: 'https://drive.google.com/drive/folders/1fDtxQ7GWh_ajva9s4A5uHjqN4PURe3mG', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1DjMQrz8j5SbuQtzzf8JqLD1Yj91hdfs9', type: 'exams' }
+      ]
+    },
+    {
+      id: 'mechanics',
+      name: 'ميكانيكا',
+      nameKey: 'mechanics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1H823LSkWEYZhOVvUHLZYZr7ZQI44j4zV', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1pN8o64SZtcDAen_wk65hdeIgZSCWhSFw', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1j79KP_TpDMU6mYEXSFDcPsHNF1oJLkLc', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1LkDv4QRSjBWqcpZd-3LaRnpTrJJUvRV5', type: 'exams' }
+      ]
+    },
+    {
+      id: 'workshops',
+      name: 'ورش عمل',
+      nameKey: 'workshops',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1Pn-O8m7WCW_EKi5z4VJBIDbqsEZqoCt6', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1h8uhYL1QhkfR2tp4a0OY_05L1A1wwqio', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1QFa000h9PJAz7LUCRUyzFEtN8hYnOpuj', type: 'sheets' },
+        { name: 'شيتات بالحل', url: 'https://drive.google.com/drive/folders/1c6Uv3TJ87yDcxEK4ZRJvC7BWEcyk0zq3', type: 'sheets' },
+        { name: 'تقارير', url: 'https://drive.google.com/drive/folders/15moZjjgGnNRT56UwK1-tJ72aUhSufm5O', type: 'notes' },
+        { name: 'كتاب الورش', url: 'https://drive.google.com/drive/folders/1DDmVfNN7o98ZUJZF8g5JWfJPsrfH_dqM', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/107rfFSxR4P8fiOuzTYhgDZ8k0r0L7LI_', type: 'exams' }
+      ]
+    }
+  ]
+};
+
 export const year3MechatronicsCourses: Record<string, Course[]> = {
   semester1: [
     {
@@ -364,6 +520,7 @@ export const globalSearch = (query: string): SearchResultItem[] => {
 
   const allDatasets = [
     { yearName: 'الفرقة الأولى', deptName: 'ميكاترونكس', data: year1MechatronicsCourses },
+    { yearName: 'الفرقة الأولى', deptName: 'طاقة متجددة', data: year1RenewableCourses },
     { yearName: 'الفرقة الثالثة', deptName: 'ميكاترونكس', data: year3MechatronicsCourses }
   ];
 

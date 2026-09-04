@@ -1,5 +1,3 @@
-import { nodeModuleNameResolver } from 'typescript';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
@@ -47,8 +45,9 @@ export default {
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        'arabic': ['Noto Sans Arabic', 'system-ui', 'sans-serif'],
-        'english': ['Inter', 'system-ui', 'sans-serif'],
+        arabic: ['Cairo', 'system-ui', 'sans-serif'],
+        english: ['Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
+        sans: ['Cairo', 'Plus Jakarta Sans', 'Inter', 'system-ui', 'sans-serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.5s ease-out',
@@ -68,5 +67,3 @@ export default {
   },
   plugins: [],
 };
-
-

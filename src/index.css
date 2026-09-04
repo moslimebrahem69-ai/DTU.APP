@@ -1,5 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -112,19 +111,22 @@
 
 html {
   scroll-behavior: smooth;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 body {
-  font-feature-settings: "rlig" 1, "calt" 1;
-  font-family: var(--font-family);
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "rlig" 1, "calt" 1;
+  font-family: 'Cairo', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
+  text-rendering: optimizeLegibility;
 }
 
 [dir="rtl"] {
-  font-family: 'Noto Sans Arabic', system-ui, sans-serif;
+  font-family: 'Cairo', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 [dir="ltr"] {
-  font-family: 'Inter', system-ui, sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 [data-animations="false"] * {

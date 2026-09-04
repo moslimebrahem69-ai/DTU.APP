@@ -28,13 +28,13 @@ export function Header() {
       initial={animationsEnabled ? { y: -100, opacity: 0 } : {}}
       animate={{ y: 0, opacity: 1 }}
       transition={{ type: "spring", stiffness: 100, damping: 20 }}
-      className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50 shadow-lg"
+      className="fixed top-0 left-0 right-0 z-50 bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-sm"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-14 sm:h-16">
           {/* اللوجو واسم المنصة */}
           <motion.div 
-            className="flex items-center space-x-3 rtl:space-x-reverse cursor-pointer select-none"
+            className="flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer select-none"
             onClick={() => {
               navigate('/');
               setMobileMenuOpen(false);
@@ -43,14 +43,14 @@ export function Header() {
             whileTap={animationsEnabled ? { scale: 0.98 } : {}}
           >
             <div className="relative">
-              <Bot className="h-8 w-8 text-primary relative z-10" />
+              <Bot className="h-6 w-6 sm:h-8 sm:w-8 text-primary relative z-10" />
               <div className="absolute -top-1 -right-1">
-                <Sparkles className="h-3 w-3 text-yellow-500" />
+                <Sparkles className="h-2.5 w-2.5 sm:h-3 sm:w-3 text-yellow-500" />
               </div>
             </div>
             
             <div className="flex flex-col">
-              <h1 className="text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent">
+              <h1 className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-primary via-primary/80 to-primary bg-clip-text text-transparent tracking-tight">
                 DTU Learning Hub
               </h1>
             </div>
@@ -100,10 +100,10 @@ export function Header() {
               variant="ghost"
               size="sm"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="p-2 rounded-xl text-foreground hover:bg-accent transition-colors"
+              className="p-1.5 sm:p-2 rounded-xl text-foreground hover:bg-accent transition-colors"
               aria-label="Toggle Menu"
             >
-              {mobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {mobileMenuOpen ? <X className="h-5 w-5 sm:h-6 sm:w-6" /> : <Menu className="h-5 w-5 sm:h-6 sm:w-6" />}
             </Button>
           </div>
         </div>
@@ -117,7 +117,7 @@ export function Header() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.2 }}
-            className="lg:hidden bg-background/95 backdrop-blur-2xl border-b border-border/50 px-4 pt-2 pb-6 space-y-2 shadow-xl"
+            className="lg:hidden bg-background/95 backdrop-blur-2xl border-b border-border/50 px-3 pt-2 pb-4 space-y-1 shadow-xl overflow-hidden"
           >
             {navigationItems.map((item) => {
               const isActive = location.pathname === item.path;
@@ -131,14 +131,14 @@ export function Header() {
                     navigate(item.path);
                     setMobileMenuOpen(false);
                   }}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium text-sm transition-all duration-200 ${
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg font-medium text-xs sm:text-sm transition-all duration-200 ${
                     isActive
-                      ? 'bg-primary text-primary-foreground font-semibold shadow-md'
-                      : 'text-foreground hover:bg-accent'
+                      ? 'bg-primary text-primary-foreground font-semibold shadow-sm'
+                      : 'text-foreground hover:bg-accent/60'
                   }`}
                 >
-                  <Icon className="h-5 w-5" />
-                  <span>{label}</span>
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span className="truncate">{label}</span>
                 </button>
               );
             })}
