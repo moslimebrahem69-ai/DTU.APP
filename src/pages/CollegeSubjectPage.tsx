@@ -15,7 +15,11 @@ import {
   X,
   Maximize2
 } from 'lucide-react';
-import { year1MechatronicsCourses, year3MechatronicsCourses } from '../data/collegeData';
+import { 
+  year1MechatronicsCourses, 
+  year3MechatronicsCourses,
+  year1RenewableCourses 
+} from '../data/collegeData';
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useTheme } from '../contexts/ThemeContext';
@@ -63,6 +67,8 @@ export function CollegeSubjectPage() {
     if (deptId === 'mechatronics') {
       if (yearId === 'year1') return year1MechatronicsCourses;
       if (yearId === 'year3') return year3MechatronicsCourses;
+    } else if (deptId === 'renewable') {
+      if (yearId === 'year1') return year1RenewableCourses;
     }
     return null;
   };
@@ -80,10 +86,9 @@ export function CollegeSubjectPage() {
     );
   }
 
+  const deptName = deptId === 'renewable' ? 'طاقة متجددة' : t('mechatronics');
   const yearTitle = yearId === 'year1' ? t('year1') : t('year3');
-  const yearDescription = yearId === 'year1' 
-    ? 'جميع مواد الفرقة الأولى قسم ميكاترونكس' 
-    : 'جميع مواد الفرقة الثالثة قسم ميكاترونكس';
+  const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : 'الثالثة'} قسم ${deptName}`;
 
   const renderCourseCard = (course: any, index: number) => {
     const totalItems = course.materials.length;
@@ -200,7 +205,7 @@ export function CollegeSubjectPage() {
         </Link>
         
         <h1 className="text-3xl font-bold text-foreground mb-2">
-          {yearTitle} - {t('mechatronics')}
+          {yearTitle} - {deptName}
         </h1>
         <p className="text-muted-foreground">
           {yearDescription}
@@ -215,13 +220,13 @@ export function CollegeSubjectPage() {
 
         <TabsContent value="semester1">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {courses.semester1.map((course, index) => renderCourseCard(course, index))}
+            {courses.semester1.map((course: any, index: number) => renderCourseCard(course, index))}
           </div>
         </TabsContent>
 
         <TabsContent value="semester2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {courses.semester2.map((course, index) => renderCourseCard(course, index))}
+            {courses.semester2.map((course: any, index: number) => renderCourseCard(course, index))}
           </div>
         </TabsContent>
       </Tabs>
