@@ -96,10 +96,10 @@ export function Home() {
       >
         <div>
           <h1 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-            DTU Learning Hub
+           اهلا بيك ي صديقي 🙋
           </h1>
-          <p className="text-xs text-muted-foreground mt-0.5">
-            دليلك المنظم للأدوات والموارد الدراسية والهندسية.
+          <p className="text-xs text-muted-foreground mt-0.1 sm:mt-1">
+            كل اللي يساعدك تذاكر وتتعلم وتطوّر نفسك.
           </p>
         </div>
 
@@ -142,7 +142,7 @@ export function Home() {
             </div>
 
             <div className="mt-3 pt-2 border-t border-border/30 flex items-center justify-between text-[10px] sm:text-xs text-primary font-medium">
-              <span>تصفح</span>
+              <span>خش هتجيبك</span>
               <ChevronLeft className="h-3.5 w-3.5 transform group-hover:-translate-x-1 transition-transform" />
             </div>
           </motion.button>

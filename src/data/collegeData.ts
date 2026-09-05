@@ -58,7 +58,7 @@ export const collegeData: Year[] = [
     nameKey: 'year2',
     enabled: false,
     departments: [
-      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: false },
+      { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: true },
       { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
       { id: 'refrigeration', name: 'تبريد وتكييف', nameKey: 'refrigeration', enabled: false },
       { id: 'stamping', name: 'اسطمبات', nameKey: 'stamping', enabled: false },
@@ -511,28 +511,40 @@ export const year3MechatronicsCourses: Record<string, Course[]> = {
   ]
 };
 
-// دالة البحث الشامل في جميع البيانات
+// Arabic string normalization helper to handle character variations and diacritics
+const normalizeArabic = (text: string): string => {
+  return text
+    .toLowerCase()
+    .replace(/[\u064B-\u065F]/g, '') // Remove diacritics
+    .replace(/[أإآ]/g, 'ا') // Normalize Alef variations
+    .replace(/ة/g, 'ه') // Normalize Teh Marbuta
+    .replace(/ى/g, 'ي') // Normalize Alef Maksura
+    .trim();
+};
+
 export const globalSearch = (query: string): SearchResultItem[] => {
   if (!query || query.trim() === '') return [];
-  
-  const cleanQuery = query.toLowerCase().trim();
+
+  const cleanQuery = normalizeArabic(query);
   const results: SearchResultItem[] = [];
 
-  const allDatasets = [
+  const datasets = [
     { yearName: 'الفرقة الأولى', deptName: 'ميكاترونكس', data: year1MechatronicsCourses },
     { yearName: 'الفرقة الأولى', deptName: 'طاقة متجددة', data: year1RenewableCourses },
     { yearName: 'الفرقة الثالثة', deptName: 'ميكاترونكس', data: year3MechatronicsCourses }
   ];
 
-  allDatasets.forEach(group => {
-    Object.keys(group.data).forEach(semesterKey => {
+  for (const group of datasets) {
+    for (const semesterKey of Object.keys(group.data)) {
       const semesterName = semesterKey === 'semester1' ? 'الترم الأول' : 'الترم الثاني';
       const courses = group.data[semesterKey];
 
-      courses.forEach(course => {
-        course.materials.forEach(material => {
-          const matchTarget = `${course.name} ${material.name} ${group.yearName} ${group.deptName}`.toLowerCase();
-          
+      for (const course of courses) {
+        for (const material of course.materials) {
+          const matchTarget = normalizeArabic(
+            `${course.name} ${material.name} ${group.yearName} ${group.deptName}`
+          );
+
           if (matchTarget.includes(cleanQuery)) {
             results.push({
               yearName: group.yearName,
@@ -544,10 +556,10 @@ export const globalSearch = (query: string): SearchResultItem[] => {
               materialType: material.type
             });
           }
-        });
-      });
-    });
-  });
+        }
+      }
+    }
+  }
 
   return results;
 };

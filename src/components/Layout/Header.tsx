@@ -1,17 +1,16 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, 
-  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft 
+  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck 
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from '../ui/button';
 import { useTheme } from '../../contexts/ThemeContext';
-import { ThemeToggle } from '../Common/ThemeToggle'; // 🔹 استيراد زر تبديل الثيم
+import { ThemeToggle } from '../Common/ThemeToggle';
 import { globalSearch } from '../../data/collegeData';
 
-// 🔹 دالة معالجة النصوص العربية لضمان المرونة اللغوية أثناء البحث
 const normalizeArabicText = (text: string) => {
   if (!text) return '';
   return text
@@ -19,13 +18,12 @@ const normalizeArabicText = (text: string) => {
     .replace(/[أإآ]/g, 'ا')
     .replace(/ة/g, 'ه')
     .replace(/ى/g, 'ي')
-    .replace(/[\u064B-\u0652]/g, '') // إزالة التشكيل
+    .replace(/[\u064B-\u0652]/g, '')
     .replace(/\s+/g, ' ')
     .replace(/\bو\s+/g, 'و')
     .trim();
 };
 
-// 1️⃣ عناصر البحث الثابتة
 const STATIC_SEARCH_ITEMS = [
   { id: 'p-1', title: 'الرئيسية', category: 'صفحة', path: '/', icon: Home },
   { id: 'p-2', title: 'أدوات الذكاء الاصطناعي', category: 'قسم', path: '/ai-tools', icon: Cpu, keywords: 'chatgpt claude gemini ai ذكاء اصطناعي' },
@@ -34,26 +32,18 @@ const STATIC_SEARCH_ITEMS = [
   { id: 'p-5', title: 'أقسام الكلية والمواد', category: 'قسم', path: '/college', icon: BookOpen, keywords: 'مواد محاضرة سكاشن امتحانات فرق دراسية' },
   { id: 'p-6', title: 'البرامج الهندسية', category: 'قسم', path: '/engineering-software', icon: Wrench, keywords: 'autocad solidworks matlab proteus برامج' },
   { id: 'p-7', title: 'تايمر الدراسة (بومودورو)', category: 'أداة', path: '/timer', icon: Timer, keywords: 'بومودورو تايمر دراسة وقت' },
+  { id: 'p-8', title: 'الاختبارات الإلكترونية', category: 'قسم', path: '/exams', icon: FileCheck, keywords: 'امتحانات كويزات اختبارات كويز ميدترم فاينل quiz test' },
 
   { id: 'ai-1', title: 'ChatGPT', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'شات جي بي تي توليد نصوص' },
   { id: 'ai-2', title: 'Claude AI', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'كلاود برمجة كتابة' },
   { id: 'ai-3', title: 'Gemini', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'جميناي جوجل' },
-  { id: 'ai-4', title: 'Midjourney', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'توليد صور تصميم' },
-  { id: 'ai-5', title: 'Perplexity AI', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'بحث مصادر ابحاث' },
 
   { id: 'sw-1', title: 'AutoCAD', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'أوتوكاد رسم هندسي 2D' },
   { id: 'sw-2', title: 'SolidWorks', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'سوليد وركس تصميم 3D' },
-  { id: 'sw-3', title: 'MATLAB', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'ماتلاب محاكاة رياضية' },
-  { id: 'sw-4', title: 'Proteus', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'بروتس محاكاة دوائر إلكترونية' },
-  { id: 'sw-5', title: 'VS Code / Cursor', category: 'برنامج برمجة', path: '/engineering-software', icon: Wrench, keywords: 'محرر اكواد تطوير كود' },
-
-  { id: 'yt-1', title: 'قنوات شرح البرمجة والمهارات', category: 'قناة يوتيوب', path: '/youtube', icon: Youtube, keywords: 'كورس دروس شرح' },
-  { id: 'plat-1', title: 'Coursera & edX', category: 'منصة تعليمية', path: '/platforms', icon: GraduationCap, keywords: 'كورسات شهادات معتمدة' },
-  { id: 'plat-2', title: 'Udemy', category: 'منصة تعليمية', path: '/platforms', icon: GraduationCap, keywords: 'دورات تدريبية' },
 ];
 
 export function Header() {
-  const {  } = useTranslation();
+  const { } = useTranslation();
   const { animationsEnabled } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
@@ -90,7 +80,7 @@ export function Header() {
     const rawQuery = searchQuery.trim();
     
     if (!rawQuery) {
-      return STATIC_SEARCH_ITEMS.slice(0, 7).map(item => ({ ...item, isExternal: false }));
+      return STATIC_SEARCH_ITEMS.slice(0, 8).map(item => ({ ...item, isExternal: false }));
     }
 
     const normalizedQuery = normalizeArabicText(rawQuery);
@@ -133,6 +123,7 @@ export function Header() {
     { path: '/youtube', label: 'يوتيوب', icon: Youtube, desc: 'قنوات ومصادر الشرح' },
     { path: '/platforms', label: 'المنصات', icon: GraduationCap, desc: 'منصات التعلم الكبرى' },
     { path: '/college', label: 'أقسام الكلية', icon: BookOpen, desc: 'المواد والفرق الأكاديمية' },
+    { path: '/exams', label: 'الاختبارات', icon: FileCheck, desc: 'امتحانات تفاعلية واختبارات AI' },
     { path: '/engineering-software', label: 'برامج هندسية', icon: Wrench, desc: 'برامج الرسم والمحاكاة' },
     { path: '/timer', label: 'التايمر', icon: Timer, desc: 'مؤقت بومودورو للتركيز' }
   ];
@@ -146,9 +137,8 @@ export function Header() {
         className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/40 shadow-xs"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16">
+          <div className="flex items-center justify-between h-14 sm:h-16 flex-row-reverse lg:flex-row">
             
-            {/* Logo */}
             <motion.div 
               className="flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer select-none"
               onClick={() => {
@@ -168,7 +158,6 @@ export function Header() {
               </h1>
             </motion.div>
 
-            {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
@@ -191,7 +180,6 @@ export function Header() {
 
               <div className="h-4 w-[1px] bg-border/60 mx-2" />
 
-              {/* Universal Search Trigger Button */}
               <button
                 onClick={() => setSearchModalOpen(true)}
                 className="flex items-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground hover:text-foreground bg-accent/40 hover:bg-accent px-3 py-1.5 rounded-xl transition-colors border border-border/40 cursor-pointer me-2"
@@ -201,23 +189,10 @@ export function Header() {
                 <kbd className="text-[10px] bg-muted px-1.5 py-0.5 rounded border border-border/50 text-muted-foreground font-mono">⌘K</kbd>
               </button>
 
-              {/* 🔹 Theme Toggle Button Desktop */}
               <ThemeToggle />
             </div>
 
-            {/* Mobile menu trigger, Quick search & Theme toggle */}
             <div className="flex items-center space-x-1.5 rtl:space-x-reverse lg:hidden">
-              {/* 🔹 Theme Toggle Button Mobile */}
-              <ThemeToggle />
-
-              <button
-                onClick={() => setSearchModalOpen(true)}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
-                aria-label="Search"
-              >
-                <Search className="h-4 w-4" />
-              </button>
-
               <Button
                 variant="ghost"
                 size="icon"
@@ -227,13 +202,23 @@ export function Header() {
               >
                 <Menu className="h-5 w-5" />
               </Button>
+
+              <button
+                onClick={() => setSearchModalOpen(true)}
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                aria-label="Search"
+              >
+                <Search className="h-4 w-4" />
+              </button>
+
+              <ThemeToggle />
             </div>
 
           </div>
         </div>
       </motion.header>
 
-      {/* 📱 Mobile Side Drawer */}
+      {/* Mobile Side Drawer */}
       <AnimatePresence>
         {mobileDrawerOpen && (
           <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
@@ -323,7 +308,7 @@ export function Header() {
         )}
       </AnimatePresence>
 
-      {/* Global Universal Search Modal */}
+      {/* Global Search Modal */}
       <AnimatePresence>
         {searchModalOpen && (
           <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-4">
@@ -338,7 +323,7 @@ export function Header() {
             <motion.div
               initial={{ opacity: 0, scale: 0.96, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.96, y: -10 }}
+              exit={{ opacity: 0, scale: 1, y: 0 }}
               transition={{ duration: 0.15 }}
               className="relative w-full max-w-xl bg-card border border-border/60 rounded-2xl shadow-2xl overflow-hidden z-10"
             >
@@ -349,7 +334,7 @@ export function Header() {
                   autoFocus
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث عن مادة، فرقة دراسية، أداة AI، محاضرة..."
+                  placeholder="ابحث عن مادة، فرقة دراسية، أداة AI، اختبار..."
                   className="w-full bg-transparent px-3 py-3.5 text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:outline-none"
                 />
                 <button

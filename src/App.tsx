@@ -14,6 +14,10 @@ const CollegeSubjectPage = lazy(() => import('./pages/CollegeSubjectPage').then(
 const TimerPage = lazy(() => import('./pages/TimerPage').then(m => ({ default: m.TimerPage })));
 const EngineeringSoftwarePage = lazy(() => import('./pages/EngineeringSoftware').then(m => ({ default: m.EngineeringSoftware })));
 
+// Lazy Loading لصفحات قسم الاختبارات الإلكترونية الجديدة
+const ExamsPage = lazy(() => import('./pages/Exams/ExamsPage').then(m => ({ default: m.ExamsPage })));
+const CourseExamsPage = lazy(() => import('./pages/Exams/CourseExamsPage').then(m => ({ default: m.CourseExamsPage })));
+
 function App() {
   useEffect(() => {
     const savedLanguage = localStorage.getItem('dtu-language') || 'ar';
@@ -52,6 +56,10 @@ function App() {
               <Route path="/college/:yearId/:deptId" element={<CollegeSubjectPage />} />
               <Route path="/engineering-software" element={<EngineeringSoftwarePage />} />
               <Route path="/timer" element={<TimerPage />} />
+
+              {/* مسارات قسم الاختبارات الإلكترونية */}
+              <Route path="/exams" element={<ExamsPage />} />
+              <Route path="/exams/:deptId/:yearId/:semesterId/:courseId" element={<CourseExamsPage />} />
             </Routes>
           </Suspense>
         </Layout>
