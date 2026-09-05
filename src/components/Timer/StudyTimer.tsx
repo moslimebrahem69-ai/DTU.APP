@@ -28,7 +28,7 @@ export function StudyTimer() {
   const { animationsEnabled } = useTheme();
   const [isFullscreen, setIsFullscreen] = useState(false);
   
-  // New States: Clock Mode vs Timer Mode, and Background Selector
+  // States: Clock Mode vs Timer Mode, and Background Selector
   const [mode, setMode] = useState<'timer' | 'clock'>('timer');
   const [currentTime, setCurrentTime] = useState(new Date());
   const [activeBg, setActiveBg] = useState(BACKGROUNDS[0]);
@@ -96,7 +96,7 @@ export function StudyTimer() {
 
   return (
     <>
-      {/* Fullscreen Immersive Ambient Mode (The Epic View) */}
+      {/* Fullscreen Immersive Ambient Mode */}
       <AnimatePresence>
         {isFullscreen && (
           <motion.div
@@ -104,66 +104,68 @@ export function StudyTimer() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.2 }}
-            className={`fixed inset-0 z-50 ${activeBg.class} text-white flex flex-col items-center justify-between p-6 md:p-12 select-none overflow-hidden transition-colors duration-700`}
+            className={`fixed inset-0 z-50 ${activeBg.class} text-white flex flex-col items-center justify-between p-4 md:p-12 select-none overflow-hidden transition-colors duration-700`}
             dir="ltr"
           >
             {/* Dynamic Background Glow Effects */}
-            <div className={`absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-gradient-to-br ${activeBg.glow} rounded-full blur-[120px] pointer-events-none animate-pulse`} />
-            <div className={`absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-gradient-to-tl ${activeBg.glow} rounded-full blur-[120px] pointer-events-none animate-pulse`} style={{ animationDelay: '2s' }} />
+            <div className={`absolute top-1/4 left-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-gradient-to-br ${activeBg.glow} rounded-full blur-[100px] sm:blur-[120px] pointer-events-none animate-pulse`} />
+            <div className={`absolute bottom-1/4 right-1/4 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-gradient-to-tl ${activeBg.glow} rounded-full blur-[100px] sm:blur-[120px] pointer-events-none animate-pulse`} style={{ animationDelay: '2s' }} />
 
             {/* Top Bar inside Fullscreen */}
-            <div className="w-full flex items-center justify-between z-10 max-w-7xl bg-white/5 border border-white/10 px-6 py-4 rounded-3xl backdrop-blur-xl shadow-2xl">
-              <div className="flex items-center space-x-4">
-                <div className="flex items-center space-x-2 bg-white/10 px-4 py-2 rounded-2xl border border-white/10">
-                  <span className="flex h-3 w-3 relative">
+            <div className="w-full flex flex-wrap items-center justify-between gap-3 z-10 max-w-7xl bg-white/5 border border-white/10 p-3 sm:px-6 sm:py-4 rounded-2xl sm:rounded-3xl backdrop-blur-xl shadow-2xl">
+              <div className="flex items-center space-x-2 sm:space-x-4">
+                <div className="flex items-center space-x-2 bg-white/10 px-3 py-1.5 sm:px-4 sm:py-2 rounded-xl sm:rounded-2xl border border-white/10">
+                  <span className="flex h-2.5 w-2.5 sm:h-3 sm:w-3 relative">
                     <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
-                    <span className="relative inline-flex rounded-full h-3 w-3 bg-primary"></span>
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 sm:h-3 sm:w-3 bg-primary"></span>
                   </span>
-                  <span className="text-sm font-bold tracking-wider text-white uppercase">
+                  <span className="text-xs sm:text-sm font-bold tracking-wider text-white uppercase">
                     {mode === 'clock' ? 'LIVE CLOCK' : (settings.pomodoroMode ? (currentSession === 'work' ? 'WORK SESSION' : 'BREAK TIME') : 'FOCUSED TIMER')}
                   </span>
                 </div>
 
                 {/* Mode Switcher inside Fullscreen */}
-                <div className="hidden md:flex items-center bg-black/40 p-1 rounded-2xl border border-white/10">
+                <div className="hidden sm:flex items-center bg-black/40 p-1 rounded-2xl border border-white/10">
                   <button
                     onClick={() => setMode('timer')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'timer' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${mode === 'timer' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                   >
                     التايمر (Timer)
                   </button>
                   <button
                     onClick={() => setMode('clock')}
-                    className={`px-4 py-2 rounded-xl text-xs font-bold transition-all ${mode === 'clock' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all ${mode === 'clock' ? 'bg-primary text-white shadow-lg' : 'text-slate-400 hover:text-white'}`}
                   >
                     الساعة الحية (Clock)
                   </button>
                 </div>
               </div>
 
-              {/* Background Selector dropdown / pills */}
-              <div className="flex items-center space-x-2 overflow-x-auto max-w-md py-1 px-2 bg-black/30 rounded-2xl border border-white/10">
-                <ImageIcon className="h-4 w-4 text-slate-400 ml-1 shrink-0 hidden sm:block" />
-                <div className="flex space-x-1.5 overflow-x-auto">
-                  {BACKGROUNDS.map((bg) => (
-                    <button
-                      key={bg.id}
-                      onClick={() => setActiveBg(bg)}
-                      title={bg.name}
-                      className={`w-7 h-7 rounded-xl transition-all border-2 shrink-0 ${bg.class} ${activeBg.id === bg.id ? 'border-white scale-110 shadow-lg shadow-white/20' : 'border-transparent opacity-60 hover:opacity-100'}`}
-                    />
-                  ))}
+              {/* Background Selector & Exit Button */}
+              <div className="flex items-center space-x-2">
+                <div className="flex items-center space-x-1 sm:space-x-1.5 p-1 bg-black/30 rounded-xl sm:rounded-2xl border border-white/10 max-w-[180px] sm:max-w-md overflow-x-auto">
+                  <ImageIcon className="h-4 w-4 text-slate-400 ml-1 shrink-0 hidden sm:block" />
+                  <div className="flex space-x-1 sm:space-x-1.5">
+                    {BACKGROUNDS.map((bg) => (
+                      <button
+                        key={bg.id}
+                        onClick={() => setActiveBg(bg)}
+                        title={bg.name}
+                        className={`w-5 h-5 sm:w-7 sm:h-7 rounded-lg sm:rounded-xl transition-all border-2 shrink-0 ${bg.class} ${activeBg.id === bg.id ? 'border-white scale-110 shadow-lg shadow-white/20' : 'border-transparent opacity-60 hover:opacity-100'}`}
+                      />
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setIsFullscreen(false)}
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-2xl w-12 h-12 shadow-2xl backdrop-blur-md transition-all"
-              >
-                <Minimize2 className="h-5 w-5" />
-              </Button>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setIsFullscreen(false)}
+                  className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-xl sm:rounded-2xl w-9 h-9 sm:w-12 sm:h-12 shadow-2xl backdrop-blur-md transition-all shrink-0"
+                >
+                  <Minimize2 className="h-4 w-4 sm:h-5 sm:w-5" />
+                </Button>
+              </div>
             </div>
 
             {/* Huge Center Display (Clock or Timer) */}
@@ -172,7 +174,7 @@ export function StudyTimer() {
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-[15vw] md:text-[12vw] font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-[0_0_60px_rgba(255,255,255,0.2)] leading-none py-4 text-center"
+                  className="text-[14vw] sm:text-[12vw] font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-[0_0_60px_rgba(255,255,255,0.2)] leading-none py-4 text-center"
                 >
                   {formatClock(currentTime)}
                 </motion.div>
@@ -180,7 +182,7 @@ export function StudyTimer() {
                 <motion.div
                   initial={{ scale: 0.9, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
-                  className="text-[16vw] md:text-[13vw] font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-[0_0_60px_rgba(59,130,246,0.4)] leading-none py-4 text-center"
+                  className="text-[16vw] sm:text-[13vw] font-black font-mono tracking-tighter text-transparent bg-clip-text bg-gradient-to-b from-white via-slate-100 to-slate-400 drop-shadow-[0_0_60px_rgba(59,130,246,0.4)] leading-none py-4 text-center"
                 >
                   {formatTime(timeLeft)}
                 </motion.div>
@@ -188,18 +190,18 @@ export function StudyTimer() {
 
               {/* Extra Info Badge */}
               {mode === 'timer' && settings.pomodoroMode && (
-                <div className="flex items-center space-x-3 mt-6 bg-white/10 border border-white/10 px-8 py-3 rounded-full backdrop-blur-xl shadow-2xl">
-                  <Target className="h-5 w-5 text-primary" />
-                  <span className="text-slate-200 font-bold tracking-wide">السيشن المكتملة: <strong className="text-white text-lg">{sessionCount}</strong></span>
+                <div className="flex items-center space-x-2 sm:space-x-3 mt-4 sm:mt-6 bg-white/10 border border-white/10 px-5 py-2 sm:px-8 sm:py-3 rounded-full backdrop-blur-xl shadow-2xl">
+                  <Target className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                  <span className="text-slate-200 text-xs sm:text-base font-bold tracking-wide">السيشن المكتملة: <strong className="text-white text-sm sm:text-lg">{sessionCount}</strong></span>
                 </div>
               )}
             </div>
 
             {/* Bottom Controls inside Fullscreen (Only for Timer mode) */}
-            <div className="w-full max-w-xl flex flex-col space-y-6 z-10">
+            <div className="w-full max-w-xl flex flex-col space-y-4 sm:space-y-6 z-10">
               {mode === 'timer' && (
                 <>
-                  <div className="w-full bg-white/10 rounded-full h-3 overflow-hidden p-0.5 border border-white/10 backdrop-blur-md">
+                  <div className="w-full bg-white/10 rounded-full h-2.5 sm:h-3 overflow-hidden p-0.5 border border-white/10 backdrop-blur-md">
                     <motion.div
                       className="h-full bg-gradient-to-r from-primary to-blue-400 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.8)]"
                       style={{ width: `${calculateProgress()}%` }}
@@ -207,19 +209,19 @@ export function StudyTimer() {
                     />
                   </div>
 
-                  <div className="flex items-center justify-center space-x-6">
+                  <div className="flex items-center justify-center space-x-3 sm:space-x-6">
                     <Button
                       onClick={isRunning ? pauseTimer : startTimer}
                       size="lg"
-                      className="px-12 py-7 text-xl rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_40px_rgba(59,130,246,0.5)] transition-all transform hover:scale-105 font-bold"
+                      className="flex-1 sm:flex-none px-6 sm:px-12 py-5 sm:py-7 text-base sm:text-xl rounded-xl sm:rounded-2xl bg-primary hover:bg-primary/90 text-white shadow-[0_0_40px_rgba(59,130,246,0.5)] transition-all font-bold"
                     >
                       {isRunning ? (
                         <>
-                          <Pause className="h-6 w-6 ml-3" /> إيقاف مؤقت
+                          <Pause className="h-5 w-5 sm:h-6 sm:w-6 ml-2 sm:ml-3" /> إيقاف مؤقت
                         </>
                       ) : (
                         <>
-                          <Play className="h-6 w-6 ml-3" /> {isPaused ? 'استكمال' : 'ابدأ التركيز'}
+                          <Play className="h-5 w-5 sm:h-6 sm:w-6 ml-2 sm:ml-3" /> {isPaused ? 'استكمال' : 'ابدأ التركيز'}
                         </>
                       )}
                     </Button>
@@ -228,16 +230,16 @@ export function StudyTimer() {
                       onClick={resetTimer}
                       variant="outline"
                       size="lg"
-                      className="px-10 py-7 text-xl rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md transition-all transform hover:scale-105 font-bold"
+                      className="flex-1 sm:flex-none px-5 sm:px-10 py-5 sm:py-7 text-base sm:text-xl rounded-xl sm:rounded-2xl bg-white/10 border-white/20 text-white hover:bg-white/20 backdrop-blur-md transition-all font-bold"
                     >
-                      <RotateCcw className="h-6 w-6 ml-3" /> إعادة ضبط
+                      <RotateCcw className="h-5 w-5 sm:h-6 sm:w-6 ml-2 sm:ml-3" /> إعادة ضبط
                     </Button>
                   </div>
                 </>
               )}
 
               {mode === 'clock' && (
-                <div className="text-center text-slate-400 text-sm font-medium">
+                <div className="text-center text-slate-400 text-xs sm:text-sm font-medium">
                   🌟 وضع الساعة الحية مفعل - استمتع بمظهر فخم وراقي للشاشة
                 </div>
               )}
@@ -247,21 +249,21 @@ export function StudyTimer() {
       </AnimatePresence>
 
       {/* Main Standard View */}
-      <div className="max-w-2xl mx-auto">
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4">
         <motion.div
-          initial={animationsEnabled ? { scale: 0.8, opacity: 0, y: 50 } : {}}
+          initial={animationsEnabled ? { scale: 0.95, opacity: 0, y: 20 } : {}}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           transition={{ type: "spring", stiffness: 100, damping: 20 }}
-          className="bg-card border border-border rounded-3xl p-8 shadow-2xl relative overflow-hidden"
+          className="bg-card border border-border rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl relative overflow-hidden"
         >
           {/* Top Quick Mode Toggle & Fullscreen Button */}
-          <div className="flex justify-between items-center mb-6 relative z-10 bg-muted/40 p-2 rounded-2xl border border-border">
-            <div className="flex items-center space-x-1">
+          <div className="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 mb-6 relative z-10 bg-muted/40 p-2 rounded-2xl border border-border">
+            <div className="flex items-center justify-center sm:justify-start space-x-1 rtl:space-x-reverse">
               <Button
                 variant={mode === 'timer' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setMode('timer')}
-                className="rounded-xl font-bold text-xs"
+                className="flex-1 sm:flex-none rounded-xl font-bold text-xs"
               >
                 <TimerIcon className="h-3.5 w-3.5 ml-1.5" /> تايمر الدراسة
               </Button>
@@ -269,7 +271,7 @@ export function StudyTimer() {
                 variant={mode === 'clock' ? 'default' : 'ghost'}
                 size="sm"
                 onClick={() => setMode('clock')}
-                className="rounded-xl font-bold text-xs"
+                className="flex-1 sm:flex-none rounded-xl font-bold text-xs"
               >
                 <Clock className="h-3.5 w-3.5 ml-1.5" /> الساعة الرقمية
               </Button>
@@ -279,7 +281,7 @@ export function StudyTimer() {
               variant="outline"
               size="sm"
               onClick={() => setIsFullscreen(true)}
-              className="flex items-center space-x-1.5 rounded-xl shadow-sm hover:shadow-md transition-all border-primary/30 hover:bg-primary/10 text-primary font-bold text-xs"
+              className="w-full sm:w-auto flex items-center justify-center space-x-1.5 rounded-xl shadow-sm hover:shadow-md transition-all border-primary/30 hover:bg-primary/10 text-primary font-bold text-xs py-2.5 sm:py-2"
             >
               <Maximize2 className="h-4 w-4 ml-1" />
               <span>عرض شاشة كاملة أسطوري</span>
@@ -287,10 +289,10 @@ export function StudyTimer() {
           </div>
 
           {/* Main Display */}
-          <div className="text-center mb-8 relative z-10">
+          <div className="text-center mb-6 sm:mb-8 relative z-10">
             <div
               dir="ltr"
-              className="text-6xl md:text-8xl font-mono font-black text-primary mb-4 relative inline-block tracking-widest cursor-pointer group"
+              className="text-5xl sm:text-7xl md:text-8xl font-mono font-black text-primary mb-4 relative inline-block tracking-widest cursor-pointer group hover:scale-105 transition-transform"
               onClick={() => setIsFullscreen(true)}
               title="اضغط للدخول في وضع الشاشة الكاملة الأسطوري"
             >
@@ -298,12 +300,12 @@ export function StudyTimer() {
             </div>
             
             {mode === 'timer' && settings.pomodoroMode && (
-              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse mb-4">
-                <Clock className="h-5 w-5 text-muted-foreground" />
-                <span className="text-lg font-bold">
+              <div className="flex items-center justify-center space-x-2 rtl:space-x-reverse mb-4 flex-wrap gap-y-2">
+                <Clock className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
+                <span className="text-base sm:text-lg font-bold">
                   {t(currentSession === 'work' ? 'workSession' : 'breakSession')}
                 </span>
-                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-sm font-bold shadow-md">
+                <span className="bg-primary text-primary-foreground px-3 py-1 rounded-full text-xs sm:text-sm font-bold shadow-md">
                   <Target className="inline h-3.5 w-3.5 ml-1" />
                   {sessionCount} {t('sessions')}
                 </span>
@@ -311,7 +313,7 @@ export function StudyTimer() {
             )}
             
             {mode === 'clock' && (
-              <div className="text-sm font-bold text-muted-foreground">
+              <div className="text-xs sm:text-sm font-bold text-muted-foreground">
                 الساعة الحالية متزامنة بدقة مع النظام ⏰
               </div>
             )}
@@ -319,11 +321,11 @@ export function StudyTimer() {
 
           {/* Control Buttons (Only in Timer Mode) */}
           {mode === 'timer' && (
-            <div className="flex items-center justify-center space-x-4 rtl:space-x-reverse mb-8 relative z-10">
+            <div className="flex items-center justify-center space-x-3 sm:space-x-4 rtl:space-x-reverse mb-6 sm:mb-8 relative z-10">
               <Button
                 onClick={isRunning ? pauseTimer : startTimer}
                 size="lg"
-                className="px-8 py-3 text-lg shadow-xl hover:shadow-2xl transition-all font-bold rounded-2xl"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-3 text-base sm:text-lg shadow-xl hover:shadow-2xl transition-all font-bold rounded-xl sm:rounded-2xl"
               >
                 {isRunning ? (
                   <>
@@ -340,7 +342,7 @@ export function StudyTimer() {
                 onClick={resetTimer}
                 variant="outline"
                 size="lg"
-                className="px-8 py-3 text-lg shadow-xl hover:shadow-2xl transition-all font-bold rounded-2xl border-border"
+                className="flex-1 sm:flex-none px-6 sm:px-8 py-3 text-base sm:text-lg shadow-xl hover:shadow-2xl transition-all font-bold rounded-xl sm:rounded-2xl border-border"
               >
                 <RotateCcw className="h-5 w-5 ml-2" /> {t('reset')}
               </Button>
@@ -349,38 +351,38 @@ export function StudyTimer() {
 
           {/* Time Settings (Only in Timer Mode) */}
           {mode === 'timer' && !isRunning && (
-            <div className="grid grid-cols-3 gap-4 mb-6 relative z-10 bg-muted/30 p-4 rounded-2xl border border-border">
+            <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 relative z-10 bg-muted/30 p-3 sm:p-4 rounded-2xl border border-border">
               <div>
-                <label className="block text-xs font-bold mb-2 text-muted-foreground">{t('hours')}</label>
+                <label className="block text-[11px] sm:text-xs font-bold mb-1.5 text-muted-foreground">{t('hours')}</label>
                 <Input
                   type="number"
                   min="0"
                   max="23"
                   value={settings.hours}
                   onChange={(e) => updateSettings('hours', parseInt(e.target.value) || 0)}
-                  className="text-center font-bold text-lg rounded-xl"
+                  className="text-center font-bold text-base sm:text-lg rounded-xl h-10 sm:h-11 px-1"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-2 text-muted-foreground">{t('minutes')}</label>
+                <label className="block text-[11px] sm:text-xs font-bold mb-1.5 text-muted-foreground">{t('minutes')}</label>
                 <Input
                   type="number"
                   min="0"
                   max="59"
                   value={settings.minutes}
                   onChange={(e) => updateSettings('minutes', parseInt(e.target.value) || 0)}
-                  className="text-center font-bold text-lg rounded-xl"
+                  className="text-center font-bold text-base sm:text-lg rounded-xl h-10 sm:h-11 px-1"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold mb-2 text-muted-foreground">{t('seconds')}</label>
+                <label className="block text-[11px] sm:text-xs font-bold mb-1.5 text-muted-foreground">{t('seconds')}</label>
                 <Input
                   type="number"
                   min="0"
                   max="59"
                   value={settings.seconds}
                   onChange={(e) => updateSettings('seconds', parseInt(e.target.value) || 0)}
-                  className="text-center font-bold text-lg rounded-xl"
+                  className="text-center font-bold text-base sm:text-lg rounded-xl h-10 sm:h-11 px-1"
                 />
               </div>
             </div>
@@ -390,7 +392,7 @@ export function StudyTimer() {
           {mode === 'timer' && (
             <div className="border-t border-border pt-6 relative z-10">
               <div className="flex items-center justify-between mb-4 bg-muted/30 p-3 rounded-2xl border border-border">
-                <label className="text-sm font-bold">{t('pomodoroMode')}</label>
+                <label className="text-xs sm:text-sm font-bold">{t('pomodoroMode')}</label>
                 <Switch
                   checked={settings.pomodoroMode}
                   onCheckedChange={(checked) => updateSettings('pomodoroMode', checked)}
@@ -398,9 +400,9 @@ export function StudyTimer() {
               </div>
 
               {settings.pomodoroMode && (
-                <div className="grid grid-cols-2 gap-4 mb-6">
+                <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
                   <div>
-                    <label className="block text-xs font-bold mb-2 text-muted-foreground">{t('workTime')} ({t('minutes')})</label>
+                    <label className="block text-[11px] sm:text-xs font-bold mb-1.5 text-muted-foreground">{t('workTime')} ({t('minutes')})</label>
                     <Input
                       type="number"
                       min="1"
@@ -411,7 +413,7 @@ export function StudyTimer() {
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-bold mb-2 text-muted-foreground">{t('breakTime')} ({t('minutes')})</label>
+                    <label className="block text-[11px] sm:text-xs font-bold mb-1.5 text-muted-foreground">{t('breakTime')} ({t('minutes')})</label>
                     <Input
                       type="number"
                       min="1" 
@@ -425,8 +427,8 @@ export function StudyTimer() {
               )}
 
               {/* Sound Selection */}
-              <div className="space-y-3 bg-muted/30 p-4 rounded-2xl border border-border">
-                <label className="text-sm font-bold flex items-center">
+              <div className="space-y-3 bg-muted/30 p-3 sm:p-4 rounded-2xl border border-border">
+                <label className="text-xs sm:text-sm font-bold flex items-center">
                   <Volume2 className="h-4 w-4 ml-2" />
                   {t('soundLibrary')}
                 </label>
@@ -447,7 +449,7 @@ export function StudyTimer() {
                     variant="outline"
                     size="sm"
                     onClick={playSound}
-                    className="px-4 font-bold rounded-xl"
+                    className="px-3 sm:px-4 font-bold rounded-xl shrink-0"
                   >
                     <Volume2 className="h-4 w-4 ml-1.5" />
                     {t('preview')}
