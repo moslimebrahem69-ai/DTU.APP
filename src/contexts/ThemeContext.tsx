@@ -1,10 +1,11 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 
-type Theme = 'light' | 'dark' | 'blue' | 'green' | 'yellow';
+export type Theme = 'light' | 'dark' | 'blue' | 'green' | 'yellow';
 
 interface ThemeContextType {
   theme: Theme;
   setTheme: (theme: Theme) => void;
+  toggleDarkLight: () => void;
   animationsEnabled: boolean;
   toggleAnimations: () => void;
 }
@@ -17,7 +18,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     return (saved as Theme) || 'light';
   });
   
-  const [animationsEnabled, setAnimationsEnabled] = useState(() => {
+  const [animationsEnabled, setAnimationsEnabled] = useState<boolean>(() => {
     const saved = localStorage.getItem('dtu-animations');
     return saved ? JSON.parse(saved) : true;
   });
@@ -25,6 +26,13 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     localStorage.setItem('dtu-theme', theme);
     document.documentElement.setAttribute('data-theme', theme);
+    
+    // إضافة/إزالة كلاس dark لتبسيط تنسيقات Tailwind CSS
+    if (theme === 'dark') {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
   }, [theme]);
 
   useEffect(() => {
@@ -32,12 +40,25 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.setAttribute('data-animations', animationsEnabled.toString());
   }, [animationsEnabled]);
 
+  // دالة تبديل الثيم بين الوضعين المظلم والمضيء
+  const toggleDarkLight = () => {
+    setTheme((prev: Theme) => (prev === 'dark' ? 'light' : 'dark'));
+  };
+
   const toggleAnimations = () => {
-    setAnimationsEnabled(prev => !prev);
+    setAnimationsEnabled((prev: boolean) => !prev);
   };
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, animationsEnabled, toggleAnimations }}>
+    <ThemeContext.Provider 
+      value={{ 
+        theme, 
+        setTheme, 
+        toggleDarkLight, 
+        animationsEnabled, 
+        toggleAnimations 
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );

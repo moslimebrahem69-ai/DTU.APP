@@ -13,28 +13,28 @@ const containerVariants = {
   visible: {
     opacity: 1,
     transition: {
-      staggerChildren: 0.06,
-      delayChildren: 0.1,
+      staggerChildren: 0.04,
+      delayChildren: 0.05,
     },
   },
 };
 
 const itemVariants = {
-  hidden: { opacity: 0, y: 20, scale: 0.98 },
+  hidden: { opacity: 0, y: 12, scale: 0.98 },
   visible: {
     opacity: 1,
     y: 0,
     scale: 1,
     transition: {
       type: 'spring' as const,
-      stiffness: 260,
-      damping: 20,
+      stiffness: 300,
+      damping: 24,
     },
   },
   exit: {
     opacity: 0,
-    scale: 0.95,
-    transition: { duration: 0.15 },
+    scale: 0.96,
+    transition: { duration: 0.12 },
   },
 };
 
@@ -70,25 +70,28 @@ export function AIToolsPage() {
   }, [searchTerm, categoryFilter, languageFilter, paidFilter]);
 
   return (
-    <div>
-      {/* رأس الصفحة مع حركة دخول ناعمة */}
+    <div className="px-2 sm:px-4 py-2 sm:py-6 max-w-7xl mx-auto">
+      {/* رأس الصفحة بحجم مضغوط ومناسب للشاشات الصغيرة */}
       <motion.div
-        initial={animationsEnabled ? { y: -15, opacity: 0 } : false}
+        initial={animationsEnabled ? { y: -10, opacity: 0 } : false}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, ease: [0.25, 0.1, 0.25, 1.0] }}
-        className="mb-8"
+        transition={{ duration: 0.3, ease: [0.25, 0.1, 0.25, 1.0] }}
+        className="mb-3 sm:mb-6 text-right"
       >
-        <h1 className="text-3xl font-bold text-foreground mb-2">{t('aiTools')}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-xl sm:text-3xl font-black text-foreground tracking-tight mb-1">
+          {t('aiTools')}
+        </h1>
+        <p className="text-xs sm:text-sm text-muted-foreground leading-snug">
           اكتشف أفضل أدوات الذكاء الاصطناعي للبرمجة والإنتاجية
         </p>
       </motion.div>
 
-      {/* قسم البحث والفلترة مع حركة خفيفة */}
+      {/* قسم البحث والفلترة بتصميم مدمج */}
       <motion.div
-        initial={animationsEnabled ? { y: 10, opacity: 0 } : false}
+        initial={animationsEnabled ? { y: 8, opacity: 0 } : false}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ duration: 0.4, delay: 0.15, ease: 'easeOut' }}
+        transition={{ duration: 0.3, delay: 0.1, ease: 'easeOut' }}
+        className="mb-4"
       >
         <SearchAndFilter
           searchTerm={searchTerm}
@@ -111,9 +114,9 @@ export function AIToolsPage() {
         />
       </motion.div>
 
-      {/* شبكة الكروت مع أنيميشن متتابع وناعم */}
+      {/* شبكة الكروت بمسافات بينية ملمومة جداً على الموبايل (gap-3) */}
       <motion.div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6"
         variants={animationsEnabled ? containerVariants : undefined}
         initial={animationsEnabled ? 'hidden' : false}
         animate="visible"
@@ -127,7 +130,7 @@ export function AIToolsPage() {
               initial={animationsEnabled ? 'hidden' : false}
               animate="visible"
               exit={animationsEnabled ? 'exit' : undefined}
-              whileHover={animationsEnabled ? { y: -4, transition: { duration: 0.2 } } : undefined}
+              whileHover={animationsEnabled ? { y: -2, transition: { duration: 0.15 } } : undefined}
             >
               <ContentCard
                 title={tool.name}
@@ -144,22 +147,22 @@ export function AIToolsPage() {
         </AnimatePresence>
       </motion.div>
 
-      {/* رسالة عدم وجود نتائج مع أنيميشن سلس */}
+      {/* رسالة عدم وجود نتائج */}
       <AnimatePresence>
         {filteredTools.length === 0 && (
           <motion.div
-            initial={animationsEnabled ? { opacity: 0, y: 10 } : false}
+            initial={animationsEnabled ? { opacity: 0, y: 8 } : false}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.25 }}
-            className="text-center py-12"
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: 0.2 }}
+            className="text-center py-8 sm:py-12"
           >
-            <p className="text-muted-foreground">لم يتم العثور على أدوات تطابق البحث</p>
+            <p className="text-xs sm:text-sm text-muted-foreground">لم يتم العثور على أدوات تطابق البحث</p>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* المودال الشامل للعرض داخل نفس الصفحة */}
+      {/* المودال الشامل لعرض الروابط */}
       {activeViewer && (
         <UniversalViewerModal
           title={activeViewer.title}

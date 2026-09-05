@@ -17,7 +17,6 @@ import {
   Code,
   Coffee
 } from 'lucide-react';
-import { Button } from '../ui/button';
 import { Switch } from '../ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
 import { useTheme } from '../../contexts/ThemeContext';
@@ -83,7 +82,7 @@ export function SideDrawer() {
   };
 
   return (
-    <div className="flex flex-col h-full bg-gradient-to-b from-background via-background/95 to-background/90 relative overflow-hidden">
+    <div className="flex flex-col h-full bg-gradient-to-b from-background via-background/95 to-background/90 relative overflow-hidden px-3 py-2">
       {/* Animated Background Elements */}
       <div className="absolute inset-0 pointer-events-none">
         {animationsEnabled && floatingIcons.map((Icon, index) => (
@@ -91,21 +90,21 @@ export function SideDrawer() {
             key={index}
             className="absolute opacity-5"
             initial={{
-              x: Math.random() * 300,
-              y: Math.random() * 600,
+              x: Math.random() * 250,
+              y: Math.random() * 500,
               rotate: 0,
               scale: 0.5
             }}
             animate={{
               x: [
-                Math.random() * 300,
-                Math.random() * 300,
-                Math.random() * 300
+                Math.random() * 250,
+                Math.random() * 250,
+                Math.random() * 250
               ],
               y: [
-                Math.random() * 600,
-                Math.random() * 600,
-                Math.random() * 600
+                Math.random() * 500,
+                Math.random() * 500,
+                Math.random() * 500
               ],
               rotate: [0, 180, 360],
               scale: [0.5, 0.8, 0.5]
@@ -117,36 +116,36 @@ export function SideDrawer() {
               delay: index * 2
             }}
           >
-            <Icon className="h-6 w-6 text-primary" />
+            <Icon className="h-5 w-5 text-primary" />
           </motion.div>
         ))}
       </div>
 
-      {/* Profile Section */}
+      {/* Profile Section (Compact) */}
       <motion.div 
-        className="text-center py-8 border-b border-border/50 relative z-10"
-        initial={{ opacity: 0, y: -20 }}
+        className="text-center py-3 border-b border-border/50 relative z-10 shrink-0"
+        initial={{ opacity: 0, y: -10 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: "easeOut" }}
+        transition={{ duration: 0.4, ease: "easeOut" }}
       >
-        {/* Animated Profile Circle */}
+        {/* Compact Profile Circle */}
         <motion.div
-          className="relative w-24 h-24 mx-auto mb-4"
-          whileHover={{ scale: 1.1 }}
+          className="relative w-14 h-14 mx-auto mb-2"
+          whileHover={{ scale: 1.05 }}
           transition={{ type: "spring", stiffness: 300 }}
         >
           {/* Outer rotating ring */}
           <motion.div
-            className="absolute inset-0 rounded-full border-2 border-primary/30"
+            className="absolute inset-0 rounded-full border border-primary/30"
             animate={animationsEnabled ? { rotate: 360 } : {}}
             transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
           />
           
           {/* Middle pulsing ring */}
           <motion.div
-            className="absolute inset-1 rounded-full border border-primary/50"
+            className="absolute inset-0.5 rounded-full border border-primary/50"
             animate={animationsEnabled ? { 
-              scale: [1, 1.1, 1],
+              scale: [1, 1.05, 1],
               opacity: [0.5, 0.8, 0.5]
             } : {}}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
@@ -154,296 +153,150 @@ export function SideDrawer() {
           
           {/* Inner gradient circle */}
           <motion.div
-            className="absolute inset-2 rounded-full bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-lg"
-            animate={animationsEnabled ? {
-              background: [
-                "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%)",
-                "linear-gradient(135deg, #10b981 0%, #059669 50%, #047857 100%)",
-                "linear-gradient(135deg, #f59e0b 0%, #d97706 50%, #b45309 100%)",
-                "linear-gradient(135deg, #3b82f6 0%, #1d4ed8 50%, #1e40af 100%)"
-              ]
-            } : {}}
-            transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
+            className="absolute inset-1 rounded-full bg-gradient-to-br from-primary via-primary/80 to-primary/60 flex items-center justify-center shadow-md"
           >
-            <motion.div
-              animate={animationsEnabled ? { 
-                rotate: [0, 10, -10, 0],
-                scale: [1, 1.1, 1]
-              } : {}}
-              transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-              <User className="h-10 w-10 text-white drop-shadow-lg" />
-            </motion.div>
+            <User className="h-6 w-6 text-white drop-shadow-sm" />
           </motion.div>
-          
-          {/* Floating sparkles around profile */}
-          {animationsEnabled && [...Array(4)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute"
-              style={{
-                top: `${20 + Math.sin(i * Math.PI / 2) * 30}%`,
-                left: `${20 + Math.cos(i * Math.PI / 2) * 30}%`,
-              }}
-              animate={{
-                scale: [0, 1, 0],
-                rotate: [0, 180, 360],
-                opacity: [0, 1, 0]
-              }}
-              transition={{
-                duration: 2,
-                repeat: Infinity,
-                delay: i * 0.5,
-                ease: "easeInOut"
-              }}
-            >
-              <Sparkles className="h-3 w-3 text-yellow-400" />
-            </motion.div>
-          ))}
         </motion.div>
 
         {/* Developer Name */}
         <motion.h3 
-          className="font-bold text-foreground text-lg mb-2"
+          className="font-bold text-foreground text-sm leading-tight mb-1"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
         >
           {t('developer')}
         </motion.h3>
 
-        {/* Facebook Link */}
-        <motion.a
-          href="https://www.facebook.com/share/16ZRVqbrVC/"
-          onClick={(e) => handleOpenViewer(e, 'https://www.facebook.com/share/16ZRVqbrVC/', 'صفحة المطور')}
-          className="inline-flex items-center space-x-2 rtl:space-x-reverse text-sm text-blue-600 hover:text-blue-700 transition-colors mb-2 cursor-pointer"
-          whileHover={{ scale: 1.05, x: 2 }}
-          whileTap={{ scale: 0.95 }}
-        >
-          <Facebook className="h-4 w-4" />
-          <span>صفحة المطور</span>
-        </motion.a>
+        {/* Facebook Link & Version */}
+        <div className="flex items-center justify-center gap-3 text-xs text-muted-foreground">
+          <motion.a
+            href="https://www.facebook.com/share/16ZRVqbrVC/"
+            onClick={(e) => handleOpenViewer(e, 'https://www.facebook.com/share/16ZRVqbrVC/', 'صفحة المطور')}
+            className="inline-flex items-center space-x-1 rtl:space-x-reverse text-[11px] text-blue-600 hover:text-blue-700 transition-colors cursor-pointer"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Facebook className="h-3 w-3" />
+            <span>صفحة المطور</span>
+          </motion.a>
 
-        <motion.p 
-          className="text-xs text-muted-foreground flex items-center justify-center space-x-1 rtl:space-x-reverse"
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-        >
-          <Star className="h-3 w-3 text-yellow-500" />
-          <span>{t('version')}</span>
-        </motion.p>
+          <span className="text-muted-foreground/40">•</span>
+
+          <span className="flex items-center space-x-0.5 rtl:space-x-reverse text-[10px]">
+            <Star className="h-2.5 w-2.5 text-yellow-500 fill-yellow-500" />
+            <span>{t('version')}</span>
+          </span>
+        </div>
       </motion.div>
 
-      {/* Enhanced Social Links */}
+      {/* Social Links (Compact) */}
       <motion.div 
-        className="py-6 border-b border-border/50 relative z-10"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ delay: 0.4, duration: 0.6 }}
+        className="py-3 border-b border-border/50 relative z-10 shrink-0"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.2 }}
       >
-        <motion.h4 
-          className="text-sm font-semibold text-muted-foreground mb-4 px-1 flex items-center"
-          whileHover={{ x: 4 }}
-        >
-          <Sparkles className="h-4 w-4 mr-2 text-primary" />
+        <h4 className="text-xs font-bold text-muted-foreground mb-2 px-1 flex items-center">
+          <Sparkles className="h-3 w-3 mr-1.5 rtl:ml-1.5 text-primary" />
           {t('socialLinks')}
-        </motion.h4>
+        </h4>
         
-        <div className="space-y-3">
+        <div className="grid grid-cols-2 gap-1.5">
           <AnimatePresence>
             {socialLinks.map((link, index) => (
               <motion.a
                 key={link.name}
                 href={link.url}
                 onClick={(e) => handleOpenViewer(e, link.url, t(link.name))}
-                initial={{ x: -50, opacity: 0 }}
-                animate={{ x: 0, opacity: 1 }}
-                exit={{ x: -50, opacity: 0 }}
-                transition={{ 
-                  delay: index * 0.1,
-                  type: "spring",
-                  stiffness: 100
-                }}
-                whileHover={{ 
-                  scale: 1.02,
-                  x: 6,
-                  transition: { type: "spring", stiffness: 400 }
-                }}
+                whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                className={`flex items-center space-x-3 rtl:space-x-reverse p-3 rounded-xl transition-all duration-300 ${link.bgColor} ${link.hoverColor} group relative overflow-hidden cursor-pointer`}
+                className={`flex items-center space-x-2 rtl:space-x-reverse p-1.5 rounded-lg transition-all ${link.bgColor} ${link.hoverColor} group cursor-pointer`}
               >
-                {/* Animated background on hover */}
-                <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent"
-                  initial={{ x: "-100%" }}
-                  whileHover={{ x: "100%" }}
-                  transition={{ duration: 0.6 }}
-                />
-                
-                <motion.div
-                  className={`w-10 h-10 rounded-lg ${link.bgColor} flex items-center justify-center relative z-10`}
-                  whileHover={{ rotate: 5, scale: 1.1 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <link.icon className={`h-5 w-5 ${link.color}`} />
-                </motion.div>
-                
-                <div className="flex-1 relative z-10">
-                  <motion.span 
-                    className="text-sm font-medium text-foreground group-hover:text-primary transition-colors"
-                    whileHover={{ x: 2 }}
-                  >
-                    {t(link.name)}
-                  </motion.span>
+                <div className={`w-6 h-6 rounded-md ${link.bgColor} flex items-center justify-center shrink-0`}>
+                  <link.icon className={`h-3.5 w-3.5 ${link.color}`} />
                 </div>
-                
-                <motion.div
-                  className="opacity-0 group-hover:opacity-100 transition-opacity"
-                  whileHover={{ x: 2 }}
-                >
-                  <div className="w-2 h-2 rounded-full bg-primary" />
-                </motion.div>
+                <span className="text-xs font-medium text-foreground group-hover:text-primary transition-colors truncate">
+                  {t(link.name)}
+                </span>
               </motion.a>
             ))}
           </AnimatePresence>
         </div>
       </motion.div>
 
-      {/* Enhanced Settings */}
+      {/* Settings (Compact) */}
       <motion.div 
-        className="flex-1 py-6 relative z-10"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.6, duration: 0.6 }}
+        className="flex-1 py-3 relative z-10 overflow-y-auto space-y-2 text-xs"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}
       >
-        <motion.h4 
-          className="text-sm font-semibold text-muted-foreground mb-6 flex items-center px-1"
-          whileHover={{ x: 4 }}
-        >
-          <Settings className="h-4 w-4 mr-2 rtl:ml-2 text-primary" />
+        <h4 className="text-xs font-bold text-muted-foreground mb-2 flex items-center px-1">
+          <Settings className="h-3 w-3 mr-1.5 rtl:ml-1.5 text-primary" />
           {t('settings')}
-        </motion.h4>
+        </h4>
         
-        <div className="space-y-6">
-          {/* Theme Selection */}
-          <motion.div 
-            className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50"
-            whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <motion.div
-                  animate={animationsEnabled ? { rotate: [0, 360] } : {}}
-                  transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-                >
-                  <Palette className="h-4 w-4 text-primary" />
-                </motion.div>
-                <span className="text-sm font-medium">{t('theme')}</span>
-              </div>
-            </div>
-            <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
-              <SelectTrigger className="w-full bg-background/50 border-border/50 hover:border-primary/50 transition-colors">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="light">{t('light')}</SelectItem>
-                <SelectItem value="dark">{t('dark')}</SelectItem>
-                <SelectItem value="blue">{t('blue')}</SelectItem>
-                <SelectItem value="green">{t('green')}</SelectItem>
-                <SelectItem value="yellow">{t('yellow')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
+        {/* Theme Selection */}
+        <div className="bg-card/60 backdrop-blur-sm rounded-lg p-2 border border-border/40 flex items-center justify-between">
+          <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+            <Palette className="h-3.5 w-3.5 text-primary" />
+            <span className="font-medium text-xs">{t('theme')}</span>
+          </div>
+          <Select value={theme} onValueChange={(value: any) => setTheme(value)}>
+            <SelectTrigger className="h-7 w-24 text-xs bg-background/50 border-border/40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="light">{t('light')}</SelectItem>
+              <SelectItem value="dark">{t('dark')}</SelectItem>
+              <SelectItem value="blue">{t('blue')}</SelectItem>
+              <SelectItem value="green">{t('green')}</SelectItem>
+              <SelectItem value="yellow">{t('yellow')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Language Selection */}
-          <motion.div 
-            className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50"
-            whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <motion.div
-                  animate={animationsEnabled ? { 
-                    scale: [1, 1.2, 1],
-                    rotate: [0, 10, -10, 0]
-                  } : {}}
-                  transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Languages className="h-4 w-4 text-primary" />
-                </motion.div>
-                <span className="text-sm font-medium">{t('language')}</span>
-              </div>
-            </div>
-            <Select value={i18n.language} onValueChange={changeLanguage}>
-              <SelectTrigger className="w-full bg-background/50 border-border/50 hover:border-primary/50 transition-colors">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="ar">{t('arabic')}</SelectItem>
-                <SelectItem value="en">{t('english')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
+        {/* Language Selection */}
+        <div className="bg-card/60 backdrop-blur-sm rounded-lg p-2 border border-border/40 flex items-center justify-between">
+          <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+            <Languages className="h-3.5 w-3.5 text-primary" />
+            <span className="font-medium text-xs">{t('language')}</span>
+          </div>
+          <Select value={i18n.language} onValueChange={changeLanguage}>
+            <SelectTrigger className="h-7 w-24 text-xs bg-background/50 border-border/40">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ar">{t('arabic')}</SelectItem>
+              <SelectItem value="en">{t('english')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-          {/* Animation Toggle */}
-          <motion.div 
-            className="bg-card/50 backdrop-blur-sm rounded-xl p-4 border border-border/50"
-            whileHover={{ scale: 1.02, boxShadow: "0 8px 25px rgba(0,0,0,0.1)" }}
-            transition={{ type: "spring", stiffness: 300 }}
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-2 rtl:space-x-reverse">
-                <motion.div
-                  animate={animationsEnabled ? { 
-                    rotate: [0, 180, 360],
-                    scale: [1, 1.3, 1]
-                  } : {}}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Zap className="h-4 w-4 text-primary" />
-                </motion.div>
-                <span className="text-sm font-medium">{t('animations')}</span>
-              </div>
-              <motion.div 
-                whileTap={{ scale: 0.95 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <Switch 
-                  checked={animationsEnabled} 
-                  onCheckedChange={toggleAnimations}
-                  className="data-[state=checked]:bg-primary"
-                />
-              </motion.div>
-            </div>
-          </motion.div>
+        {/* Animation Toggle */}
+        <div className="bg-card/60 backdrop-blur-sm rounded-lg p-2 border border-border/40 flex items-center justify-between">
+          <div className="flex items-center space-x-1.5 rtl:space-x-reverse">
+            <Zap className="h-3.5 w-3.5 text-primary" />
+            <span className="font-medium text-xs">{t('animations')}</span>
+          </div>
+          <Switch 
+            checked={animationsEnabled} 
+            onCheckedChange={toggleAnimations}
+            className="data-[state=checked]:bg-primary scale-75"
+          />
         </div>
       </motion.div>
 
       {/* Footer */}
-      <motion.div 
-        className="py-4 border-t border-border/50 text-center relative z-10"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.8 }}
-      >
-        <motion.div
-          className="flex items-center justify-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground"
-          whileHover={{ scale: 1.05 }}
-        >
-          <motion.div
-            animate={animationsEnabled ? { rotate: 360 } : {}}
-            transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-          >
-            <Heart className="h-3 w-3 text-red-500" />
-          </motion.div>
+      <div className="py-2 border-t border-border/50 text-center relative z-10 shrink-0">
+        <div className="flex items-center justify-center space-x-1 rtl:space-x-reverse text-[10px] text-muted-foreground">
+          <Heart className="h-3 w-3 text-red-500 fill-red-500/20" />
           <span>صُنع بحب في مصر</span>
-        </motion.div>
-      </motion.div>
+        </div>
+      </div>
 
-      {/* المودال الموحد للمعاينة */}
+      {/* Universal Viewer Modal */}
       {selectedItem && (
         <UniversalViewerModal
           url={selectedItem.url}

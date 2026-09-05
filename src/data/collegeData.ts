@@ -1,7 +1,7 @@
 export interface CourseMaterial {
   name: string;
   url: string;
-  type: 'lectures' | 'sheets' | 'exams' | 'notes';
+  type: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other';
 }
 
 export interface Course {
@@ -33,7 +33,7 @@ export interface SearchResultItem {
   courseName: string;
   materialName: string;
   materialUrl: string;
-  materialType: 'lectures' | 'sheets' | 'exams' | 'notes';
+  materialType: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other' | 'drive';
 }
 
 export const collegeData: Year[] = [

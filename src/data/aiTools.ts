@@ -129,9 +129,7 @@ export const aiToolCategories = {
 };
 
 export const aiToolsData: AITool[] = [
-  // ==========================================
   // 1. أدوات المذاكرة والتلخيص وتوليد الأسئلة (لكل الفرق والكليات)
-  // ==========================================
   {
     id: '1',
     name: 'Quizgecko',
@@ -253,10 +251,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['exam', 'prep', 'quiz']
   },
-
-  // ==========================================
   // 2. تكنولوجيا الميكاترونيكس (Mechatronics)
-  // ==========================================
   {
     id: '12',
     name: 'Wokwi AI Assistant',
@@ -367,10 +362,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['ros', 'robotics', 'python']
   },
-
-  // ==========================================
   // 3. تكنولوجيا التبريد والتكييف (HVAC)
-  // ==========================================
   {
     id: '22',
     name: 'CoolPack Thermal Copilot',
@@ -448,10 +440,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['energy', 'chillers', 'building']
   },
-
-  // ==========================================
   // 4. تصميم وتصنيع الاسطمبات (Dies & Molds)
-  // ==========================================
   {
     id: '29',
     name: 'Fusion 360 AI Mold Design',
@@ -518,10 +507,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['solidworks', 'cad', 'fea']
   },
-
-  // ==========================================
   // 5. تكنولوجيا الأوتوترونيكس (Autotronics)
-  // ==========================================
   {
     id: '35',
     name: 'OBD2 Trouble Code AI Interpreter',
@@ -577,10 +563,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['canbus', 'networking', 'automotive']
   },
-
-  // ==========================================
   // 6. تكنولوجيا الطاقة المتجددة (Renewable Energy)
-  // ==========================================
   {
     id: '40',
     name: 'PVsyst AI Assistant',
@@ -636,10 +619,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['nrel', 'sam', 'economics']
   },
-
-  // ==========================================
   // 7. تكنولوجيا المعلومات والشبكات (IT & Networking)
-  // ==========================================
   {
     id: '45',
     name: 'Cisco Packet Tracer AI Companion',
@@ -706,10 +686,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['docker', 'k8s', 'cloud']
   },
-
-  // ==========================================
   // 8. الأبحاث الأكاديمية ومشاريع التخرج (Academic & Reports)
-  // ==========================================
   {
     id: '51',
     name: 'Consensus AI',
@@ -809,10 +786,7 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['presentation', 'slides', 'ai']
   },
-
-  // ==========================================
   // 9. البرمجة ومساعدات التطوير العامة
-  // ==========================================
   {
     id: '60',
     name: 'GitHub Copilot',
@@ -912,11 +886,8 @@ export const aiToolsData: AITool[] = [
     language: 'en',
     tags: ['aws', 'cloud', 'backend']
   },
-
-  // ==========================================
-  // 10. أدوات إضافية لتغطية التخصصات التكنولوجية بكثافة
-  // ==========================================
-  {
+   // 10. أدوات إضافية لتغطية التخصصات التكنولوجية بكثافة
+    {
     id: '69',
     name: 'Claude 3.5 Sonnet',
     description: 'أفضل نموج ذكاء اصطناعي لكتابة الأكواد وتلخيص المحاضرات الطويلة بدقة عالية جداً.',

@@ -85,42 +85,36 @@ export function SearchAndFilter({
 
   const getCategoryIcon = (key: string) => {
     const IconComponent = CATEGORY_ICONS[key] || Folder;
-    return <IconComponent className="h-4 w-4 shrink-0 text-muted-foreground" />;
+    return <IconComponent className="h-3.5 w-3.5 shrink-0 text-muted-foreground" />;
   };
 
   return (
     <motion.div 
-      className="mb-8 space-y-6"
-      initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
+      className="mb-4 space-y-3"
+      initial={animationsEnabled ? { y: 10, opacity: 0 } : {}}
       animate={{ y: 0, opacity: 1 }}
-      transition={{ delay: 0.2 }}
+      transition={{ delay: 0.15 }}
     >
-      {/* Search Bar */}
+      {/* Search Bar - مضغوط للشاشات الصغيرة */}
       <motion.div 
         className="relative"
-        whileFocus={animationsEnabled ? { scale: 1.01 } : {}}
+        whileFocus={animationsEnabled ? { scale: 1.005 } : {}}
       >
         <motion.div
           className="absolute left-3 rtl:right-3 top-1/2 transform -translate-y-1/2"
-          animate={animationsEnabled && searchTerm ? { scale: [1, 1.2, 1] } : {}}
-          transition={{ duration: 0.3 }}
+          animate={animationsEnabled && searchTerm ? { scale: [1, 1.1, 1] } : {}}
+          transition={{ duration: 0.2 }}
         >
           <Search className="h-4 w-4 text-muted-foreground" />
         </motion.div>
-        <motion.div
-          whileFocus={animationsEnabled ? { 
-            boxShadow: "0 0 0 4px rgba(59, 130, 246, 0.1)",
-            borderColor: "rgba(59, 130, 246, 0.3)"
-          } : {}}
-        >
-          <Input
-            type="text"
-            placeholder={t('searchPlaceholder')}
-            value={searchTerm}
-            onChange={(e) => onSearchChange(e.target.value)}
-            className="pl-10 rtl:pr-10 h-12 text-base transition-all duration-200"
-          />
-        </motion.div>
+        
+        <Input
+          type="text"
+          placeholder={t('searchPlaceholder')}
+          value={searchTerm}
+          onChange={(e) => onSearchChange(e.target.value)}
+          className="pl-9 rtl:pr-9 h-10 sm:h-11 text-sm transition-all duration-200 rounded-xl"
+        />
         
         {searchTerm && (
           <motion.button
@@ -130,106 +124,94 @@ export function SearchAndFilter({
             onClick={() => onSearchChange('')}
             className="absolute right-3 rtl:left-3 top-1/2 transform -translate-y-1/2 p-1 rounded-full hover:bg-muted transition-colors"
           >
-            <X className="h-4 w-4 text-muted-foreground" />
+            <X className="h-3.5 w-3.5 text-muted-foreground" />
           </motion.button>
         )}
       </motion.div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center">
-        <motion.div 
-          className="flex items-center space-x-2 rtl:space-x-reverse"
-          whileHover={animationsEnabled ? { x: 2 } : {}}
-        >
-          <Filter className="h-4 w-4 text-muted-foreground" />
-          <span className="text-sm font-medium text-muted-foreground">الفلاتر:</span>
-        </motion.div>
-        
-        <motion.div 
-          className="flex-1 min-w-[140px]"
-          whileFocus={animationsEnabled ? { scale: 1.02 } : {}}
-        >
-          <Select value={category} onValueChange={onCategoryChange}>
-            <SelectTrigger>
-              <SelectValue placeholder={t('category')} />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">
-                <div className="flex items-center gap-2">
-                  {getCategoryIcon('all')}
-                  <span>{t('allCategories')}</span>
-                </div>
-              </SelectItem>
-              {Object.entries(categories).map(([key, value]) => {
-                const label = typeof value === 'string' ? value : value.name;
-                return (
-                  <SelectItem key={key} value={key}>
-                    <div className="flex items-center gap-2">
-                      {getCategoryIcon(key)}
-                      <span>{label}</span>
-                    </div>
-                  </SelectItem>
-                );
-              })}
-            </SelectContent>
-          </Select>
-        </motion.div>
+      {/* Filters Area - تصميم متناسق ومستجيب للشاشات الصغيرة */}
+      <div className="flex flex-col gap-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5 text-xs sm:text-sm font-medium text-muted-foreground">
+            <Filter className="h-3.5 w-3.5" />
+            <span>الفلاتر:</span>
+          </div>
 
-        {showLanguageFilter && (
-          <motion.div 
-            className="flex-1 min-w-[120px]"
-            whileFocus={animationsEnabled ? { scale: 1.02 } : {}}
-          >
-            <Select value={languageFilter} onValueChange={onLanguageFilterChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="both">{t('both')}</SelectItem>
-                <SelectItem value="ar">{t('arabic')}</SelectItem>
-                <SelectItem value="en">{t('english')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-        )}
-
-        {showPaidFilter && (
-          <motion.div 
-            className="flex-1 min-w-[120px]"
-            whileFocus={animationsEnabled ? { scale: 1.02 } : {}}
-          >
-            <Select value={paidFilter} onValueChange={onPaidFilterChange}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="both">{t('both')}</SelectItem>
-                <SelectItem value="free">{t('free')}</SelectItem>
-                <SelectItem value="paid">{t('paid')}</SelectItem>
-              </SelectContent>
-            </Select>
-          </motion.div>
-        )}
-        
-        {hasActiveFilters && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0 }}
-            whileHover={animationsEnabled ? { scale: 1.05 } : {}}
-            whileTap={animationsEnabled ? { scale: 0.95 } : {}}
-          >
+          {hasActiveFilters && (
             <Button
-              variant="outline"
+              variant="ghost"
               size="sm"
               onClick={clearFilters}
-              className="px-3"
+              className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground"
             >
-              <X className="h-4 w-4 mr-1" />
-              مسح الفلاتر
+              <X className="h-3 w-3 mr-1 rtl:ml-1" />
+              مسح الكل
             </Button>
-          </motion.div>
-        )}
+          )}
+        </div>
+
+        {/* شبكة القوائم المنسدلة بتوزيع متناسب */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+          {/* فلتر القسم */}
+          <div className="col-span-2 sm:col-span-1">
+            <Select value={category} onValueChange={onCategoryChange}>
+              <SelectTrigger className="h-9 text-xs sm:text-sm rounded-lg">
+                <SelectValue placeholder={t('category')} />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all" className="text-xs sm:text-sm">
+                  <div className="flex items-center gap-2">
+                    {getCategoryIcon('all')}
+                    <span>{t('allCategories')}</span>
+                  </div>
+                </SelectItem>
+                {Object.entries(categories).map(([key, value]) => {
+                  const label = typeof value === 'string' ? value : value.name;
+                  return (
+                    <SelectItem key={key} value={key} className="text-xs sm:text-sm">
+                      <div className="flex items-center gap-2">
+                        {getCategoryIcon(key)}
+                        <span>{label}</span>
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* فلتر اللغة */}
+          {showLanguageFilter && (
+            <div>
+              <Select value={languageFilter} onValueChange={onLanguageFilterChange}>
+                <SelectTrigger className="h-9 text-xs sm:text-sm rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both" className="text-xs sm:text-sm">{t('both')}</SelectItem>
+                  <SelectItem value="ar" className="text-xs sm:text-sm">{t('arabic')}</SelectItem>
+                  <SelectItem value="en" className="text-xs sm:text-sm">{t('english')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* فلتر المدفوع/المجاني */}
+          {showPaidFilter && (
+            <div>
+              <Select value={paidFilter} onValueChange={onPaidFilterChange}>
+                <SelectTrigger className="h-9 text-xs sm:text-sm rounded-lg">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="both" className="text-xs sm:text-sm">{t('both')}</SelectItem>
+                  <SelectItem value="free" className="text-xs sm:text-sm">{t('free')}</SelectItem>
+                  <SelectItem value="paid" className="text-xs sm:text-sm">{t('paid')}</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+        </div>
       </div>
     </motion.div>
   );

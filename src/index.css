@@ -29,25 +29,34 @@
   --ring: 221.2 83.2% 53.3%;
 }
 
-[data-theme="dark"] {
-  --background: 222.2 84% 4.9%;
+/* 🔹 Dark Theme Fixes - إصلاح التباين والألوان الداكنة */
+[data-theme="dark"], .dark {
+  --background: 222 47% 7%;
   --foreground: 210 40% 98%;
-  --card: 222.2 84% 4.9%;
+
+  --card: 217 33% 12%;            /* إبراز الكروت بدرجة أفتح من الخلفية */
   --card-foreground: 210 40% 98%;
-  --popover: 222.2 84% 4.9%;
+
+  --popover: 217 33% 12%;
   --popover-foreground: 210 40% 98%;
+
   --primary: 217.2 91.2% 59.8%;
   --primary-foreground: 222.2 84% 4.9%;
+
   --secondary: 217.2 32.6% 17.5%;
   --secondary-foreground: 210 40% 98%;
-  --muted: 217.2 32.6% 17.5%;
-  --muted-foreground: 215 20.2% 65.1%;
-  --accent: 217.2 32.6% 17.5%;
+
+  --muted: 217 33% 17%;
+  --muted-foreground: 215 20.2% 75%; /* تفتيح الخطوط الفرعية لقراءتها بسهولة */
+
+  --accent: 217 33% 18%;
   --accent-foreground: 210 40% 98%;
+
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
-  --border: 217.2 32.6% 17.5%;
-  --input: 217.2 32.6% 17.5%;
+
+  --border: 217 33% 22%;          /* إبراز الحدود بين العناصر */
+  --input: 217 33% 18%;
   --ring: 217.2 91.2% 59.8%;
 }
 
@@ -105,6 +114,25 @@
   --ring: 48 100% 50%;
 }
 
+/* 🔹 Global Fixes for Inputs, Selects & Option Contrast */
+[data-theme="dark"] select,
+.dark select {
+  background-color: hsl(var(--input)) !important;
+  color: hsl(var(--foreground)) !important;
+  border-color: hsl(var(--border)) !important;
+}
+
+[data-theme="dark"] option,
+.dark option {
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] input,
+.dark input {
+  color: hsl(var(--foreground));
+}
+
 * {
   border-color: hsl(var(--border));
 }
@@ -119,6 +147,8 @@ body {
   font-feature-settings: "cv02", "cv03", "cv04", "cv11", "rlig" 1, "calt" 1;
   font-family: 'Cairo', 'Plus Jakarta Sans', 'Inter', system-ui, -apple-system, sans-serif;
   text-rendering: optimizeLegibility;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
 }
 
 [dir="rtl"] {
@@ -261,7 +291,7 @@ body {
 }
 
 [data-theme="dark"] .glass-morphism {
-  background: rgba(0, 0, 0, 0.2);
+  background: rgba(15, 23, 42, 0.6);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -319,7 +349,7 @@ body {
 }
 
 [data-theme="dark"] .skeleton {
-  background: linear-gradient(90deg, #374151 25%, #4b5563 50%, #374151 75%);
+  background: linear-gradient(90deg, #1e293b 25%, #334155 50%, #1e293b 75%);
   background-size: 200% 100%;
 }
 
@@ -404,7 +434,7 @@ body {
 }
 
 [data-theme="dark"] .backdrop-blur-enhanced {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(15, 23, 42, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
