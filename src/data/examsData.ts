@@ -1,11 +1,11 @@
 import { 
-  Bot,           // ميكاترونكس
-  Monitor,       // تكنولوجيا المعلومات
-  Snowflake,     // تبريد وتكييف
-  Cpu,           // اسطمبات
-  Car,           // أوتوترونكس
-  SunMedium,     // طاقة متجددة
-  Droplets,      // تكنولوجيا معالجة وتحلية المياه
+  Bot,          // ميكاترونكس
+  Monitor,      // تكنولوجيا المعلومات
+  Snowflake,    // تبريد وتكييف
+  Cpu,          // اسطمبات
+  Car,          // أوتوترونكس
+  SunMedium,    // طاقة متجددة
+  Droplets,     // تكنولوجيا معالجة وتحلية المياه
   LucideIcon 
 } from 'lucide-react';
 
@@ -66,7 +66,6 @@ export const EXAMS_DATA: CourseExamsMap = {
       isAiGenerated: true,
     }
   ],
-  // تم تعديل المفتاح هنا ليطابق ID مادة إنجليزي 2 في collegeData.ts
   'english-2': [
     {
       id: 'eng2-ex-1',
@@ -76,6 +75,19 @@ export const EXAMS_DATA: CourseExamsMap = {
       url: 'https://exam1e.vercel.app/',
       questionCount: 15,
       durationMinutes: 20,
+      isAiGenerated: false,
+    }
+  ],
+  // المفتاح هنا مطابق تماماً لـ ID المادة في year2MechatronicsCourses
+  'pneumatics-hydraulics': [
+    {
+      id: 'pneumatics-final-exam',
+      title: 'الاختبار الشامل: تطبيقات النيوماتيك والهيدروليك',
+      description: 'منصة اختبارات تفاعلية شاملة تغطي المحاضرات الثلاث مع الترجمة الفورية والتقييم',
+      type: 'final',
+      url: 'https://pneumatics-examhtml.vercel.app/',
+      questionCount: 60,
+      durationMinutes: 30,
       isAiGenerated: false,
     }
   ]

@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="en" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pneumatics & Hydraulics Applications | تطبيقات النيوماتيك و الهيدروليك</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        navy: { 800: '#1e293b', 900: '#0f172a' },
+                        steel: { 500: '#64748b', 600: '#475569' },
+                        cyan: { 500: '#06b6d4', 600: '#0891b2' }
+                    },
+                    fontFamily: {
+                        sans: ['Segoe UI', 'Roboto', 'Helvetica Neue', 'sans-serif'],
+                        arabic: ['Tahoma', 'Arial', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { transition: background-color 0.3s, color 0.3s; }
+        .hide { display: none !important; }
+        .fade-in { animation: fadeIn 0.4s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background-color: #475569; border-radius: 4px; }
+        .dark ::-webkit-scrollbar-thumb { background-color: #64748b; }
+
+        .ar-text { font-family: 'Tahoma', 'Arial', sans-serif; direction: rtl; text-align: right; }
+        .en-text { direction: ltr; text-align: left; }
+    </style>
+</head>
+<body class="bg-gray-50 text-slate-800 dark:bg-navy-900 dark:text-slate-100 min-h-screen flex flex-col antialiased">
+
+    <!-- Navbar -->
+    <nav class="bg-white dark:bg-navy-800 shadow-md border-b border-gray-200 dark:border-slate-700 sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center gap-3 cursor-pointer" onclick="app.navigate('home')">
+                <i class="fa-solid fa-gears text-cyan-600 text-2xl"></i>
+                <div>
+                    <h1 class="font-bold text-sm sm:text-base leading-tight">Pneumatics & Hydraulics</h1>
+                    <h2 class="text-xs text-steel-500 dark:text-steel-400 ar-text font-bold">تطبيقات النيوماتيك و الهيدروليك</h2>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <button onclick="app.navigate('dashboard')" class="text-steel-600 dark:text-steel-400 hover:text-cyan-600 dark:hover:text-cyan-500 transition-colors hidden sm:block">
+                    <i class="fa-solid fa-chart-line mr-1"></i> Dashboard
+                </button>
+                <button onclick="app.toggleTheme()" aria-label="Toggle Dark Mode" title="Toggle Dark Mode" class="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors text-steel-600 dark:text-steel-400">
+                  <i id="theme-icon" class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content Area -->
+    <main id="app-container" class="flex-grow max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-8"></main>
+
+    <!-- Footer -->
+    <footer class="bg-white dark:bg-navy-800 border-t border-gray-200 dark:border-slate-700 py-6 text-center text-sm text-steel-500 dark:text-steel-400">
+        <p>Designed & Developed by <span class="font-bold text-cyan-600 dark:text-cyan-500">Moslim Ebrahim</span></p>
+        <p class="text-xs mt-1">Interactive Examination Platform based on actual course material.</p>
+    </footer>
+
+    <!-- Templates -->
+    <script>
+        // --- DATABASE: LECTURES & QUESTIONS ---
+        const DB = {
+            lectures: [
+                { id: 1, title: "Lecture 01: Fluid Power Principles & Dynamics", desc: "Fluid properties, Pascal's Law, Continuity Equation, Bernoulli & Circuits (Pages 1-71).", questions: 20 },
+                { id: 2, title: "Lecture 02: Hydraulic System Components & Pumps", desc: "Stationary/Mobile systems, Oils, and Detailed Pump Principles (Pages 72-132).", questions: 20 },
+                { id: 3, title: "Lecture 03: Control Valves, Maintenance & Pneumatics", desc: "Filtration, Hoses, Directional/Pressure Valves, Safety, & Intro to Pneumatics (Pages 133-211).", questions: 20 }
+            ],
+            questions: [
+                // === LECTURE 1 ===
+                { id: 101, lec: 1, t: 'mcq', 
+                  qE: "What primarily distinguishes a fluid from a solid regarding deformation?", qA: "ما الذي يميز المائع بشكل أساسي عن المادة الصلبة فيما يتعلق بالتشوه؟", 
+                  oE: ["Fluids have densely spaced molecules", "Fluids continuously deform under shear stress", "Fluids stop deforming at a fixed strain angle", "Fluids maintain their shape indefinitely"], 
+                  oA: ["الموائع تحتوي على جزيئات متقاربة الكثافة", "الموائع تتشوه باستمرار تحت تأثير إجهاد القص", "الموائع تتوقف عن التشوه عند زاوية انفعال ثابتة", "الموائع تحافظ على شكلها إلى أجل غير مسمى"], 
+                  a: 1, eE: "A fluid deforms continuously when acted on by a shearing stress of any magnitude.", eA: "يتشوه المائع باستمرار عندما يتعرض لإجهاد قص بأي مقدار." },
+                
+                { id: 102, lec: 1, t: 'tf', 
+                  qE: "Gases have no fixed volume and will change volume to expand and completely fill their container.", qA: "الغازات ليس لها حجم ثابت وسيتغير حجمها لتتمدد وتملأ الوعاء بالكامل.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "Unlike liquids, gases are highly compressible and expand to fill any closed container.", eA: "على عكس السوائل، الغازات قابلة للانضغاط بدرجة عالية وتتمدد لتملأ أي وعاء مغلق." },
+
+                { id: 103, lec: 1, t: 'mcq', 
+                  qE: "Which of the following best describes the relationship between temperature and the viscosity of a fluid?", qA: "أي مما يلي يصف بشكل أفضل العلاقة بين درجة الحرارة ولزوجة المائع؟", 
+                  oE: ["Viscosity increases as temperature increases", "Viscosity remains constant regardless of temperature", "Viscosity generally decreases as temperature increases", "Viscosity fluctuates unpredictably with temperature"], 
+                  oA: ["تزداد اللزوجة مع ارتفاع درجة الحرارة", "تظل اللزوجة ثابتة بغض النظر عن درجة الحرارة", "تقل اللزوجة عمومًا مع ارتفاع درجة الحرارة", "تتقلب اللزوجة بشكل غير متوقع مع درجة الحرارة"], 
+                  a: 2, eE: "As shown in the lecture graphs, as temperature rises, the fluid's resistance to deformation (viscosity) decreases.", eA: "كما هو موضح في الرسوم البيانية للمحاضرة، مع ارتفاع درجة الحرارة، تقل مقاومة المائع للتشوه (اللزوجة)." },
+
+                { id: 104, lec: 1, t: 'mcq', 
+                  qE: "What is the SI derived unit for Stress and Pressure, representing one Newton per square meter?", qA: "ما هي الوحدة المشتقة في النظام الدولي للإجهاد والضغط، والتي تمثل نيوتن واحد لكل متر مربع؟", 
+                  oE: ["Joule", "Watt", "Pascal", "Dyne"], 
+                  oA: ["جول", "وات", "باسكال", "داين"], 
+                  a: 2, eE: "The Pascal (Pa) is the SI unit for stress and pressure, equal to N/m² or kg/(m·s²).", eA: "الباسكال (Pa) هو وحدة النظام الدولي للإجهاد والضغط، وتساوي N/m² أو kg/(m·s²)." },
+
+                { id: 105, lec: 1, t: 'tf', 
+                  qE: "According to Pascal's Law, pressure applied on one point of a confined liquid transmits equally in all directions.", qA: "وفقًا لقانون باسكال، الضغط المطبق على نقطة واحدة من سائل محصور ينتقل بالتساوي في جميع الاتجاهات.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "Pascal's Law states that external pressure on a fluid is transmitted equally throughout the fluid body.", eA: "ينص قانون باسكال على أن الضغط الخارجي على المائع ينتقل بالتساوي في جميع أنحاء جسم المائع." },
+
+                { id: 106, lec: 1, t: 'mcq', 
+                  qE: "In a hydraulic system utilizing Pascal's principle, if Area 1 is 10 cm² and Area 2 is 100 cm², a 50N force on Area 1 generates what force on Area 2?", qA: "في نظام هيدروليكي يستخدم مبدأ باسكال، إذا كانت المساحة 1 هي 10 سم² والمساحة 2 هي 100 سم²، فما القوة التي تولدها قوة 50 نيوتن على المساحة 1 على المساحة 2؟", 
+                  oE: ["50 N", "100 N", "500 N", "5000 N"], 
+                  oA: ["50 نيوتن", "100 نيوتن", "500 نيوتن", "5000 نيوتن"], 
+                  a: 2, eE: "Pressure = 50N / 10cm² = 5 N/cm². Force 2 = 5 N/cm² * 100cm² = 500 N.", eA: "الضغط = 50 نيوتن / 10 سم² = 5 نيوتن/سم². القوة 2 = 5 نيوتن/سم² * 100 سم² = 500 نيوتن." },
+
+                { id: 107, lec: 1, t: 'tf', 
+                  qE: "The shape of the container significantly affects the pressure transmission at different points in a closed hydraulic system.", qA: "يؤثر شكل الوعاء بشكل كبير على نقل الضغط في نقاط مختلفة في نظام هيدروليكي مغلق.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Because the same pressure applies at every point in a closed system, the shape of the container has no significance.", eA: "نظرًا لأن نفس الضغط ينطبق على كل نقطة في النظام المغلق، فإن شكل الوعاء ليس له أي أهمية." },
+
+                { id: 108, lec: 1, t: 'mcq', 
+                  qE: "How is the Flow Rate (Q) of a liquid mathematically defined in a pipe?", qA: "كيف يتم تعريف معدل التدفق (Q) لسائل رياضيًا في أنبوب؟", 
+                  oE: ["Q = Force / Area", "Q = Area × Velocity", "Q = Mass × Acceleration", "Q = Pressure × Volume"], 
+                  oA: ["معدل التدفق = القوة / المساحة", "معدل التدفق = المساحة × السرعة", "معدل التدفق = الكتلة × التسارع", "معدل التدفق = الضغط × الحجم"], 
+                  a: 1, eE: "Flow rate (Q) is the cross-sectional area (A) multiplied by the flow velocity (v).", eA: "معدل التدفق (Q) هو مساحة المقطع العرضي (A) مضروبة في سرعة التدفق (v)." },
+
+                { id: 109, lec: 1, t: 'tf', 
+                  qE: "According to the continuity equation for steady flow, if the pipe diameter increases, the flow velocity must also increase.", qA: "وفقًا لمعادلة الاستمرارية للتدفق المستقر، إذا زاد قطر الأنبوب، يجب أن تزيد سرعة التدفق أيضًا.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "A reduction in area increases flow velocity. Conversely, if the pipe diameter increases, the flow velocity is reduced to maintain constant flow rate.", eA: "يؤدي تقليل المساحة إلى زيادة سرعة التدفق. على العكس من ذلك، إذا زاد قطر الأنبوب، تنخفض سرعة التدفق للحفاظ على ثبات معدل التدفق." },
+
+                { id: 110, lec: 1, t: 'mcq', 
+                  qE: "A fluid flows at 0.2 m/s through a 50mm diameter pipe (Area A1). If the pipe narrows to Area A2, what must happen to the velocity (v2)?", qA: "يتدفق مائع بسرعة 0.2 م/ث عبر أنبوب بقطر 50 مم (المساحة A1). إذا ضاق الأنبوب إلى المساحة A2، فماذا يجب أن يحدث للسرعة (v2)؟", 
+                  oE: ["It must decrease", "It must increase", "It remains 0.2 m/s", "It drops to zero"], 
+                  oA: ["يجب أن تنخفض", "يجب أن تزيد", "تظل 0.2 م/ث", "تنخفض إلى الصفر"], 
+                  a: 1, eE: "By continuity (A1*v1 = A2*v2), a smaller area (A2) requires a higher velocity (v2).", eA: "بناءً على الاستمرارية (A1*v1 = A2*v2)، تتطلب المساحة الأصغر (A2) سرعة أعلى (v2)." },
+
+                { id: 111, lec: 1, t: 'mcq', 
+                  qE: "What phenomenon is described by the 'Bernoulli Effect' in fluid dynamics?", qA: "ما هي الظاهرة التي يصفها 'تأثير برنولي' في ديناميكا الموائع؟", 
+                  oE: ["An increase in fluid speed results in an increase in internal pressure", "An increase in fluid speed results in a reduction in internal pressure", "Fluid speed has no effect on internal pressure", "Pressure only changes based on temperature"], 
+                  oA: ["زيادة سرعة المائع تؤدي إلى زيادة الضغط الداخلي", "زيادة سرعة المائع تؤدي إلى انخفاض الضغط الداخلي", "سرعة المائع ليس لها تأثير على الضغط الداخلي", "الضغط يتغير فقط بناءً على درجة الحرارة"], 
+                  a: 1, eE: "The Bernoulli Equation shows that an increase in fluid speed corresponds to a decrease in internal pressure.", eA: "توضح معادلة برنولي أن زيادة سرعة المائع تقابلها انخفاض في الضغط الداخلي." },
+
+                { id: 112, lec: 1, t: 'tf', 
+                  qE: "While Pascal's law describes static fluids, Bernoulli's equation explains the behavior of dynamic, moving fluids.", qA: "بينما يصف قانون باسكال الموائع الساكنة، تشرح معادلة برنولي سلوك الموائع الديناميكية المتحركة.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "This is a fundamental distinction. Pascal deals with statics, Bernoulli with dynamics.", eA: "هذا تمييز أساسي. يتعامل باسكال مع السكون، وبرنولي مع الديناميكا." },
+
+                { id: 113, lec: 1, t: 'mcq', 
+                  qE: "The Reynolds Number is a dimensionless ratio used to determine flow type. It is the ratio of:", qA: "رقم رينولدز هو نسبة لا أبعاد لها تستخدم لتحديد نوع التدفق. وهو نسبة:", 
+                  oE: ["Pressure forces to Viscous forces", "Inertia forces to Viscous forces", "Viscous forces to Gravitational forces", "Inertia forces to Pressure forces"], 
+                  oA: ["قوى الضغط إلى قوى اللزوجة", "قوى القصور الذاتي إلى قوى اللزوجة", "قوى اللزوجة إلى قوى الجاذبية", "قوى القصور الذاتي إلى قوى الضغط"], 
+                  a: 1, eE: "Reynolds number (Re) = inertia forces / viscous forces.", eA: "رقم رينولدز (Re) = قوى القصور الذاتي / قوى اللزوجة." },
+
+                { id: 114, lec: 1, t: 'mcq', 
+                  qE: "In pipe flow, at what approximate Reynolds Number (Re) is the fluid considered to be fully turbulent?", qA: "في تدفق الأنابيب، عند أي رقم رينولدز (Re) تقريبي يعتبر المائع مضطربًا بالكامل؟", 
+                  oE: ["Re < 1000", "1000 < Re < 2000", "Re > 2000", "Re = 0"], 
+                  oA: ["Re < 1000", "1000 < Re < 2000", "Re > 2000", "Re = 0"], 
+                  a: 2, eE: "Re > 2000 indicates turbulent flow, Re < 1000 is laminar, and the middle is transitional/unsteady.", eA: "Re > 2000 يشير إلى تدفق مضطرب، Re < 1000 هو انسيابي، والوسط انتقالي/غير مستقر." },
+
+                { id: 115, lec: 1, t: 'tf', 
+                  qE: "In a fully laminar flow, the maximum velocity (Vmax) of the fluid occurs near the pipe walls.", qA: "في التدفق الانسيابي الكامل، تحدث السرعة القصوى (Vmax) للمائع بالقرب من جدران الأنبوب.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "In laminar flow, the maximum velocity occurs at the center of the pipe, and velocity is zero at the walls due to friction.", eA: "في التدفق الانسيابي، تحدث السرعة القصوى في وسط الأنبوب، وتكون السرعة صفرًا عند الجدران بسبب الاحتكاك." },
+
+                { id: 116, lec: 1, t: 'mcq', 
+                  qE: "In a series hydraulic circuit, how is the total required pressure calculated?", qA: "في دائرة هيدروليكية متوالية، كيف يتم حساب الضغط الكلي المطلوب؟", 
+                  oE: ["It is equal to the smallest pressure drop", "The pressure drops are additive (cumulative)", "It is the average of all pressure drops", "It is constant throughout the entire circuit"], 
+                  oA: ["يساوي أصغر انخفاض في الضغط", "انخفاضات الضغط تراكمية (تضاف)", "هو متوسط جميع انخفاضات الضغط", "ثابت في جميع أنحاء الدائرة"], 
+                  a: 1, eE: "In series, the pump must supply a pressure equal to the sum of all individual pressure drops in the line.", eA: "في التوصيل على التوالي، يجب أن توفر المضخة ضغطًا يساوي مجموع كل انخفاضات الضغط الفردية في الخط." },
+
+                { id: 117, lec: 1, t: 'tf', 
+                  qE: "In a parallel hydraulic circuit, closing one isolation valve on a branch will reduce the pressure available to the other branches.", qA: "في دائرة هيدروليكية متوازية، سيؤدي إغلاق صمام عزل واحد على فرع إلى تقليل الضغط المتاح للفروع الأخرى.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "In a parallel circuit, closing a branch simply diverts fluid to other paths; the pressure available at the manifold remains governed by the load on the active branches.", eA: "في الدائرة المتوازية، يؤدي إغلاق فرع ببساطة إلى تحويل المائع إلى مسارات أخرى؛ يظل الضغط المتاح عند المشعب محكومًا بالحمل على الفروع النشطة." },
+
+                { id: 118, lec: 1, t: 'mcq', 
+                  qE: "When calculating the actual Input Power required by an electric motor driving a hydraulic pump, which inefficiencies must be considered?", qA: "عند حساب طاقة الإدخال الفعلية المطلوبة بواسطة محرك كهربائي يشغل مضخة هيدروليكية، ما هي أوجه القصور التي يجب مراعاتها؟", 
+                  oE: ["Only the motor efficiency", "Only the pump efficiency", "Both the motor efficiency and the pump efficiency", "The flow rate efficiency only"], 
+                  oA: ["كفاءة المحرك فقط", "كفاءة المضخة فقط", "كفاءة المحرك وكفاءة المضخة معًا", "كفاءة معدل التدفق فقط"], 
+                  a: 2, eE: "Pin(kW) = Psupply(kW) / (efficiency motor * efficiency pump). Both must be factored in.", eA: "طاقة الإدخال = طاقة الإمداد / (كفاءة المحرك * كفاءة المضخة). يجب أخذ كليهما في الاعتبار." },
+
+                { id: 119, lec: 1, t: 'tf', 
+                  qE: "Fluid statics is defined as the science that deals with the behavior of fluid in dynamic motion.", qA: "تعرف استاتيكا الموائع بأنها العلم الذي يتعامل مع سلوك المائع في الحركة الديناميكية.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Fluid statics deals with fluids at rest. Fluid dynamics deals with fluids in motion.", eA: "تتعامل استاتيكا الموائع مع الموائع في حالة السكون. بينما تتعامل ديناميكا الموائع مع الموائع المتحركة." },
+
+                { id: 120, lec: 1, t: 'mcq', 
+                  qE: "Which power transmission method is defined as using pressurized liquid or gas in a confined space?", qA: "أي طريقة لنقل الطاقة تُعرف باستخدام سائل أو غاز مضغوط في مساحة محصورة؟", 
+                  oE: ["Mechanical transmission", "Electrical transmission", "Fluid power", "Thermal transmission"], 
+                  oA: ["النقل الميكانيكي", "النقل الكهربائي", "طاقة الموائع", "النقل الحراري"], 
+                  a: 2, eE: "Fluid power uses liquids or gases in a confined space to transmit power from one point to another.", eA: "تستخدم طاقة الموائع السوائل أو الغازات في مساحة محصورة لنقل الطاقة من نقطة إلى أخرى." },
+
+                // === LECTURE 2 ===
+                { id: 201, lec: 2, t: 'mcq', 
+                  qE: "Which branch of hydraulics is typically used in machine tool applications and transfer lines where equipment remains fixed?", qA: "أي فرع من فروع الهيدروليك يستخدم عادة في تطبيقات أدوات الآلات وخطوط النقل حيث تظل المعدات ثابتة؟", 
+                  oE: ["Mobile hydraulics", "Stationary hydraulics", "Aero hydraulics", "Pneumatic hydraulics"], 
+                  oA: ["الهيدروليك المتنقل", "الهيدروليك الثابت", "الهيدروليك الجوي", "الهيدروليك النيوماتيكي"], 
+                  a: 1, eE: "Stationary hydraulics apply to systems fixed in one position, like presses and assembly machines.", eA: "ينطبق الهيدروليك الثابت على الأنظمة الثابتة في موضع واحد، مثل المكابس وآلات التجميع." },
+
+                { id: 202, lec: 2, t: 'tf', 
+                  qE: "Mobile hydraulic systems frequently feature manually operated directional control valves.", qA: "تتميز الأنظمة الهيدروليكية المتنقلة بشكل متكرر بصمامات تحكم توجيهية تعمل يدويًا.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "A characteristic feature of mobile hydraulics (excavators, tractors) is that valves are frequently manually operated by the operator.", eA: "السمة المميزة للهيدروليك المتنقل (الحفارات، الجرارات) هي أن المشغل يقوم بتشغيل الصمامات يدويًا بشكل متكرر." },
+
+                { id: 203, lec: 2, t: 'mcq', 
+                  qE: "Which of the following is NOT a primary function of hydraulic oil?", qA: "أي مما يلي ليس وظيفة أساسية للزيت الهيدروليكي؟", 
+                  oE: ["Lubrication of moving parts", "Cooling heat produced by energy conversion", "Generating electrical power", "Sealing components"], 
+                  oA: ["تزييت الأجزاء المتحركة", "تبريد الحرارة الناتجة عن تحويل الطاقة", "توليد الطاقة الكهربائية", "إغلاق المكونات (منع التسرب)"], 
+                  a: 2, eE: "Hydraulic oil transfers pressure, lubricates, cools, and seals, but does not generate electricity.", eA: "الزيت الهيدروليكي ينقل الضغط، ويزيت، ويبرد، ويمنع التسرب، ولكنه لا يولد الكهرباء." },
+
+                { id: 204, lec: 2, t: 'tf', 
+                  qE: "A hydraulic pump creates flow, but pressure does not build up until that flow encounters a resistance.", qA: "تخلق المضخة الهيدروليكية تدفقًا، لكن الضغط لا يتراكم حتى يواجه ذلك التدفق مقاومة.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "Pumps provide flow (displacement). Pressure is only created when the flow is restricted by a load or valve.", eA: "توفر المضخات التدفق (الإزاحة). يتم إنشاء الضغط فقط عندما يتم تقييد التدفق بواسطة حمل أو صمام." },
+
+                { id: 205, lec: 2, t: 'mcq', 
+                  qE: "What is the specific ratio that defines the volumetric efficiency of a hydraulic pump?", qA: "ما هي النسبة المحددة التي تحدد الكفاءة الحجمية للمضخة الهيدروليكية؟", 
+                  oE: ["Output hydraulic power to input mechanical power", "Actual volume of fluid delivered to the maximum theoretical volume", "Pressure required to RPM", "Heat generated to energy transferred"], 
+                  oA: ["الطاقة الهيدروليكية الناتجة إلى الطاقة الميكانيكية المدخلة", "الحجم الفعلي للمائع المسلم إلى الحجم النظري الأقصى", "الضغط المطلوب إلى عدد الدورات في الدقيقة", "الحرارة المتولدة إلى الطاقة المنقولة"], 
+                  a: 1, eE: "Volumetric efficiency compares the actual flow delivered by the pump to its theoretical maximum flow per revolution.", eA: "تقارن الكفاءة الحجمية التدفق الفعلي الذي تسلمه المضخة بأقصى تدفق نظري لها في كل دورة." },
+
+                { id: 206, lec: 2, t: 'mcq', 
+                  qE: "Which of the following is considered a non-positive displacement pump, generally unsuited for high-pressure hydraulic circuits?", qA: "أي مما يلي يعتبر مضخة ذات إزاحة غير موجبة، وغير مناسبة عمومًا للدوائر الهيدروليكية ذات الضغط العالي؟", 
+                  oE: ["Gear pump", "Axial piston pump", "Centrifugal pump", "Vane pump"], 
+                  oA: ["مضخة ترسية", "مضخة مكبسية محورية", "مضخة طرد مركزي", "مضخة ريشية"], 
+                  a: 2, eE: "Centrifugal pumps use kinetic energy, are not self-priming, and are limited to low-pressure applications (20-30 bars).", eA: "تستخدم مضخات الطرد المركزي الطاقة الحركية، وهي غير ذاتية التحضير، وتقتصر على تطبيقات الضغط المنخفض (20-30 بار)." },
+
+                { id: 207, lec: 2, t: 'tf', 
+                  qE: "In an external gear pump, the oil is pushed through the middle space where the gears mesh together.", qA: "في مضخة التروس الخارجية، يُدفع الزيت عبر المسافة الوسطى حيث تتشابك التروس معًا.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Oil is actually carried around the OUTSIDE of each gear in the space between the gear teeth and the housing, not through the meshing center.", eA: "يُحمل الزيت في الواقع حول السطح الخارجي لكل ترس في المسافة بين أسنان الترس والغلاف، وليس عبر مركز التشابك." },
+
+                { id: 208, lec: 2, t: 'mcq', 
+                  qE: "Which type of internal gear pump utilizes an inner and an outer rotor without using a crescent-shaped stationary element?", qA: "أي نوع من مضخات التروس الداخلية يستخدم دوارًا داخليًا وخارجيًا دون استخدام عنصر ثابت على شكل هلال؟", 
+                  oE: ["Crescent Internal Gear Pump", "Lobe Pump", "Gerotor Pump", "Vane Pump"], 
+                  oA: ["مضخة ترسية داخلية بهلال", "مضخة فصية", "مضخة جيروتور", "مضخة ريشية"], 
+                  a: 2, eE: "The Gerotor (Generated Rotor) pump uses an inner rotor with one fewer tooth than the outer rotor, needing no crescent.", eA: "تستخدم مضخة الجيروتور دوارًا داخليًا بأسنان أقل بسن واحد من الدوار الخارجي، ولا تحتاج إلى هلال." },
+
+                { id: 209, lec: 2, t: 'tf', 
+                  qE: "A lobe pump operates similarly to a gear pump, except the lobes are designed to almost meet rather than touch each other.", qA: "تعمل المضخة الفصية بشكل مشابه لمضخة التروس، باستثناء أن الفصوص مصممة بحيث تلتقي تقريبًا بدلاً من أن تتلامس مع بعضها البعض.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "In a lobe pump, external timing gears are often used so the lobes themselves do not drive each other, preventing actual contact.", eA: "في المضخة الفصية، غالبًا ما تستخدم تروس توقيت خارجية حتى لا تقوم الفصوص نفسها بتشغيل بعضها البعض، مما يمنع التلامس الفعلي." },
+
+                { id: 210, lec: 2, t: 'mcq', 
+                  qE: "In a piston pump, what specific phase creates a vacuum in the cylinder to draw hydraulic fluid in?", qA: "في المضخة المكبسية، ما هي المرحلة المحددة التي تخلق فراغًا في الأسطوانة لسحب السائل الهيدروليكي للداخل؟", 
+                  oE: ["The compression stroke", "The suction stroke", "The displacement phase", "The relief phase"], 
+                  oA: ["شوط الانضغاط", "شوط السحب", "مرحلة الإزاحة", "مرحلة التصريف"], 
+                  a: 1, eE: "During the suction stroke, the piston retracts, creating a vacuum that opens the inlet check valve.", eA: "أثناء شوط السحب، يتراجع المكبس، مما يخلق فراغًا يفتح صمام فحص السحب." },
+
+                { id: 211, lec: 2, t: 'tf', 
+                  qE: "Swashplate and bent-axis pumps are two different designs of radial piston pumps.", qA: "المضخات ذات القرص المتأرجح والمحور المنحني هما تصميمان مختلفان للمضخات المكبسية القطرية (الراديال).", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Swashplate and bent-axis are designs of AXIAL piston pumps, not radial.", eA: "تصميم القرص المتأرجح والمحور المنحني هما للمضخات المكبسية المحورية (الأكسيال)، وليست القطرية." },
+
+                { id: 212, lec: 2, t: 'mcq', 
+                  qE: "How is the displacement volume of a swashplate axial piston pump altered (variable displacement)?", qA: "كيف يتم تغيير حجم الإزاحة لمضخة مكبسية محورية ذات قرص متأرجح (إزاحة متغيرة)؟", 
+                  oE: ["By altering the diameter of the pistons", "By varying the speed of the motor", "By changing the angle of the swashplate", "By bypassing fluid to the tank"], 
+                  oA: ["عن طريق تغيير قطر المكابس", "عن طريق تغيير سرعة المحرك", "عن طريق تغيير زاوية القرص المتأرجح", "عن طريق تحويل السائل إلى الخزان"], 
+                  a: 2, eE: "Increasing or decreasing the swash angle alters the stroke length of the pistons, changing the pump's displacement.", eA: "تؤدي زيادة أو تقليل زاوية القرص المتأرجح إلى تغيير طول شوط المكابس، مما يغير إزاحة المضخة." },
+
+                { id: 213, lec: 2, t: 'mcq', 
+                  qE: "Based on pump performance charts, which pump type generally reaches the highest nominal pressures (up to 350+ bar)?", qA: "بناءً على مخططات أداء المضخة، أي نوع من المضخات يصل عمومًا إلى أعلى ضغوط اسمية (تصل إلى 350+ بار)؟", 
+                  oE: ["Gear pump", "Vane pump", "Axial / Radial Piston pump", "Centrifugal pump"], 
+                  oA: ["مضخة ترسية", "مضخة ريشية", "مضخة مكبسية محورية / قطرية", "مضخة طرد مركزي"], 
+                  a: 2, eE: "Piston pumps (axial and radial) are designed for very high-pressure applications compared to gear or vane pumps.", eA: "صممت المضخات المكبسية (المحورية والقطرية) لتطبيقات الضغط العالي جدًا مقارنة بالمضخات الترسية أو الريشية." },
+
+                { id: 214, lec: 2, t: 'tf', 
+                  qE: "In standard hydraulic systems, gear pumps typically operate with higher total efficiency than axial piston pumps.", qA: "في الأنظمة الهيدروليكية القياسية، تعمل المضخات الترسية عادةً بكفاءة كلية أعلى من المضخات المكبسية المحورية.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Axial piston pumps typically have higher total efficiency (0.85-0.95) compared to gear pumps (0.8-0.91).", eA: "عادة ما يكون للمضخات المكبسية المحورية كفاءة كلية أعلى (0.85-0.95) مقارنة بالمضخات الترسية (0.8-0.91)." },
+
+                { id: 215, lec: 2, t: 'mcq', 
+                  qE: "Which component is strictly responsible for blindly converting hydraulic energy into linear mechanical energy?", qA: "أي مكون مسؤول بدقة عن التحويل الأعمى للطاقة الهيدروليكية إلى طاقة ميكانيكية خطية؟", 
+                  oE: ["Hydraulic Motor", "Hydraulic Cylinder (Actuator)", "Directional Valve", "Accumulator"], 
+                  oA: ["المحرك الهيدروليكي", "الأسطوانة الهيدروليكية (المشغل)", "صمام التوجيه", "المجمع الهيدروليكي"], 
+                  a: 1, eE: "Hydraulic cylinders generate linear movements through pressure on the surface of a movable piston.", eA: "تولد الأسطوانات الهيدروليكية حركات خطية من خلال الضغط على سطح المكبس المتحرك." },
+
+                { id: 216, lec: 2, t: 'tf', 
+                  qE: "A single-acting cylinder can exert force in both extension and retraction directions using hydraulic fluid.", qA: "يمكن لأسطوانة مفردة الفعل أن تمارس قوة في كلا اتجاهي الامتداد والتراجع باستخدام السائل الهيدروليكي.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "A single-acting cylinder exerts hydraulic force in only one direction. Return is usually achieved by gravity or a spring.", eA: "تمارس الأسطوانة مفردة الفعل القوة الهيدروليكية في اتجاه واحد فقط. عادة ما يتم العودة عن طريق الجاذبية أو الزنبرك." },
+
+                { id: 217, lec: 2, t: 'mcq', 
+                  qE: "When designing a hydraulic circuit, what is the accepted general rule for sizing the volume of the oil tank?", qA: "عند تصميم دائرة هيدروليكية، ما هي القاعدة العامة المقبولة لتحديد حجم خزان الزيت؟", 
+                  oE: ["It should be exactly equal to the pump flow in gpm", "It should be 2 to 4 times the pump flow in gpm", "It should be 10 times the pump flow in gpm", "Tank volume is irrelevant to pump flow"], 
+                  oA: ["يجب أن يكون مساوياً تماماً لتدفق المضخة بجالون/دقيقة", "يجب أن يكون من 2 إلى 4 أضعاف تدفق المضخة بجالون/دقيقة", "يجب أن يكون 10 أضعاف تدفق المضخة بجالون/دقيقة", "حجم الخزان لا علاقة له بتدفق المضخة"], 
+                  a: 1, eE: "The standard engineering rule dictates the tank volume should be 2 to 4 times the pump flow rate to allow for cooling and air separation.", eA: "تنص القاعدة الهندسية القياسية على أن حجم الخزان يجب أن يكون من 2 إلى 4 أضعاف معدل تدفق المضخة للسماح بالتبريد وفصل الهواء." },
+
+                { id: 218, lec: 2, t: 'tf', 
+                  qE: "Vane pumps utilize a rotor with slots containing sliding vanes that move outward due to centrifugal force to trap fluid.", qA: "تستخدم المضخات الريشية دوارًا به فتحات تحتوي على ريش منزلقة تتحرك للخارج بسبب قوة الطرد المركزي لاحتجاز السائل.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "In a rotary vane pump, vanes slide out of the rotor slots and seal against the cam ring, creating expanding and contracting chambers.", eA: "في المضخة الريشية الدوارة، تنزلق الريش خارج فتحات الدوار وتغلق مقابل حلقة الكامة، مما يخلق غرفًا متمددة ومتقلصة." },
+
+                { id: 219, lec: 2, t: 'mcq', 
+                  qE: "Telescoping cylinders are uniquely designed for what application purpose?", qA: "تم تصميم الأسطوانات التلسكوبية بشكل فريد لأي غرض تطبيقي؟", 
+                  oE: ["High-speed oscillation", "Achieving a long stroke from a compact initial length", "Simultaneous rotary and linear motion", "Continuous rotation"], 
+                  oA: ["الاهتزاز عالي السرعة", "تحقيق شوط طويل من طول أولي مضغوط (قصير)", "الحركة الدورانية والخطية المتزامنة", "الدوران المستمر"], 
+                  a: 1, eE: "Telescoping cylinders feature nested stages to provide a long extension stroke from a relatively short retracted length (e.g., dump trucks).", eA: "تتميز الأسطوانات التلسكوبية بمراحل متداخلة لتوفير شوط امتداد طويل من طول تراجع قصير نسبيًا (مثل الشاحنات القلابة)." },
+
+                { id: 220, lec: 2, t: 'tf', 
+                  qE: "A hydraulic motor represents the power generation (input) section of a complete fluid power system.", qA: "يمثل المحرك الهيدروليكي قسم توليد الطاقة (الإدخال) لنظام طاقة الموائع الكامل.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "A hydraulic motor is an ACTUATOR (power output section) that converts hydraulic energy into continuous rotary mechanical energy.", eA: "المحرك الهيدروليكي هو مشغل (قسم إخراج الطاقة) يقوم بتحويل الطاقة الهيدروليكية إلى طاقة ميكانيكية دورانية مستمرة." },
+
+                // === LECTURE 3 ===
+                { id: 301, lec: 3, t: 'mcq', 
+                  qE: "Which of the following is an explicit function of a hydraulic reservoir?", qA: "أي مما يلي هو وظيفة صريحة للخزان الهيدروليكي؟", 
+                  oE: ["Generating primary system pressure", "Separating dirt and allowing air to bubble out", "Filtering sub-micron particles automatically", "Converting hydraulic energy into rotary motion"], 
+                  oA: ["توليد ضغط النظام الأساسي", "فصل الأوساخ والسماح بفقاعات الهواء بالخروج", "تصفية الجسيمات دون الميكرون تلقائيًا", "تحويل الطاقة الهيدروليكية إلى حركة دورانية"], 
+                  a: 1, eE: "Reservoirs provide air space for bubbles to escape, allow heavy dirt to settle, and transfer heat.", eA: "توفر الخزانات مساحة هوائية للفقاعات للهروب، وتسمح للأوساخ الثقيلة بالاستقرار، وتنقل الحرارة." },
+
+                { id: 302, lec: 3, t: 'tf', 
+                  qE: "A baffle plate inside a hydraulic tank is primarily used to separate fluid entering the return line from fluid entering the pump suction line.", qA: "تستخدم لوحة الحاجز (Baffle) داخل الخزان الهيدروليكي بشكل أساسي لفصل السائل الداخل من خط العودة عن السائل الداخل لخط سحب المضخة.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "The baffle forces returning fluid to travel the length of the tank before being sucked back in, allowing time for cooling and air separation.", eA: "يجبر الحاجز السائل العائد على قطع طول الخزان قبل أن يتم سحبه مرة أخرى، مما يتيح وقتًا للتبريد وفصل الهواء." },
+
+                { id: 303, lec: 3, t: 'mcq', 
+                  qE: "Where is a 'pressure-line filter' located in a hydraulic circuit?", qA: "أين يوجد 'مرشح خط الضغط' في دائرة هيدروليكية؟", 
+                  oE: ["Before the pump to protect it from large tank debris", "Between the control valve and the reservoir", "Downstream from the pump to protect sensitive actuators", "On top of the reservoir as a breather"], 
+                  oA: ["قبل المضخة لحمايتها من حطام الخزان الكبير", "بين صمام التحكم والخزان", "أسفل تيار المضخة (بعدها) لحماية المشغلات الحساسة", "أعلى الخزان كمنفذ تنفس"], 
+                  a: 2, eE: "Pressure-line filters are placed after the pump to clean fluid before it reaches high-precision valves and actuators.", eA: "توضع مرشحات خط الضغط بعد المضخة لتنظيف السائل قبل وصوله إلى الصمامات والمشغلات عالية الدقة." },
+
+                { id: 304, lec: 3, t: 'tf', 
+                  qE: "Strainers are generally utilized to remove contaminants that are strictly smaller than 50 microns.", qA: "تُستخدم المصافي (Strainers) بشكل عام لإزالة الملوثات التي تقل بدقة عن 50 ميكرون.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Filters remove particles smaller than 50 microns, while strainers are used for particles 50 microns or greater.", eA: "تزيل المرشحات الجزيئات التي يقل حجمها عن 50 ميكرون، بينما تُستخدم المصافي للجسيمات التي يبلغ حجمها 50 ميكرون أو أكثر." },
+
+                { id: 305, lec: 3, t: 'mcq', 
+                  qE: "What is the primary function of a Directional Control Valve in a fluid power system?", qA: "ما هي الوظيفة الأساسية لصمام التحكم التوجيهي في نظام طاقة الموائع؟", 
+                  oE: ["To limit the maximum system pressure", "To stop, allow, and change the direction of fluid flow", "To cool the hydraulic fluid", "To infinitely control the speed of an actuator"], 
+                  oA: ["للحد من أقصى ضغط للنظام", "لإيقاف، والسماح، وتغيير اتجاه تدفق المائع", "لتبريد السائل الهيدروليكي", "للتحكم غير المحدود في سرعة المشغل"], 
+                  a: 1, eE: "Directional valves direct the path of the fluid, determining actuator direction (stop, extend, retract).", eA: "تقوم الصمامات التوجيهية بتوجيه مسار السائل، لتحديد اتجاه المشغل (إيقاف، تمديد، تراجع)." },
+
+                { id: 306, lec: 3, t: 'tf', 
+                  qE: "In schematic symbols for directional control valves, the number of connection points on a single square represents the number of valve positions.", qA: "في الرموز التخطيطية لصمامات التحكم التوجيهية، يمثل عدد نقاط الاتصال على مربع واحد عدد مواضع (Positions) الصمام.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "The number of SQUARES represents positions. The number of CONNECTION POINTS on the square represents the ports (ways).", eA: "يمثل عدد المربعات المواضع. بينما يمثل عدد نقاط الاتصال على المربع المنافذ (Ways)." },
+
+                { id: 307, lec: 3, t: 'mcq', 
+                  qE: "A control valve designated as '3/2' implies that the valve has:", qA: "صمام التحكم المسمى '3/2' يعني أن الصمام يحتوي على:", 
+                  oE: ["3 positions and 2 ports", "3 ports and 2 positions", "3 actuators and 2 pumps", "3 pressure settings and 2 flow rates"], 
+                  oA: ["3 مواضع و 2 منافذ", "3 منافذ و 2 مواضع", "3 مشغلات و 2 مضخات", "3 إعدادات ضغط و 2 معدلات تدفق"], 
+                  a: 1, eE: "Standard naming convention is Ports/Positions. So 3/2 means 3 ports (ways) and 2 positions.", eA: "اصطلاح التسمية القياسي هو المنافذ/المواضع. لذا فإن 3/2 تعني 3 منافذ (طرق) ووضعيتين." },
+
+                { id: 308, lec: 3, t: 'mcq', 
+                  qE: "Which component operates by preventing fluid reversal, opening only when fluid pressure pushes in the correct direction?", qA: "أي مكون يعمل عن طريق منع انعكاس السائل، ويفتح فقط عندما يدفع ضغط السائل في الاتجاه الصحيح؟", 
+                  oE: ["Pressure Relief Valve", "Throttle Valve", "Check Valve (Non-return valve)", "Accumulator"], 
+                  oA: ["صمام تصريف الضغط", "صمام الخنق", "صمام عدم الرجوع", "المجمع"], 
+                  a: 2, eE: "Check valves (non-return valves) prevent the reversal of flow in a piping system.", eA: "تمنع صمامات الفحص (صمامات عدم الرجوع) انعكاس التدفق في نظام الأنابيب." },
+
+                { id: 309, lec: 3, t: 'tf', 
+                  qE: "A throttle check valve allows infinitely controlled flow in one direction while providing completely free flow in the reverse direction.", qA: "يسمح صمام خنق عدم الرجوع بالتحكم اللانهائي في التدفق في اتجاه واحد بينما يوفر تدفقًا حرًا تمامًا في الاتجاه المعاكس.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "This combination is typically used for actuator speed control (meter-in or meter-out) in one direction only.", eA: "يتم استخدام هذا المزيج عادةً للتحكم في سرعة المشغل (المعايرة للداخل أو الخارج) في اتجاه واحد فقط." },
+
+                { id: 310, lec: 3, t: 'mcq', 
+                  qE: "What is the primary function of a hydraulic accumulator?", qA: "ما هي الوظيفة الأساسية للمجمع الهيدروليكي؟", 
+                  oE: ["To convert hydraulic energy back to heat", "To maintain pressure, recapture energy, and dampen shocks", "To filter sub-micron metallic particles", "To automatically steer the machine"], 
+                  oA: ["لتحويل الطاقة الهيدروليكية مرة أخرى إلى حرارة", "للحفاظ على الضغط، واستعادة الطاقة، وتخميد الصدمات", "لتصفية الجزيئات المعدنية دون الميكرون", "لتوجيه الآلة تلقائيا"], 
+                  a: 1, eE: "An accumulator is a pressure vessel used to store energy, reduce pressure peaks, and dampen vibration.", eA: "المجمع عبارة عن وعاء ضغط يستخدم لتخزين الطاقة وتقليل ذروة الضغط وتخفيف الاهتزاز." },
+
+                { id: 311, lec: 3, t: 'tf', 
+                  qE: "When installing hydraulic hoses, providing the smallest possible bend radius prevents flow restriction.", qA: "عند تركيب الخراطيم الهيدروليكية، فإن توفير أصغر نصف قطر انحناء ممكن يمنع تقييد التدفق.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "You must provide as LARGE a bend radius as possible to avoid collapsing the hose and restricting flow.", eA: "يجب توفير أكبر نصف قطر انحناء ممكن لتجنب انهيار الخرطوم وتقييد التدفق." },
+
+                { id: 312, lec: 3, t: 'mcq', 
+                  qE: "What is a major consequence of installing a hydraulic hose with a visible twist (ignoring the layline)?", qA: "ما هي النتيجة الرئيسية لتركيب خرطوم هيدروليكي مع التواء مرئي (تجاهل خط التمديد)؟", 
+                  oE: ["Increased hose flexibility", "Pressure applied to the twist can cause loosening of the nut and hose failure", "The fluid flow rate doubles", "The hose acts as an accumulator"], 
+                  oA: ["زيادة مرونة الخرطوم", "الضغط المطبق على الالتواء يمكن أن يسبب فك الصامولة وفشل الخرطوم", "يتضاعف معدل تدفق السائل", "الخرطوم يعمل كمجمع"], 
+                  a: 1, eE: "Twisting puts immense mechanical stress on the hose structure when pressurized, leading to catastrophic failure.", eA: "يضع الالتواء ضغطًا ميكانيكيًا هائلاً على هيكل الخرطوم عند الضغط عليه، مما يؤدي إلى فشل كارثي." },
+
+                { id: 313, lec: 3, t: 'mcq', 
+                  qE: "Which of the following is considered a primary advantage of a pneumatic system over a hydraulic system?", qA: "أي مما يلي يعتبر ميزة أساسية للنظام النيوماتيكي على النظام الهيدروليكي؟", 
+                  oE: ["They can drive incredibly heavy loads accurately", "Leaks do not cause a messy environmental hazard", "They maintain high pressures with absolutely no fluctuation", "The compressor runs without consuming energy"], 
+                  oA: ["يمكنها دفع الأحمال الثقيلة بشكل لا يصدق بدقة", "التسربات لا تسبب خطراً بيئياً فوضوياً", "تحافظ على ضغوط عالية مع عدم وجود تقلبات على الإطلاق", "يعمل الضاغط دون استهلاك الطاقة"], 
+                  a: 1, eE: "A leak in a pneumatic system simply vents ordinary air, preventing the expensive mess associated with hydraulic oil leaks.", eA: "التسرب في نظام الهواء المضغوط يؤدي ببساطة إلى تنفيس الهواء العادي، مما يمنع الفوضى المكلفة المرتبطة بتسرب الزيت الهيدروليكي." },
+
+                { id: 314, lec: 3, t: 'tf', 
+                  qE: "Because gases are compressible, pneumatic systems are generally preferred when there must be a certain amount of 'give' or 'play' in the system.", qA: "نظرًا لأن الغازات قابلة للانضغاط، فإن الأنظمة النيوماتيكية مفضلة عمومًا عندما يجب أن يكون هناك قدر معين من 'المرونة' أو 'اللعب' في النظام.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "Compressibility is an advantage for shock absorption and flexibility, though it reduces precise position control.", eA: "الانضغاطية ميزة لامتصاص الصدمات والمرونة، على الرغم من أنها تقلل من التحكم الدقيق في الموضع." },
+
+                { id: 315, lec: 3, t: 'mcq', 
+                  qE: "Which component in a pneumatic system sucks in atmospheric air and stores it in a high-pressure tank?", qA: "أي مكون في نظام نيوماتيكي يمتص الهواء الجوي ويخزنه في خزان عالي الضغط؟", 
+                  oE: ["Pneumatic actuator", "Air compressor", "Directional valve", "Flow regulator"], 
+                  oA: ["المشغل النيوماتيكي", "ضاغط الهواء", "صمام التوجيه", "منظم التدفق"], 
+                  a: 1, eE: "The air compressor generates the compressed air and stores it in the receiver tank for the system.", eA: "يولد ضاغط الهواء الهواء المضغوط ويخزنه في خزان المستقبل للنظام." },
+
+                { id: 316, lec: 3, t: 'tf', 
+                  qE: "Pneumatic systems are highly sensitive to high temperatures and corrosive environments compared to complex electronic systems.", qA: "الأنظمة النيوماتيكية حساسة للغاية لدرجات الحرارة المرتفعة والبيئات المسببة للتآكل مقارنة بالأنظمة الإلكترونية المعقدة.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "One advantage of pneumatics is that compressed air systems are generally LESS affected by high temps, dust, and corrosive environments.", eA: "تتمثل إحدى مزايا النيوماتيك في أن أنظمة الهواء المضغوط أقل تأثراً عموماً بدرجات الحرارة المرتفعة والغبار والبيئات المسببة للتآكل." },
+
+                { id: 317, lec: 3, t: 'mcq', 
+                  qE: "What is a major safety rule before disconnecting a high-pressure hydraulic working unit?", qA: "ما هي قاعدة السلامة الرئيسية قبل فصل وحدة عمل هيدروليكية عالية الضغط؟", 
+                  oE: ["Increase pump RPM to clear lines", "Ensure the oil is heated", "Provide support for pressure-held loads and relieve system pressure", "Check the filter element size"], 
+                  oA: ["زيادة دورات المضخة لتنظيف الخطوط", "التأكد من تسخين الزيت", "توفير الدعم للأحمال المضغوطة وتخفيف ضغط النظام", "التحقق من حجم عنصر الفلتر"], 
+                  a: 2, eE: "Loads could fall and pressurized oil is a severe hazard if disconnected while charged.", eA: "يمكن أن تسقط الأحمال ويمثل الزيت المضغوط خطرًا شديدًا إذا تم فصله أثناء الشحن." },
+
+                { id: 318, lec: 3, t: 'tf', 
+                  qE: "It is an acceptable safety practice to service a hydraulic system while the motor and pump are actively operating.", qA: "يعتبر من ممارسات السلامة المقبولة صيانة نظام هيدروليكي أثناء تشغيل المحرك والمضخة بنشاط.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 1, eE: "Rule 13 explicitly states: NEVER service a hydraulic system while the motor, pump, or actuators are operating.", eA: "تنص القاعدة 13 صراحة على: لا تقم أبدًا بصيانة نظام هيدروليكي أثناء تشغيل المحرك أو المضخة أو المشغلات." },
+
+                { id: 319, lec: 3, t: 'mcq', 
+                  qE: "What happens to the volumetric accuracy of a pneumatic system due to the compressibility of air?", qA: "ماذا يحدث للدقة الحجمية لنظام نيوماتيكي بسبب انضغاطية الهواء؟", 
+                  oE: ["It is perfectly precise under heavy loads", "It suffers from relatively low accuracy compared to hydraulics", "It automatically compensates for all pressure drops", "It is identical to hydraulic system accuracy"], 
+                  oA: ["تكون دقيقة تمامًا تحت الأحمال الثقيلة", "تعاني من دقة منخفضة نسبيًا مقارنة بالأنظمة الهيدروليكية", "تعوض تلقائيًا جميع انخفاضات الضغط", "هي مطابقة لدقة النظام الهيدروليكي"], 
+                  a: 1, eE: "Because air volume changes when compressed or heated, pneumatics cannot provide the rigid, highly accurate positioning that incompressible hydraulic oil can.", eA: "نظراً لتغير حجم الهواء عند ضغطه أو تسخينه، لا يمكن للأنظمة النيوماتيكية توفير الموضع الدقيق والصلب الذي يوفره الزيت الهيدروليكي غير القابل للانضغاط." },
+
+                { id: 320, lec: 3, t: 'tf', 
+                  qE: "Inspecting filter elements removed from the system can indicate impending system problems based on wear debris.", qA: "فحص عناصر الفلتر المزالة من النظام يمكن أن يشير إلى مشاكل وشيكة في النظام بناءً على حطام التآكل.", 
+                  oE: ["True", "False"], oA: ["صح", "خطأ"], 
+                  a: 0, eE: "Regularly inspecting filters is a core maintenance suggestion to catch component failure early.", eA: "يعد فحص المرشحات بانتظام أحد اقتراحات الصيانة الأساسية لاكتشاف فشل المكونات مبكرًا." }
+            ]
+        };
+
+        // --- APPLICATION STATE ---
+        const app = {
+            state: {
+                view: 'home', // home, lectures, setup, exam, results, review
+                activeLecture: null,
+                timer: false,
+                timeLeft: 600,
+                interval: null,
+                answers: {}, // id: selectedIndex
+                langStatus: {}, // id: 'en' or 'ar'
+                progress: JSON.parse(localStorage.getItem('ph_progress')) || { totalScore: 0, examsTaken: 0, lectureScores: {} }
+            },
+
+            // --- NAVIGATION ---
+            navigate: function(view, data = null) {
+                this.state.view = view;
+                if(view === 'home') this.renderHome();
+                if(view === 'lectures') this.renderLectures();
+                if(view === 'setup') this.renderSetup(data);
+                if(view === 'exam') this.renderExam();
+                if(view === 'results') this.renderResults();
+                if(view === 'review') this.renderReview();
+                if(view === 'dashboard') this.renderDashboard();
+                window.scrollTo(0,0);
+            },
+
+            // --- THEME ---
+            toggleTheme: function() {
+                const html = document.documentElement;
+                const icon = document.getElementById('theme-icon');
+                if(html.classList.contains('dark')) {
+                    html.classList.remove('dark');
+                    html.classList.add('light');
+                    icon.className = 'fa-solid fa-moon';
+                } else {
+                    html.classList.remove('light');
+                    html.classList.add('dark');
+                    icon.className = 'fa-solid fa-sun';
+                }
+            },
+
+            // --- RENDERERS ---
+            renderHome: function() {
+                const container = document.getElementById('app-container');
+                container.innerHTML = `
+                    <div class="flex flex-col items-center justify-center min-h-[70vh] text-center fade-in">
+                        <div class="w-24 h-24 bg-cyan-100 dark:bg-cyan-900/50 rounded-full flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-cogs text-5xl text-cyan-600 dark:text-cyan-400"></i>
+                        </div>
+                        <h1 class="text-4xl sm:text-5xl font-bold mb-4">Pneumatics & Hydraulics <span class="text-cyan-600 dark:text-cyan-500">Platform</span></h1>
+                        <h2 class="text-xl sm:text-2xl text-steel-500 dark:text-steel-400 ar-text mb-8">منصة اختبارات تطبيقات النيوماتيك و الهيدروليك</h2>
+                        
+                        <div class="flex gap-4 flex-wrap justify-center mb-10">
+                            <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-xl p-4 min-w-[150px]">
+                                <p class="text-3xl font-bold text-slate-800 dark:text-white">${DB.lectures.length}</p>
+                                <p class="text-sm text-steel-500 dark:text-steel-400 font-semibold uppercase tracking-wide">Lectures</p>
+                            </div>
+                            <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-xl p-4 min-w-[150px]">
+                                <p class="text-3xl font-bold text-slate-800 dark:text-white">${DB.questions.length}</p>
+                                <p class="text-sm text-steel-500 dark:text-steel-400 font-semibold uppercase tracking-wide">Questions</p>
+                            </div>
+                        </div>
+
+                        <button onclick="app.navigate('lectures')" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-8 rounded-lg shadow-lg hover:shadow-cyan-500/25 transition-all transform hover:-translate-y-1 text-lg">
+                            <i class="fa-solid fa-book-open mr-2"></i> Browse Lectures
+                        </button>
+                    </div>
+                `;
+            },
+
+            renderLectures: function() {
+                let html = `
+                    <div class="fade-in max-w-4xl mx-auto">
+                        <h2 class="text-3xl font-bold mb-2">Course Lectures</h2>
+                        <p class="text-steel-500 dark:text-steel-400 mb-8">Select a lecture to configure and begin your examination.</p>
+                        <div class="grid gap-6">
+                `;
+                
+                DB.lectures.forEach(lec => {
+                    const best = this.state.progress.lectureScores[lec.id];
+                    const scoreText = best !== undefined ? `<span class="text-green-600 dark:text-green-400 font-bold"><i class="fa-solid fa-trophy mr-1"></i> Best: ${best}/20 (${(best/20*100).toFixed(0)}%)</span>` : `<span class="text-steel-400"><i class="fa-regular fa-circle-xmark mr-1"></i> Not attempted</span>`;
+                    
+                    html += `
+                        <div class="bg-white dark:bg-navy-800 shadow-md hover:shadow-lg border border-gray-200 dark:border-slate-700 rounded-xl p-6 transition-all flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div>
+                                <h3 class="text-xl font-bold mb-1">${lec.title}</h3>
+                                <p class="text-sm text-steel-600 dark:text-steel-400 mb-3">${lec.desc}</p>
+                                <div class="flex items-center gap-4 text-sm">
+                                    <span class="bg-gray-100 dark:bg-slate-700 px-3 py-1 rounded-full font-medium"><i class="fa-solid fa-list-ol mr-1"></i> 20 Questions</span>
+                                    ${scoreText}
+                                </div>
+                            </div>
+                            <button onclick="app.navigate('setup', ${lec.id})" class="w-full sm:w-auto bg-slate-800 dark:bg-slate-700 hover:bg-cyan-600 dark:hover:bg-cyan-600 text-white font-bold py-2 px-6 rounded-lg transition-colors">
+                                Setup Exam
+                            </button>
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                document.getElementById('app-container').innerHTML = html;
+            },
+
+            renderSetup: function(lecId) {
+                this.state.activeLecture = DB.lectures.find(l => l.id === lecId);
+                const lec = this.state.activeLecture;
+                
+                document.getElementById('app-container').innerHTML = `
+                    <div class="fade-in max-w-2xl mx-auto mt-8">
+                        <button onclick="app.navigate('lectures')" class="text-steel-500 hover:text-cyan-600 mb-6 transition-colors font-medium">
+                            <i class="fa-solid fa-arrow-left mr-1"></i> Back to Lectures
+                        </button>
+                        
+                        <div class="bg-white dark:bg-navy-800 shadow-xl border border-gray-200 dark:border-slate-700 rounded-2xl p-8">
+                            <div class="border-b border-gray-200 dark:border-slate-700 pb-6 mb-6">
+                                <h2 class="text-2xl font-bold mb-2 text-cyan-600 dark:text-cyan-400">Exam Setup</h2>
+                                <h3 class="text-xl font-bold">${lec.title}</h3>
+                            </div>
+                            
+                            <ul class="space-y-4 mb-8">
+                                <li class="flex items-center text-steel-600 dark:text-steel-300">
+                                    <i class="fa-solid fa-check text-cyan-500 mr-3 w-5"></i> <strong>20 Questions</strong> exactly based on lecture material.
+                                </li>
+                                <li class="flex items-center text-steel-600 dark:text-steel-300">
+                                    <i class="fa-solid fa-check text-cyan-500 mr-3 w-5"></i> Mix of Multiple Choice & True/False.
+                                </li>
+                                <li class="flex items-center text-steel-600 dark:text-steel-300">
+                                    <i class="fa-solid fa-language text-cyan-500 mr-3 w-5"></i> English/Arabic translation available per question.
+                                </li>
+                            </ul>
+
+                            <div class="bg-gray-50 dark:bg-slate-900 p-5 rounded-xl mb-8 border border-gray-200 dark:border-slate-700">
+                                <h4 class="font-bold mb-3"><i class="fa-regular fa-clock mr-2"></i> Time Limit</h4>
+                                <div class="flex gap-4">
+                                    <label class="flex-1 cursor-pointer">
+                                        <input type="radio" name="timerMode" value="true" class="peer sr-only" checked onchange="app.state.timer=true">
+                                        <div class="text-center p-3 rounded-lg border-2 border-transparent bg-white dark:bg-navy-800 peer-checked:border-cyan-500 peer-checked:text-cyan-600 dark:peer-checked:text-cyan-400 font-medium transition-all shadow-sm">
+                                            10 Minutes
+                                        </div>
+                                    </label>
+                                    <label class="flex-1 cursor-pointer">
+                                        <input type="radio" name="timerMode" value="false" class="peer sr-only" onchange="app.state.timer=false">
+                                        <div class="text-center p-3 rounded-lg border-2 border-transparent bg-white dark:bg-navy-800 peer-checked:border-cyan-500 peer-checked:text-cyan-600 dark:peer-checked:text-cyan-400 font-medium transition-all shadow-sm">
+                                            No Timer
+                                        </div>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <button onclick="app.startExam()" class="w-full bg-cyan-600 hover:bg-cyan-700 text-white text-lg font-bold py-4 rounded-xl shadow-lg transition-all">
+                                <i class="fa-solid fa-play mr-2"></i> Start Exam
+                            </button>
+                        </div>
+                    </div>
+                `;
+                this.state.timer = true; // Default
+            },
+
+            startExam: function() {
+                this.state.answers = {};
+                this.state.langStatus = {};
+                this.state.currentQuestionIndex = 0;
+                this.state.examQuestions = DB.questions.filter(q => q.lec === this.state.activeLecture.id);
+                
+                if(this.state.timer) {
+                    this.state.timeLeft = 600; // 10 min
+                    this.state.interval = setInterval(() => this.tick(), 1000);
+                }
+                
+                this.navigate('exam');
+            },
+
+            tick: function() {
+                this.state.timeLeft--;
+                const min = Math.floor(this.state.timeLeft / 60).toString().padStart(2, '0');
+                const sec = (this.state.timeLeft % 60).toString().padStart(2, '0');
+                const timerEl = document.getElementById('exam-timer');
+                if(timerEl) {
+                    timerEl.innerText = `${min}:${sec}`;
+                    if(this.state.timeLeft < 60) timerEl.classList.add('text-red-500', 'animate-pulse');
+                }
+                if(this.state.timeLeft <= 0) {
+                    clearInterval(this.state.interval);
+                    this.submitExam(true);
+                }
+            },
+
+            toggleLang: function(qId) {
+                this.state.langStatus[qId] = this.state.langStatus[qId] === 'ar' ? 'en' : 'ar';
+                this.renderActiveQuestion();
+            },
+
+            selectAnswer: function(qId, optIdx) {
+                this.state.answers[qId] = optIdx;
+                this.renderActiveQuestion(); // re-render to show selection
+                this.updateGrid();
+            },
+
+            renderExam: function() {
+                let timerHtml = this.state.timer ? `<div class="bg-slate-800 dark:bg-slate-900 text-white px-4 py-2 rounded-lg font-mono text-xl font-bold shadow-inner flex items-center"><i class="fa-regular fa-clock mr-2 text-cyan-400"></i><span id="exam-timer">10:00</span></div>` : '';
+                
+                document.getElementById('app-container').innerHTML = `
+                    <div class="fade-in max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-4 gap-8">
+                        
+                        <!-- Main Content -->
+                        <div class="lg:col-span-3 flex flex-col min-h-[60vh]">
+                            <div class="flex justify-between items-center mb-6">
+                                <div>
+                                    <h2 class="text-xl font-bold text-steel-600 dark:text-steel-300">${this.state.activeLecture.title}</h2>
+                                    <p class="text-sm text-cyan-600 dark:text-cyan-400 font-bold" id="q-progress">Question 1 of 20</p>
+                                </div>
+                                ${timerHtml}
+                            </div>
+                            
+                            <!-- Question Container -->
+                            <div id="q-container" class="flex-grow flex flex-col"></div>
+                            
+                            <!-- Navigation Controls -->
+                            <div class="flex justify-between mt-8 border-t border-gray-200 dark:border-slate-700 pt-6">
+                                <button onclick="app.prevQ()" id="btn-prev" class="bg-white dark:bg-navy-800 border border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 text-slate-800 dark:text-white font-medium py-2 px-6 rounded-lg transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed">
+                                    <i class="fa-solid fa-arrow-left mr-2"></i> Previous
+                                </button>
+                                <button onclick="app.nextQ()" id="btn-next" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-colors">
+                                    Next <i class="fa-solid fa-arrow-right ml-2"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Sidebar Grid -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-white dark:bg-navy-800 border border-gray-200 dark:border-slate-700 rounded-xl p-5 shadow-sm sticky top-20">
+                                <h3 class="font-bold mb-4 text-center border-b border-gray-200 dark:border-slate-700 pb-2">Questions</h3>
+                                <div class="grid grid-cols-5 gap-2 mb-6" id="q-grid"></div>
+                                <button onclick="app.confirmSubmit()" class="w-full bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-check-double mr-2"></i> Submit Exam
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Modal -->
+                    <div id="submit-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center hide opacity-0 transition-opacity">
+                        <div class="bg-white dark:bg-navy-800 rounded-2xl p-8 max-w-sm w-full mx-4 shadow-2xl transform scale-95 transition-transform" id="modal-content">
+                            <h3 class="text-2xl font-bold mb-4" id="modal-title">Submit Exam?</h3>
+                            <p class="text-steel-600 dark:text-steel-300 mb-8" id="modal-desc"></p>
+                            <div class="flex gap-4">
+                                <button onclick="document.getElementById('submit-modal').classList.add('hide')" class="flex-1 bg-gray-200 dark:bg-slate-700 hover:bg-gray-300 dark:hover:bg-slate-600 text-slate-800 dark:text-white font-bold py-2 rounded-lg transition-colors">Cancel</button>
+                                <button onclick="app.submitExam(false)" class="flex-1 bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 rounded-lg transition-colors">Submit</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                
+                this.renderActiveQuestion();
+                this.buildGrid();
+            },
+
+            renderActiveQuestion: function() {
+                const idx = this.state.currentQuestionIndex;
+                const q = this.state.examQuestions[idx];
+                const lang = this.state.langStatus[q.id] || 'en';
+                const isAr = lang === 'ar';
+                
+                document.getElementById('q-progress').innerText = `Question ${idx + 1} of 20`;
+                
+                let optsHtml = '';
+                const opts = isAr ? q.oA : q.oE;
+                opts.forEach((opt, oIdx) => {
+                    const isSelected = this.state.answers[q.id] === oIdx;
+                    optsHtml += `
+                        <div onclick="app.selectAnswer(${q.id}, ${oIdx})" class="p-4 rounded-xl border-2 cursor-pointer transition-all ${isSelected ? 'border-cyan-500 bg-cyan-50 dark:bg-cyan-900/20' : 'border-gray-200 dark:border-slate-700 bg-white dark:bg-navy-800 hover:border-cyan-300 dark:hover:border-cyan-700'} flex items-center">
+                            <div class="w-6 h-6 rounded-full border-2 mr-4 ${isAr ? 'ml-4 mr-0' : ''} flex items-center justify-center flex-shrink-0 ${isSelected ? 'border-cyan-500' : 'border-gray-300 dark:border-slate-600'}">
+                                ${isSelected ? '<div class="w-3 h-3 rounded-full bg-cyan-500"></div>' : ''}
+                            </div>
+                            <span class="${isAr ? 'ar-text text-lg' : 'en-text text-base'} w-full">${opt}</span>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('q-container').innerHTML = `
+                    <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-2xl p-6 flex-grow flex flex-col fade-in">
+                        <div class="flex justify-between items-start mb-6 border-b border-gray-100 dark:border-slate-700 pb-4">
+                            <span class="bg-gray-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-full">
+                                ${q.t === 'mcq' ? 'Multiple Choice' : 'True / False'}
+                            </span>
+                            <button onclick="app.toggleLang(${q.id})" class="text-sm font-bold bg-cyan-100 text-cyan-700 hover:bg-cyan-200 dark:bg-cyan-900/50 dark:text-cyan-400 dark:hover:bg-cyan-800 px-3 py-1 rounded transition-colors">
+                                <i class="fa-solid fa-language mr-1"></i> ${isAr ? 'English' : 'عربي'}
+                            </button>
+                        </div>
+                        
+                        <h3 class="text-xl font-bold mb-8 ${isAr ? 'ar-text text-2xl leading-relaxed' : 'en-text'}">${isAr ? q.qA : q.qE}</h3>
+                        
+                        <div class="space-y-3 flex-grow">
+                            ${optsHtml}
+                        </div>
+                    </div>
+                `;
+
+                // Update Buttons
+                document.getElementById('btn-prev').disabled = idx === 0;
+                const btnNext = document.getElementById('btn-next');
+                if (idx === 19) {
+                    btnNext.innerHTML = `<i class="fa-solid fa-check-double mr-2"></i> Submit`;
+                    btnNext.className = "bg-green-600 hover:bg-green-700 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-colors";
+                    btnNext.onclick = () => app.confirmSubmit();
+                } else {
+                    btnNext.innerHTML = `Next <i class="fa-solid fa-arrow-right ml-2"></i>`;
+                    btnNext.className = "bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-2 px-8 rounded-lg shadow-md transition-colors";
+                    btnNext.onclick = () => app.nextQ();
+                }
+            },
+
+            buildGrid: function() {
+                let html = '';
+                for(let i=0; i<20; i++) {
+                    html += `<button onclick="app.jumpQ(${i})" id="grid-btn-${i}" class="w-10 h-10 rounded-md font-bold text-sm transition-colors border ${i === this.state.currentQuestionIndex ? 'border-cyan-500 ring-2 ring-cyan-200 dark:ring-cyan-900' : 'border-gray-200 dark:border-slate-700'}"></button>`;
+                }
+                document.getElementById('q-grid').innerHTML = html;
+                this.updateGrid();
+            },
+
+            updateGrid: function() {
+                for(let i=0; i<20; i++) {
+                    const qId = this.state.examQuestions[i].id;
+                    const btn = document.getElementById(`grid-btn-${i}`);
+                    const answered = this.state.answers[qId] !== undefined;
+                    
+                    if(i === this.state.currentQuestionIndex) {
+                        btn.className = `w-10 h-10 rounded-md font-bold text-sm transition-colors border border-cyan-500 ring-2 ring-cyan-200 dark:ring-cyan-900 ${answered ? 'bg-cyan-600 text-white' : 'bg-white dark:bg-navy-800'}`;
+                    } else {
+                        btn.className = `w-10 h-10 rounded-md font-bold text-sm transition-colors border border-gray-200 dark:border-slate-700 ${answered ? 'bg-cyan-600 text-white border-cyan-600' : 'bg-gray-50 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600'}`;
+                    }
+                    btn.innerText = i + 1;
+                }
+            },
+
+            nextQ: function() { if(this.state.currentQuestionIndex < 19) { this.state.currentQuestionIndex++; this.renderActiveQuestion(); this.updateGrid(); } },
+            prevQ: function() { if(this.state.currentQuestionIndex > 0) { this.state.currentQuestionIndex--; this.renderActiveQuestion(); this.updateGrid(); } },
+            jumpQ: function(i) { this.state.currentQuestionIndex = i; this.renderActiveQuestion(); this.updateGrid(); },
+
+            confirmSubmit: function() {
+                const answeredCount = Object.keys(this.state.answers).length;
+                const modal = document.getElementById('submit-modal');
+                const desc = document.getElementById('modal-desc');
+                
+                if (answeredCount < 20) {
+                    desc.innerHTML = `You have <strong>${20 - answeredCount} unanswered</strong> questions. Are you sure you want to submit?`;
+                } else {
+                    desc.innerText = "You have answered all questions. Ready to submit?";
+                }
+                
+                modal.classList.remove('hide');
+                setTimeout(() => modal.classList.remove('opacity-0'), 10);
+            },
+
+            submitExam: function(auto = false) {
+                if(this.state.interval) clearInterval(this.state.interval);
+                
+                let score = 0;
+                this.state.examQuestions.forEach(q => {
+                    if(this.state.answers[q.id] === q.a) score++;
+                });
+
+                this.state.latestScore = score;
+                
+                // Save progress
+                const lecId = this.state.activeLecture.id;
+                const prevBest = this.state.progress.lectureScores[lecId] || 0;
+                if(score > prevBest) this.state.progress.lectureScores[lecId] = score;
+                this.state.progress.examsTaken++;
+                localStorage.setItem('ph_progress', JSON.stringify(this.state.progress));
+
+                this.navigate('results');
+            },
+
+            renderResults: function() {
+                const score = this.state.latestScore;
+                const perc = (score / 20) * 100;
+                const answeredCount = Object.keys(this.state.answers).length;
+                let level = "Needs Review"; let color = "text-red-500";
+                if(perc >= 90) { level = "Excellent"; color = "text-green-500"; }
+                else if(perc >= 80) { level = "Very Good"; color = "text-cyan-500"; }
+                else if(perc >= 70) { level = "Good"; color = "text-blue-500"; }
+                else if(perc >= 60) { level = "Needs Improvement"; color = "text-orange-500"; }
+
+                document.getElementById('app-container').innerHTML = `
+                    <div class="fade-in max-w-3xl mx-auto mt-8">
+                        <div class="bg-white dark:bg-navy-800 shadow-xl border border-gray-200 dark:border-slate-700 rounded-2xl p-8 text-center mb-8">
+                            <h2 class="text-3xl font-bold mb-2">Exam Results</h2>
+                            <p class="text-steel-500 dark:text-steel-400 mb-8">${this.state.activeLecture.title}</p>
+                            
+                            <div class="flex flex-col sm:flex-row justify-center items-center gap-8 mb-8">
+                                <div class="relative w-40 h-40 flex items-center justify-center">
+                                    <svg class="w-full h-full transform -rotate-90" viewBox="0 0 36 36">
+                                        <path class="text-gray-100 dark:text-slate-700" stroke-width="3" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                        <path class="${color.replace('text-','text-')}" stroke-dasharray="${perc}, 100" stroke-width="3" stroke="currentColor" fill="none" stroke-linecap="round" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    </svg>
+                                    <div class="absolute text-3xl font-bold">${perc}%</div>
+                                </div>
+                                <div class="text-left space-y-4">
+                                    <div class="text-4xl font-bold ${color}">${level}</div>
+                                    <div class="text-xl">Score: <strong>${score} / 20</strong></div>
+                                    <div class="grid grid-cols-2 gap-x-6 gap-y-2 text-sm text-steel-600 dark:text-steel-300">
+                                        <div><i class="fa-solid fa-check text-green-500 mr-2"></i> Correct: ${score}</div>
+                                        <div><i class="fa-solid fa-xmark text-red-500 mr-2"></i> Wrong: ${answeredCount - score}</div>
+                                        <div class="col-span-2"><i class="fa-solid fa-circle-question text-orange-400 mr-2"></i> Unanswered: ${20 - answeredCount}</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="flex gap-4 justify-center">
+                                <button onclick="app.navigate('review')" class="bg-cyan-600 hover:bg-cyan-700 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                                    <i class="fa-solid fa-magnifying-glass mr-2"></i> Review Questions
+                                </button>
+                                <button onclick="app.navigate('lectures')" class="bg-slate-800 hover:bg-slate-900 dark:bg-slate-700 dark:hover:bg-slate-600 text-white font-bold py-3 px-6 rounded-lg transition-colors">
+                                    Finish
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            },
+
+            renderReview: function() {
+                let html = `
+                    <div class="fade-in max-w-4xl mx-auto mt-4">
+                        <div class="flex justify-between items-center mb-6 border-b border-gray-200 dark:border-slate-700 pb-4">
+                            <h2 class="text-2xl font-bold">Review: ${this.state.activeLecture.title}</h2>
+                            <button onclick="app.navigate('results')" class="text-cyan-600 dark:text-cyan-400 font-bold hover:underline">Back to Results</button>
+                        </div>
+                        <div class="space-y-6">
+                `;
+
+                this.state.examQuestions.forEach((q, idx) => {
+                    const uAns = this.state.answers[q.id];
+                    const isCorrect = uAns === q.a;
+                    const isUnanswered = uAns === undefined;
+                    
+                    let statusIcon = isCorrect ? '<i class="fa-solid fa-circle-check text-green-500 text-2xl"></i>' : 
+                                     isUnanswered ? '<i class="fa-solid fa-circle-question text-orange-400 text-2xl"></i>' : 
+                                     '<i class="fa-solid fa-circle-xmark text-red-500 text-2xl"></i>';
+                    
+                    let optsHtml = '';
+                    q.oE.forEach((opt, oIdx) => {
+                        let styling = "border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-800";
+                        if (oIdx === q.a) styling = "border-green-500 bg-green-50 dark:bg-green-900/20 ring-1 ring-green-500";
+                        else if (oIdx === uAns && !isCorrect) styling = "border-red-500 bg-red-50 dark:bg-red-900/20 ring-1 ring-red-500";
+
+                        optsHtml += `
+                            <div class="p-3 rounded-lg border ${styling} mb-2 flex items-center justify-between">
+                                <div>
+                                    <span class="block text-sm">${opt}</span>
+                                    <span class="block text-sm ar-text text-steel-500 dark:text-steel-400 mt-1">${q.oA[oIdx]}</span>
+                                </div>
+                                ${oIdx === q.a ? '<i class="fa-solid fa-check text-green-500"></i>' : (oIdx === uAns ? '<i class="fa-solid fa-xmark text-red-500"></i>' : '')}
+                            </div>
+                        `;
+                    });
+
+                    html += `
+                        <div class="bg-white dark:bg-navy-800 shadow-sm border ${isCorrect ? 'border-green-200 dark:border-green-900/50' : 'border-gray-200 dark:border-slate-700'} rounded-xl p-6 relative">
+                            <div class="absolute top-6 right-6">${statusIcon}</div>
+                            <h4 class="font-bold text-sm text-steel-500 mb-2">QUESTION ${idx + 1}</h4>
+                            <p class="font-medium text-lg mb-1 pr-8">${q.qE}</p>
+                            <p class="ar-text text-steel-600 dark:text-steel-400 mb-6 pr-8">${q.qA}</p>
+                            <div class="mb-6">${optsHtml}</div>
+                            
+                            ${!isCorrect ? `
+                                <div class="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-500 p-4 rounded-r-lg">
+                                    <h5 class="font-bold text-blue-700 dark:text-blue-400 text-sm mb-1"><i class="fa-solid fa-lightbulb mr-1"></i> EXPLANATION</h5>
+                                    <p class="text-sm mb-1">${q.eE}</p>
+                                    <p class="text-sm ar-text">${q.eA}</p>
+                                </div>
+                            ` : ''}
+                        </div>
+                    `;
+                });
+
+                html += `</div></div>`;
+                document.getElementById('app-container').innerHTML = html;
+            },
+
+            renderDashboard: function() {
+                let lecProgressHtml = '';
+                DB.lectures.forEach(l => {
+                    const best = this.state.progress.lectureScores[l.id] || 0;
+                    const perc = (best / 20) * 100;
+                    lecProgressHtml += `
+                        <div class="mb-4">
+                            <div class="flex justify-between text-sm mb-1">
+                                <span class="font-bold">${l.title}</span>
+                                <span>${perc}% (${best}/20)</span>
+                            </div>
+                            <div class="w-full bg-gray-200 dark:bg-slate-700 rounded-full h-2.5">
+                                <div class="bg-cyan-600 h-2.5 rounded-full" style="width: ${perc}%"></div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                document.getElementById('app-container').innerHTML = `
+                    <div class="fade-in max-w-4xl mx-auto mt-4">
+                        <h2 class="text-3xl font-bold mb-6">Student Dashboard</h2>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+                            <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-xl p-6 flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-cyan-100 dark:bg-cyan-900/50 flex items-center justify-center text-cyan-600 text-2xl">
+                                    <i class="fa-solid fa-graduation-cap"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-steel-500 font-bold uppercase tracking-wider">Exams Completed</p>
+                                    <p class="text-3xl font-bold">${this.state.progress.examsTaken}</p>
+                                </div>
+                            </div>
+                            
+                            <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-xl p-6 flex items-center gap-4">
+                                <div class="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/50 flex items-center justify-center text-green-600 text-2xl">
+                                    <i class="fa-solid fa-check-to-slot"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm text-steel-500 font-bold uppercase tracking-wider">Lectures Attempted</p>
+                                    <p class="text-3xl font-bold">${Object.keys(this.state.progress.lectureScores).length} / 3</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-white dark:bg-navy-800 shadow-md border border-gray-200 dark:border-slate-700 rounded-xl p-6">
+                            <h3 class="text-xl font-bold mb-6 border-b border-gray-200 dark:border-slate-700 pb-2">Lecture Progress (Best Scores)</h3>
+                            ${lecProgressHtml}
+                        </div>
+                    </div>
+                `;
+            }
+        };
+
+        // Initialize App
+        window.onload = () => {
+            // Check system theme preference if not set
+            if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+                document.documentElement.classList.add('dark');
+                document.documentElement.classList.remove('light');
+                document.getElementById('theme-icon').className = 'fa-solid fa-sun';
+            }
+            app.navigate('home');
+        };
+    </script>
+</body>
+</html>

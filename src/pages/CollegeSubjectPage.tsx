@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -9,9 +9,6 @@ import {
   BookOpen, 
   ClipboardList, 
   StickyNote, 
-  CheckCircle, 
-  Circle,
-  Eye,
   X,
   Maximize2
 } from 'lucide-react';
@@ -40,22 +37,6 @@ export function CollegeSubjectPage() {
 
   // Modal file preview state
   const [selectedFile, setSelectedFile] = useState<{ name: string; url: string } | null>(null);
-
-  // Completed materials progress state
-  const [completedMaterials, setCompletedMaterials] = useState<string[]>(() => {
-    const saved = localStorage.getItem('completed_materials');
-    return saved ? JSON.parse(saved) : [];
-  });
-
-  useEffect(() => {
-    localStorage.setItem('completed_materials', JSON.stringify(completedMaterials));
-  }, [completedMaterials]);
-
-  const toggleMaterial = (id: string) => {
-    setCompletedMaterials((prev) =>
-      prev.includes(id) ? prev.filter((m) => m !== id) : [...prev, id]
-    );
-  };
 
   // Convert Google Drive view URL to preview embed format
   const getEmbedUrl = (url: string) => {
@@ -95,12 +76,6 @@ export function CollegeSubjectPage() {
 
   // Render course item card
   const renderCourseCard = (course: any, index: number) => {
-    const totalItems = course.materials.length;
-    const completedItems = course.materials.filter((_: any, idx: number) =>
-      completedMaterials.includes(`${course.id}-${idx}`)
-    ).length;
-    const progress = totalItems > 0 ? Math.round((completedItems / totalItems) * 100) : 0;
-
     return (
       <motion.div
         key={course.id}
@@ -110,54 +85,25 @@ export function CollegeSubjectPage() {
         className="bg-card border border-border/80 rounded-xl p-3.5 sm:p-5 shadow-sm flex flex-col justify-between"
       >
         <div>
-          {/* Header & Progress Indicator */}
-          <div className="flex items-center justify-between gap-2 mb-1.5">
+          {/* Header */}
+          <div className="flex items-center justify-between gap-2 mb-3">
             <h3 className="text-base sm:text-lg font-bold text-foreground">{course.name}</h3>
-            <span className="text-[10px] sm:text-xs font-semibold px-2 py-0.5 rounded-full bg-primary/10 text-primary shrink-0">
-              {progress}%
-            </span>
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full bg-muted rounded-full h-1.5 mb-3 overflow-hidden">
-            <motion.div
-              className="bg-primary h-1.5 rounded-full"
-              initial={{ width: 0 }}
-              animate={{ width: `${progress}%` }}
-              transition={{ duration: 0.4, ease: 'easeOut' }}
-            />
           </div>
 
           {/* Material Items List */}
           <div className="space-y-1.5">
             {course.materials.map((material: any, materialIndex: number) => {
-              const materialId = `${course.id}-${materialIndex}`;
-              const isCompleted = completedMaterials.includes(materialId);
               const IconComponent = materialIcons[material.type] || FileText;
 
               return (
                 <div
                   key={materialIndex}
-                  className="flex items-center gap-2 p-2 rounded-lg hover:bg-accent/40 transition-colors group"
+                  className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-accent/40 transition-colors group"
                 >
-                  <button
-                    onClick={() => toggleMaterial(materialId)}
-                    className="text-muted-foreground hover:text-primary transition-colors shrink-0"
-                    title={isCompleted ? 'تحديد كغير مكتمل' : 'تحديد كمكتمل'}
-                  >
-                    {isCompleted ? (
-                      <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5 text-emerald-500 fill-emerald-500/10" />
-                    ) : (
-                      <Circle className="h-4 w-4 sm:h-5 sm:w-5 text-muted-foreground" />
-                    )}
-                  </button>
-
-                  <IconComponent className="h-3.5 w-3.5 text-primary shrink-0" />
+                  <IconComponent className="h-4 w-4 text-primary shrink-0" />
 
                   <span 
-                    className={`flex-1 text-xs sm:text-sm font-medium cursor-pointer truncate transition-all ${
-                      isCompleted ? 'line-through text-muted-foreground' : 'text-foreground'
-                    }`}
+                    className="flex-1 text-xs sm:text-sm font-medium cursor-pointer truncate text-foreground hover:text-primary transition-all"
                     onClick={() => setSelectedFile({ name: material.name, url: material.url })}
                   >
                     {material.name}
@@ -165,24 +111,14 @@ export function CollegeSubjectPage() {
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 shrink-0">
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setSelectedFile({ name: material.name, url: material.url })}
-                      className="h-7 px-2 text-[11px] text-primary hover:bg-primary/10 rounded-md"
-                    >
-                      <Eye className="h-3 w-3 mr-1 rtl:ml-1" />
-                      عرض
-                    </Button>
-
                     <a
                       href={material.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="p-1 text-muted-foreground hover:text-foreground rounded-md hover:bg-accent transition-colors"
+                      className="p-1.5 text-muted-foreground hover:text-primary rounded-md hover:bg-accent transition-colors"
                       title="فتح في نافذة جديدة"
                     >
-                      <ExternalLink className="h-3.5 w-3.5" />
+                      <ExternalLink className="h-4 w-4" />
                     </a>
                   </div>
                 </div>
