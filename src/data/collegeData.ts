@@ -56,7 +56,7 @@ export const collegeData: Year[] = [
     id: 'year2',
     name: 'الفرقة الثانية',
     nameKey: 'year2',
-    enabled: false,
+    enabled: true,
     departments: [
       { id: 'mechatronics', name: 'ميكاترونكس', nameKey: 'mechatronics', enabled: true },
       { id: 'it', name: 'تكنولوجيا المعلومات', nameKey: 'it', enabled: false },
@@ -393,6 +393,144 @@ export const year1RenewableCourses: Record<string, Course[]> = {
   ]
 };
 
+export const year2MechatronicsCourses: Record<string, Course[]> = {
+  semester1: [
+    {
+      id: 'pneumatics-hydraulics',
+      name: 'تطبيقات النيوماتيك والهيدروليك',
+      nameKey: 'pneumaticsHydraulics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1v6ffHnklflywdh_kVPwuqVoSPKWZF1co?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات & حل الشيتات', url: 'https://drive.google.com/drive/folders/108amHEh3Sj94haacjh-2nuvAdTr7SVuE?usp=drive_link', type: 'sheets' },
+        { name: 'محاضرات مترجمه', url: 'https://drive.google.com/drive/folders/1bLVlA_f91vmWSxSp5zzLtJL8yhmJjMra?usp=drive_link', type: 'notes' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1tsI4DVVwj2XkMgT-xyG5YCRemgbbYK-3?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1SZq3gI9EjzsQlOcqDgvrvcPbwIc0QSEg?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'matlab-mechatronics',
+      name: 'برمجة لتطبيقات الميكاترونيكس (Matlab)',
+      nameKey: 'matlabMechatronics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1n0QzBrSHLiFM130b6X89UD8gHuy69qQH?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1kW_x4x55sLBnbq2Z19xU170rcj4ZyZ8O?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/109bUa07gg7Wy421QW2Y4R6EwxDFewAwb', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/14rk-FZOpccSR9z5a-RLvuFEsF0iuid0S?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1BBoKFt_ni2UOOtjamGUwFgDHsTcBzatE?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'material-selection',
+      name: 'إختيار المواد',
+      nameKey: 'materialSelection',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1SxIEMBVS0L2ktKEjr6-exWm0n7Ziv5mL?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1XDE-Ims5zFB9tEDKMjupBquLozNbpneb?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1GJ8yFzMO535UoPuOV-ZKRuy8M-HJVm6X?usp=drive_link', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1CCcwks2oEZj7e9lFj5TlycBK_UwsUomx?usp=drive_link', type: 'notes' },
+        { name: 'اختيار المواد (قديم)', url: 'https://drive.google.com/drive/folders/1gNzGwEarVC5NQoe7DsHcn1sEyCvGNa4b?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1fWuu5fYg6RNpfZ8AEA-pVUaXHMmRJ0u8?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'pc-control-basics',
+      name: 'أساسيات التحكم بالحاسبات (PC)',
+      nameKey: 'pcControlBasics',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1c5ZX2TyjkYhMSmV1w_V7kRhQD8LGDA-3?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1QTBKPQ0ZDaQWdFlcqdrMQG20ingo-51u?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/13nIZJDmmnS-uZLl93bjeH1ot3mhLuyBX?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1qUjy1kBn5NeVsTAGUklFrEuynTCLhdzS?usp=drive_link', type: 'exams' },
+        { name: 'PC (قديم)', url: 'https://drive.google.com/drive/folders/1XfBO61JMk3PIhz5Kdi_U-6TtGWl0rDOb?usp=drive_link', type: 'notes' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/16VSvIbloVuVuYnBWBX2AFfat8pLf3vqU?usp=drive_link', type: 'notes' },
+        { name: 'مشاريع C++', url: 'https://drive.google.com/drive/folders/1lUvDDC2SksXgs23hMtUDJOBdazolHKPv?usp=drive_link', type: 'other' }
+      ]
+    },
+    {
+      id: 'plc',
+      name: 'المتحكم المنطقي المبرمج (PLC)',
+      nameKey: 'plc',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/12EcpSrJe80aNnX6SccYB-emD9brjr9Fd?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1swV_LZMBfmrGePaozkbrIeV-P5L_Rf95?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1ebrTuNgTJL-ivB7E2tmCf2LwnRrCALfw?usp=drive_link', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1_6NWqJvZG4cwRYkRXYFbZfR--H6lZTrh?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1YAgp9Yx1CACuIqZRFOZlCqFpNqw0Qxho?usp=drive_link', type: 'exams' },
+        { name: 'مشاريع PLC', url: 'https://drive.google.com/drive/folders/1xg75Mbjr9wh8epYA3nKlkHmYh2zIP-rG?usp=drive_link', type: 'other' }
+      ]
+    }
+  ],
+  semester2: [
+    {
+      id: 'pcb-workshops',
+      name: 'ورش كهربية و الكترونية (PCB)',
+      nameKey: 'pcbWorkshops',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/13iV3yBJFXea2382_RUmHJOOaZBVP117P?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1Bez6d7nFZJCLEuw_e7UiDM5f4jr6caWD?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1JYMab9UDNLxYRyYsqerikRhw4Mm9fptI?usp=drive_link', type: 'sheets' },
+        { name: 'ملخصات & مراجعات', url: 'https://drive.google.com/drive/folders/1ZUDcetcSB69TLjsdyECD3-bB5feGSrtx?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1xAenYT2hdOiyutcdqTLIb72mYBmbu_Bs?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'electromechanical-maintenance',
+      name: 'صيانة الأنظمة الكهروميكانيكية',
+      nameKey: 'electromechanicalMaintenance',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1VrDo3WHmQoIhVbnrRLdMfcNKP-p7P61N?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1eLkIrvS2SzTpHuzc0vSBYWAPXjQ_5KJH?usp=drive_link', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1BSPknNIFZp_ALzUHp60LHwEGpQ-_POpb?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1lkfZ3IGYvRaMBwiqJ_4YbimmB-6NtZAT?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'capstone-design',
+      name: 'تصميم كابستون (CD)',
+      nameKey: 'capstoneDesign',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/13CAgJun4rQK1SWDwcYfNt3flZMy3Sz68?usp=drive_link', type: 'lectures' },
+        { name: 'سكاشن', url: 'https://drive.google.com/drive/folders/1ssWr3PYMuhs-desmPpsWz9L1pOZCQX2m?usp=drive_link', type: 'sheets' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1eXKQ2RvJqqtYgPUQkmWnKOF6l0NH2NsS?usp=drive_link', type: 'sheets' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1sp8QZY24b5h30fzxrEYoRPMFGIEMc0M8?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'mechatronics-for-technicians',
+      name: 'أنظمة الميكاترونيات للفنيين',
+      nameKey: 'mechatronicsForTechnicians',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1HTuGeFDDENsSorITriEDb8AKoRUzM7g0?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1hXoCFxZJmtvaFeDn6LUGqVTamZ9FY7av?usp=drive_link', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1CzREkDpZqkZ8qlv4WDtroPnMW5rkUbyl?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1GMBdv6jPz_9X_Toc9Nidghx8JryS0udu?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'manufacturing-technology-elective',
+      name: 'مقرر إختياري (تكنولوجيا التصنيع)',
+      nameKey: 'manufacturingTechnology',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1RDO_3JSSg3SymP4y2qqH41FwNqoklTf1?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1A6SNwZLCzO-6s6S2ApnoIneJSdv-Qs71?usp=drive_link', type: 'sheets' },
+        { name: 'ملخصات & مراجعات', url: 'https://drive.google.com/drive/folders/1n4Uyyv5s71ET4uZQq6gtxanr1lYsdSIb?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقة', url: 'https://drive.google.com/drive/folders/1aF58PuB3SNOKOgGLYwSmdwfndfSjEYMK?usp=drive_link', type: 'exams' }
+      ]
+    },
+    {
+      id: 'entrepreneurship-projects',
+      name: 'المشاريع وريادة الاعمال',
+      nameKey: 'entrepreneurshipProjects',
+      materials: [
+        { name: 'محاضرات', url: 'https://drive.google.com/drive/folders/1N0ry0opTxcYzK9AgSp8occyPIP8UMtsA?usp=drive_link', type: 'lectures' },
+        { name: 'شيتات', url: 'https://drive.google.com/drive/folders/1MK4SZhCX2nt9KFLQaqT_QS7fK-yp8MlZ?usp=drive_link', type: 'sheets' },
+        { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1hKzorJoUcoDj1iLqJDSxwTupydB8rMVG?usp=drive_link', type: 'notes' },
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/12bNvloPd4QzZI7kbNMSKdw7PPbV8N3NF?usp=drive_link', type: 'exams' }
+      ]
+    }
+  ]
+};
+
 export const year3MechatronicsCourses: Record<string, Course[]> = {
   semester1: [
     {
@@ -531,6 +669,7 @@ export const globalSearch = (query: string): SearchResultItem[] => {
   const datasets = [
     { yearName: 'الفرقة الأولى', deptName: 'ميكاترونكس', data: year1MechatronicsCourses },
     { yearName: 'الفرقة الأولى', deptName: 'طاقة متجددة', data: year1RenewableCourses },
+    { yearName: 'الفرقة الثانية', deptName: 'ميكاترونكس', data: year2MechatronicsCourses },
     { yearName: 'الفرقة الثالثة', deptName: 'ميكاترونكس', data: year3MechatronicsCourses }
   ];
 

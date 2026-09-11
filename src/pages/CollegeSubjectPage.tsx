@@ -18,6 +18,7 @@ import {
 import { 
   year1MechatronicsCourses, 
   year3MechatronicsCourses,
+  year2MechatronicsCourses,
   year1RenewableCourses 
 } from '../data/collegeData';
 import { Button } from '../components/ui/button';
@@ -67,6 +68,7 @@ export function CollegeSubjectPage() {
   const getCourseData = () => {
     if (deptId === 'mechatronics') {
       if (yearId === 'year1') return year1MechatronicsCourses;
+      if (yearId === 'year2') return year2MechatronicsCourses;
       if (yearId === 'year3') return year3MechatronicsCourses;
     } else if (deptId === 'renewable') {
       if (yearId === 'year1') return year1RenewableCourses;
@@ -88,8 +90,8 @@ export function CollegeSubjectPage() {
   }
 
   const deptName = deptId === 'renewable' ? 'طاقة متجددة' : t('mechatronics');
-  const yearTitle = yearId === 'year1' ? t('year1') : t('year3');
-  const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : 'الثالثة'} قسم ${deptName}`;
+  const yearTitle = yearId === 'year1' ? t('year1') : yearId === 'year2' ?  t('year2') : t('year3');
+  const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : yearId === 'year2' ? 'الثانية' : 'الثالثة'} قسم ${deptName}`;
 
   // Render course item card
   const renderCourseCard = (course: any, index: number) => {
