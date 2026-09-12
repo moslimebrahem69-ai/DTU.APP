@@ -87,7 +87,6 @@ export const EXAMS_DATA: CourseExamsMap = {
       type: 'final',
       url: 'https://pneumatics-examhtml.vercel.app/',
       questionCount: 60,
-      durationMinutes: 30,
       isAiGenerated: false,
     }
   ]
