@@ -462,12 +462,7 @@ body, html {
   backface-visibility: hidden;
 }
 
-@media (max-width: 768px) {
-  /* تقليل أي تأثيرات ثقيلة تعيق السكرول السلس في الهواتف */
-  * {
-    animation-duration: 0.2s !important;
-  }
-}
+
 /* تخصيص سرعة حركة اليد الترحيبية لتكون هادية وناعمة */
 @keyframes slow-bounce {
   0%, 100% {
