@@ -11,9 +11,9 @@ export const UniversalViewerModal: React.FC<UniversalViewerModalProps> = ({ titl
   const processed = processUrlForEmbed(url);
   const targetUrl = processed.originalUrl || url;
 
-  // فتح الرابط في تبويب جديد لمن يرغب
-  const handleOpenInNewTab = () => {
-    window.open(targetUrl, '_blank', 'noopener,noreferrer');
+  // فتح الرابط في نفس التاب الحالية للتطبيق
+  const handleOpenInSameTab = () => {
+    window.open(targetUrl, '_self');
   };
 
   return (
@@ -27,16 +27,16 @@ export const UniversalViewerModal: React.FC<UniversalViewerModalProps> = ({ titl
           </h3>
 
           <div className="flex items-center gap-2">
-            {/* زر الفتح في تبويب جديد */}
+            {/* زر الفتح في نفس التاب */}
             <button
-              onClick={handleOpenInNewTab}
+              onClick={handleOpenInSameTab}
               className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-blue-600 bg-blue-50 border border-blue-200 rounded-xl hover:bg-blue-100 transition-colors shadow-sm"
-              title="فتح في تبويب جديد"
+              title="فتح الرابط"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
               </svg>
-              <span className="hidden sm:inline">فتح في تبويب جديد</span>
+              <span className="hidden sm:inline">فتح الرابط</span>
             </button>
 
             {/* زر الإغلاق */}

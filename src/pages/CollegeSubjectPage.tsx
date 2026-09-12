@@ -60,9 +60,9 @@ export function CollegeSubjectPage() {
   const yearTitle = yearId === 'year1' ? t('year1') : yearId === 'year2' ?  t('year2') : t('year3');
   const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : yearId === 'year2' ? 'الثانية' : 'الثالثة'} قسم ${deptName}`;
 
-  // فتح رابط المحاضرة أو الدرايف في صفحة خارجية مباشرة بضغطة واحدة
+  // فتح رابط المحاضرة أو الدرايف في نفس التاب الحالية للتطبيق
   const handleOpenMaterial = (url: string) => {
-    window.open(url, '_blank', 'noopener,noreferrer');
+    window.open(url, '_self');
   };
 
   // Render course item card

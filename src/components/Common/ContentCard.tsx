@@ -32,12 +32,13 @@ export function ContentCard({
   const { elementRef, isIntersecting } = useIntersectionObserver();
   const [showInternalModal, setShowInternalModal] = useState(false);
 
+  // تعديل فتح الرابط ليفتح في نفس التاب الحالية تماماً
   const handleOpenLink = (e: React.MouseEvent) => {
     e.preventDefault();
     if (onOpen) {
       onOpen(url, title);
     } else {
-      setShowInternalModal(true);
+      window.open(url, '_self');
     }
   };
 
@@ -131,7 +132,7 @@ export function ContentCard({
                 paid 
                   ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
                   : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
-              }`}
+                }`}
               >
                 {paid && <Star className="h-2.5 w-2.5" />}
                 {paid ? t('paid') : t('free')}
