@@ -73,9 +73,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       description: 'الاختبار الإلكتروني الأول لمادة اللغة الإنجليزية للفرقة الأولى',
       type: 'quiz',
       url: 'https://exam1e.vercel.app/',
-      questionCount: 15,
-      durationMinutes: 20,
-      isAiGenerated: false,
+       isAiGenerated: true,
     }
   ],
   // المفتاح هنا مطابق تماماً لـ ID المادة في year2MechatronicsCourses
@@ -87,7 +85,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       type: 'final',
       url: 'https://pneumatics-examhtml.vercel.app/',
       questionCount: 60,
-      isAiGenerated: false,
+      isAiGenerated: true,
     }
   ]
 };
