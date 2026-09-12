@@ -149,15 +149,7 @@ body {
   text-rendering: optimizeLegibility;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
-  /* منع تحديد النصوص وإظهار مؤشر الكتابة المزعج لإعطاء طابع تطبيق أصلي */
-  -webkit-user-select: none;
-  user-select: none;
-}
-
-/* السماح بتحديد الكتابة داخل حقول الإدخال والبحث فقط */
-input, textarea, [contenteditable="true"] {
-  -webkit-user-select: text;
-  user-select: text;
+  /* تمت إزالة user-select: none من هنا تماماً لتعود طبيعية تماماً */
 }
 
 [dir="rtl"] {
@@ -454,10 +446,4 @@ input, textarea, [contenteditable="true"] {
   50% { 
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
   }
-}
-/* إصلاح مؤشر الماوس على الأزرار والروابط وعناصر التفاعل */
-button, a, [role="button"], input, select, label {
-  -webkit-user-select: none;
-  user-select: none;
-  cursor: pointer;
 }
