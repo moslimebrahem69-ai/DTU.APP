@@ -77,8 +77,8 @@ export const EXAMS_DATA: CourseExamsMap = {
   // المفتاح هنا مطابق تماماً لـ ID المادة في year2MechatronicsCourses
   'pneumatics-hydraulics': [
     {
-      id: 'pneumatics-lec1-exam',
-      title: 'اختبار ع المحاضرة 1: تطبيقات النيوماتيك والهيدروليك',
+      id: 'pneumatics-lec1&2-exam',
+      title: 'اختبار ع المحاضرة 1 & 2: تطبيقات النيوماتيك والهيدروليك',
       description: 'اختبار تفاعلي على المحاضرة الأولى مع الترجمة والتقييم الفوري',
       type: 'lecture',
       lectureNumber: 1,
@@ -88,11 +88,20 @@ export const EXAMS_DATA: CourseExamsMap = {
       isAiGenerated: true,
     },
     {
-      id: 'pneumatics-final-exam',
+      id: 'pneumatics-exam',
       title: 'إختبار ع جميع المحاضرات: تطبيقات النيوماتيك والهيدروليك',
       description: 'امتحان ع كل المحاضرات بتاعت المادة',
       type: 'lecture',
       url: 'https://pneumatics-examhtml.vercel.app/',
+      questionCount: 110,
+      isAiGenerated: true,
+    },
+    {
+      id: 'pneumatics-lec3-exam',
+      title: 'إختبار ع المحاضرة 3: تطبيقات النيوماتيك والهيدروليك',
+      description: 'اختبار ع المحاضرة الثالثة',
+      type: 'lecture',
+      url: 'https://lec-3-five.vercel.app/',
       questionCount: 110,
       isAiGenerated: true,
     }
