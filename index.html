@@ -9,7 +9,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     
-    <!-- Optimized Font Imports: Cairo (Arabic) & Plus Jakarta Sans / Inter (English) -->
+    <!-- Optimized Font Imports -->
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
 
     <!-- Icons -->
@@ -20,9 +20,9 @@
     <!-- Meta Tags -->
     <meta name="description" content="مركز تعليمي شامل مع تايمر دراسة احترافي - DTU Learning Hub" />
     <meta name="keywords" content="دراسة, تايمر, تعليم, ذكاء اصطناعي, يوتيوب, منصات تعلم" />
-    <meta name="author" content="Mohamed Ibrahim" />
+    <meta name="author" content="Moslim Ebrahim" />
     <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#1e293b" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="DTU Learning Hub" />
@@ -42,9 +42,115 @@
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="DTU" />
+
+    <!-- ستايلات شاشة التحميل الأولية الاحترافية (Splash Screen) -->
+    <style>
+      #app-splash-screen {
+        position: fixed;
+        inset: 0;
+        z-index: 99999;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: #0f172a;
+        color: #ffffff;
+        font-family: 'Cairo', sans-serif;
+        transition: opacity 0.5s ease, visibility 0.5s ease;
+      }
+      .splash-logo-box {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        border-radius: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.4);
+        animation: pulseGlow 2s infinite ease-in-out;
+      }
+      .splash-title {
+        margin-top: 16px;
+        font-size: 20px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        background: linear-gradient(to right, #ffffff, #93c5fd);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .splash-subtitle {
+        margin-top: 4px;
+        font-size: 12px;
+        color: #94a3b8;
+        font-weight: 500;
+      }
+      .splash-loader-bar {
+        width: 120px;
+        height: 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 9999px;
+        margin-top: 24px;
+        overflow: hidden;
+        position: relative;
+      }
+      .splash-loader-progress {
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 40%;
+        background: #3b82f6;
+        border-radius: 9999px;
+        animation: loadingSlide 1.2s infinite ease-in-out;
+      }
+      @keyframes pulseGlow {
+        0%, 100% { transform: scale(1); box-shadow: 0 0 20px rgba(59, 130, 246, 0.4); }
+        50% { transform: scale(1.05); box-shadow: 0 0 35px rgba(59, 130, 246, 0.7); }
+      }
+      @keyframes loadingSlide {
+        0% { transform: translateX(-100%); }
+        100% { transform: translateX(350%); }
+      }
+    </style>
   </head>
-  <body class="font-arabic antialiased selection:bg-primary selection:text-primary-foreground">
+  <body class="font-arabic antialiased selection:bg-primary selection:text-primary-foreground bg-background text-foreground">
+    
+    <!-- شاشة التحميل الأولية الاحترافية -->
+    <div id="app-splash-screen">
+      <div class="splash-logo-box">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
+          <path d="M12 8V4H8"></path>
+          <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+          <path d="M2 14h2"></path>
+          <path d="M20 14h2"></path>
+          <path d="M15 13v2"></path>
+          <path d="M9 13v2"></path>
+        </svg>
+      </div>
+      <div class="splash-title">DTU Learning Hub</div>
+      <div class="splash-subtitle">جاري تجهيز منصتك الهندسية...</div>
+      <div class="splash-loader-bar">
+        <div class="splash-loader-progress"></div>
+      </div>
+    </div>
+
     <div id="root"></div>
+
+    <!-- سكريبت لإخفاء شاشة التحميل فور تحميل الـ React أول مرة -->
+    <script>
+      window.addEventListener('DOMContentLoaded', () => {
+        setTimeout(() => {
+          const splash = document.getElementById('app-splash-screen');
+          if (splash) {
+            splash.style.opacity = '0';
+            splash.style.visibility = 'hidden';
+            setTimeout(() => splash.remove(), 500);
+          }
+        }, 300);
+      });
+    </script>
+
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

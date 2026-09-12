@@ -47,11 +47,11 @@ export function LearningPlatformsPage() {
   };
 
   return (
-    <div className="pb-12 px-2 sm:px-0">
+    <div className="pb-12 px-3 sm:px-0">
       <motion.div
         initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
-        className="mb-6"
+        className="mb-6 text-right"
       >
         <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1.5">{t('learningPlatforms')}</h1>
         <p className="text-xs sm:text-sm text-muted-foreground">
@@ -73,8 +73,8 @@ export function LearningPlatformsPage() {
         onPaidFilterChange={setPaidFilter}
       />
 
-      {/* تم تعديل الـ Grid ليصبح عمودين (grid-cols-2) في الموبايل لتجربة تطبيق أشبه بالتطبيقات الأصلية، و 3 أعمدة في الشاشات الكبيرة */}
-      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
+      {/* تم تعديل الـ Grid ليعرض كارت واحد في الموبايل (grid-cols-1) ليكون مريح وواضح تماماً، و3 أعمدة في الشاشات الكبيرة */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
         {filteredPlatforms.map((platform, index) => (
           <ContentCard
             key={platform.id}
