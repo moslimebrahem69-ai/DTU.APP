@@ -47,14 +47,14 @@ export function LearningPlatformsPage() {
   };
 
   return (
-    <div>
+    <div className="pb-12 px-2 sm:px-0">
       <motion.div
         initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
-        className="mb-8"
+        className="mb-6"
       >
-        <h1 className="text-3xl font-bold text-foreground mb-2">{t('learningPlatforms')}</h1>
-        <p className="text-muted-foreground">
+        <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-1.5">{t('learningPlatforms')}</h1>
+        <p className="text-xs sm:text-sm text-muted-foreground">
           منصات التعلم الإلكتروني المميزة محلياً وعالمياً
         </p>
       </motion.div>
@@ -73,7 +73,8 @@ export function LearningPlatformsPage() {
         onPaidFilterChange={setPaidFilter}
       />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* تم تعديل الـ Grid ليصبح عمودين (grid-cols-2) في الموبايل لتجربة تطبيق أشبه بالتطبيقات الأصلية، و 3 أعمدة في الشاشات الكبيرة */}
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-6">
         {filteredPlatforms.map((platform, index) => (
           <ContentCard
             key={platform.id}
@@ -95,7 +96,7 @@ export function LearningPlatformsPage() {
           animate={{ opacity: 1 }}
           className="text-center py-12"
         >
-          <p className="text-muted-foreground">لم يتم العثور على منصات تطابق البحث</p>
+          <p className="text-sm text-muted-foreground">لم يتم العثور على منصات تطابق البحث</p>
         </motion.div>
       )}
 

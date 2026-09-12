@@ -131,67 +131,74 @@ export function Header() {
   return (
     <>
       <motion.header
-        initial={animationsEnabled ? { y: -50, opacity: 0 } : {}}
+        initial={animationsEnabled ? { y: -30, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 120, damping: 20 }}
-        className="fixed top-0 left-0 right-0 z-40 bg-background/80 backdrop-blur-md border-b border-border/40 shadow-xs"
+        transition={{ type: "spring", stiffness: 100, damping: 22 }}
+        className="fixed top-0 left-0 right-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-2xs"
       >
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16 flex-row-reverse lg:flex-row">
             
+            {/* Logo Section */}
             <motion.div 
-              className="flex items-center space-x-2.5 rtl:space-x-reverse cursor-pointer select-none"
+              className="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer select-none"
               onClick={() => {
                 navigate('/');
                 setMobileDrawerOpen(false);
               }}
-              whileHover={animationsEnabled ? { scale: 1.01 } : {}}
-              whileTap={animationsEnabled ? { scale: 0.98 } : {}}
+              whileHover={animationsEnabled ? { scale: 1.02 } : {}}
+              whileTap={animationsEnabled ? { scale: 0.97 } : {}}
             >
-              <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary">
-                <Bot className="h-5 w-5" />
-                <Sparkles className="h-2.5 w-2.5 text-amber-500 absolute -top-0.5 -right-0.5" />
+              <div className="relative flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary shadow-2xs">
+                <Bot className="h-4 w-4" />
+                <Sparkles className="h-2 w-2 text-amber-500 absolute -top-0.5 -right-0.5 animate-pulse" />
               </div>
-              
-              <h1 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-                DTU Learning Hub
+              <h1 className="text-sm sm:text-base font-black text-foreground tracking-tight">
+                DTU Hub
               </h1>
             </motion.div>
 
-            <div className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse">
+            {/* Desktop Navigation Links */}
+            <div className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse overflow-x-auto py-1 max-w-[62vw] no-scrollbar">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
                 return (
-                  <Button
+                  <motion.button
                     key={item.path}
-                    variant={isActive ? "default" : "ghost"}
-                    size="sm"
                     onClick={() => navigate(item.path)}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-medium transition-all ${
-                      isActive ? 'bg-primary text-primary-foreground shadow-xs' : 'text-muted-foreground hover:text-foreground'
+                    whileHover={animationsEnabled ? { scale: 1.03 } : {}}
+                    whileTap={animationsEnabled ? { scale: 0.97 } : {}}
+                    className={`relative px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
+                      isActive 
+                        ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25' 
+                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
                     }`}
                   >
-                    <Icon className="h-3.5 w-3.5 me-1.5 inline" />
+                    <Icon className="h-3.5 w-3.5" />
                     <span>{item.label}</span>
-                  </Button>
+                  </motion.button>
                 );
               })}
+            </div>
 
-              <div className="h-4 w-[1px] bg-border/60 mx-2" />
-
-              <button
+            {/* Desktop Actions (Search & Theme) */}
+            <div className="hidden lg:flex items-center space-x-2 rtl:space-x-reverse shrink-0">
+              <motion.button
                 onClick={() => setSearchModalOpen(true)}
-                className="flex items-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground hover:text-foreground bg-accent/40 hover:bg-accent px-3 py-1.5 rounded-xl transition-colors border border-border/40 cursor-pointer me-2"
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.98 }}
+                className="flex items-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground hover:text-foreground bg-accent/40 hover:bg-accent/80 px-3.5 py-1.5 rounded-xl transition-all border border-border/50 cursor-pointer shadow-2xs"
               >
-                <Search className="h-3.5 w-3.5" />
-                <span>ابحث عن مادة، فرقة، أداة...</span>
-                <kbd className="text-[10px] bg-muted px-1.5 py-0.5 rounded border border-border/50 text-muted-foreground font-mono">⌘K</kbd>
-              </button>
+                <Search className="h-3.5 w-3.5 text-primary" />
+                <span className="truncate max-w-[130px]">بحث سريع...</span>
+                <kbd className="text-[10px] bg-background px-1.5 py-0.5 rounded border border-border/60 text-muted-foreground font-mono">⌘K</kbd>
+              </motion.button>
 
               <ThemeToggle />
             </div>
 
+            {/* Mobile Actions Header */}
             <div className="flex items-center space-x-1.5 rtl:space-x-reverse lg:hidden">
               <Button
                 variant="ghost"
@@ -205,10 +212,10 @@ export function Header() {
 
               <button
                 onClick={() => setSearchModalOpen(true)}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
                 aria-label="Search"
               >
-                <Search className="h-4 w-4" />
+                <Search className="h-4 w-4 text-primary" />
               </button>
 
               <ThemeToggle />
@@ -218,7 +225,7 @@ export function Header() {
         </div>
       </motion.header>
 
-      {/* Mobile Side Drawer */}
+      {/* Mobile Side Drawer with Smooth Spring Animation */}
       <AnimatePresence>
         {mobileDrawerOpen && (
           <div className="fixed inset-0 z-50 lg:hidden overflow-hidden">
@@ -235,18 +242,18 @@ export function Header() {
               initial={{ x: '100%' }}
               animate={{ x: 0 }}
               exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 25, stiffness: 220 }}
-              className="absolute inset-y-0 right-0 w-[82%] max-w-xs bg-card/95 backdrop-blur-xl border-l border-border/50 shadow-2xl flex flex-col justify-between"
+              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              className="absolute inset-y-0 right-0 w-[85%] max-w-xs bg-card/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl flex flex-col justify-between"
             >
               <div>
-                <div className="flex items-center justify-between p-4 border-b border-border/40">
+                <div className="flex items-center justify-between p-4 border-b border-border/40 bg-primary/5">
                   <div className="flex items-center gap-2.5">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary/10 text-primary">
-                      <Bot className="h-5 w-5" />
+                    <div className="flex items-center justify-center w-8 h-8 rounded-xl bg-primary text-primary-foreground shadow-sm">
+                      <Bot className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-xs sm:text-sm font-bold text-foreground">DTU Learning</h2>
-                      <p className="text-[10px] text-muted-foreground">منصة التعلم الهندسية</p>
+                      <h2 className="text-xs sm:text-sm font-bold text-foreground">DTU Learning Hub</h2>
+                      <p className="text-[10px] text-muted-foreground">منصتك الهندسية المتكاملة</p>
                     </div>
                   </div>
 
@@ -258,49 +265,53 @@ export function Header() {
                   </button>
                 </div>
 
-                <div className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-140px)]">
-                  {navItems.map((item) => {
+                {/* Mobile Navigation List */}
+                <div className="p-3 space-y-1.5 overflow-y-auto max-h-[calc(100vh-130px)]">
+                  {navItems.map((item, idx) => {
                     const isActive = location.pathname === item.path;
                     const Icon = item.icon;
 
                     return (
-                      <button
+                      <motion.button
                         key={item.path}
+                        initial={{ opacity: 0, x: 10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ delay: idx * 0.03 }}
                         onClick={() => {
                           navigate(item.path);
                           setMobileDrawerOpen(false);
                         }}
-                        className={`w-full flex items-center justify-between p-2.5 rounded-2xl text-right transition-all group ${
+                        className={`w-full flex items-center justify-between p-3 rounded-2xl text-right transition-all group cursor-pointer ${
                           isActive
                             ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold'
                             : 'hover:bg-accent/70 text-foreground/80'
                         }`}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className={`p-2 rounded-xl transition-colors ${
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className={`p-2 rounded-xl transition-colors shrink-0 ${
                             isActive 
                               ? 'bg-white/20 text-primary-foreground' 
                               : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground'
                           }`}>
                             <Icon className="h-4 w-4" />
                           </div>
-                          <div>
-                            <div className="text-xs font-bold">{item.label}</div>
-                            <div className={`text-[10px] line-clamp-1 ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                          <div className="min-w-0 text-right">
+                            <div className="text-xs font-bold truncate">{item.label}</div>
+                            <div className={`text-[10px] truncate ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
                               {item.desc}
                             </div>
                           </div>
                         </div>
 
-                        <ChevronLeft className={`h-4 w-4 transition-transform ${isActive ? 'text-primary-foreground' : 'text-muted-foreground/40 group-hover:-translate-x-1'}`} />
-                      </button>
+                        <ChevronLeft className={`h-4 w-4 shrink-0 transition-transform ${isActive ? 'text-primary-foreground' : 'text-muted-foreground/40 group-hover:-translate-x-1'}`} />
+                      </motion.button>
                     );
                   })}
                 </div>
               </div>
 
-              <div className="p-3 m-3 rounded-2xl bg-accent/40 border border-border/50 text-center flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground font-medium">DTU Learning Hub © 2026</p>
+              <div className="p-3 m-3 rounded-2xl bg-accent/30 border border-border/40 text-center flex items-center justify-between">
+                <p className="text-[11px] text-muted-foreground font-medium">DTU Learning © 2026</p>
                 <ThemeToggle />
               </div>
             </motion.div>
@@ -311,17 +322,17 @@ export function Header() {
       {/* Global Search Modal */}
       <AnimatePresence>
         {searchModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-4">
+          <div className="fixed inset-0 z-50 flex items-start justify-center pt-16 sm:pt-20 px-3">
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSearchModalOpen(false)}
-              className="fixed inset-0 bg-black/50 backdrop-blur-xs"
+              className="fixed inset-0 bg-black/55 backdrop-blur-xs"
             />
 
             <motion.div
-              initial={{ opacity: 0, scale: 0.96, y: -10 }}
+              initial={{ opacity: 0, scale: 0.95, y: -10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 1, y: 0 }}
               transition={{ duration: 0.15 }}
@@ -355,21 +366,21 @@ export function Header() {
                         onClick={() => handleSelectResult(item.path, item.isExternal)}
                         className="w-full flex items-center justify-between p-2.5 rounded-xl text-right hover:bg-accent/60 transition-colors group cursor-pointer"
                       >
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 min-w-0">
                           <div className="w-8 h-8 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
                             <Icon className="h-4 w-4" />
                           </div>
-                          <div>
-                            <div className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors">
+                          <div className="min-w-0 text-right">
+                            <div className="text-xs sm:text-sm font-bold text-foreground group-hover:text-primary transition-colors truncate">
                               {item.title}
                             </div>
-                            <div className="text-[10px] text-muted-foreground">
+                            <div className="text-[10px] text-muted-foreground truncate">
                               {item.category}
                             </div>
                           </div>
                         </div>
 
-                        <div className="flex items-center gap-1 text-[10px] text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                        <div className="flex items-center gap-1 text-[10px] text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
                           <span>{item.isExternal ? 'فتح الرابط' : 'انتقال'}</span>
                           {item.isExternal ? (
                             <ExternalLink className="h-3 w-3" />
