@@ -34,7 +34,7 @@
   --background: 222 47% 7%;
   --foreground: 210 40% 98%;
 
-  --card: 217 33% 12%;            /* إبراز الكروت بدرجة أفتح من الخلفية */
+  --card: 217 33% 12%;      /* إبراز الكروت بدرجة أفتح من الخلفية */
   --card-foreground: 210 40% 98%;
 
   --popover: 217 33% 12%;
@@ -55,7 +55,7 @@
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
 
-  --border: 217 33% 22%;          /* إبراز الحدود بين العناصر */
+  --border: 217 33% 22%;      /* إبراز الحدود بين العناصر */
   --input: 217 33% 18%;
   --ring: 217.2 91.2% 59.8%;
 }
@@ -149,6 +149,15 @@ body {
   text-rendering: optimizeLegibility;
   background-color: hsl(var(--background));
   color: hsl(var(--foreground));
+  /* منع تحديد النصوص وإظهار مؤشر الكتابة المزعج لإعطاء طابع تطبيق أصلي */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* السماح بتحديد الكتابة داخل حقول الإدخال والبحث فقط */
+input, textarea, [contenteditable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 [dir="rtl"] {
@@ -445,4 +454,10 @@ body {
   50% { 
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
   }
+}
+/* إصلاح مؤشر الماوس على الأزرار والروابط وعناصر التفاعل */
+button, a, [role="button"], input, select, label {
+  -webkit-user-select: none;
+  user-select: none;
+  cursor: pointer;
 }
