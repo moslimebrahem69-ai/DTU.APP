@@ -447,3 +447,24 @@ body {
     box-shadow: 0 0 20px rgba(59, 130, 246, 0.6);
   }
 }
+/* تسريع أداء السكرول والرسومات على الموبايل والديسكتوب */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body, html {
+  overscroll-behavior-y: none; /* منع الارتداد المزعج في أندرويد */
+}
+
+/* تحسين الأداء العام وإلغاء الثقل في الحركات */
+.motion-safe, motion.div {
+  transform: translateZ(0);
+  backface-visibility: hidden;
+}
+
+@media (max-width: 768px) {
+  /* تقليل أي تأثيرات ثقيلة تعيق السكرول السلس في الهواتف */
+  * {
+    animation-duration: 0.2s !important;
+  }
+}
