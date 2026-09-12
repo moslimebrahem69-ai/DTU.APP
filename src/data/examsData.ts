@@ -59,10 +59,8 @@ export const EXAMS_DATA: CourseExamsMap = {
       id: 'ex-mid',
       title: 'امتحان النصف دراسي (Midterm AI)',
       description: 'اختبار شامل للمحتوى حتى منتصف الفصل الدراسي توليد ذكي',
-      type: 'midterm',
+      type: 'lecture',
       url: 'https://forms.google.com/example-link-mid',
-      questionCount: 25,
-      durationMinutes: 45,
       isAiGenerated: true,
     }
   ],
@@ -73,18 +71,29 @@ export const EXAMS_DATA: CourseExamsMap = {
       description: 'الاختبار الإلكتروني الأول لمادة اللغة الإنجليزية للفرقة الأولى',
       type: 'quiz',
       url: 'https://exam1e.vercel.app/',
-       isAiGenerated: true,
+      isAiGenerated: true,
     }
   ],
   // المفتاح هنا مطابق تماماً لـ ID المادة في year2MechatronicsCourses
   'pneumatics-hydraulics': [
     {
+      id: 'pneumatics-lec1-exam',
+      title: 'اختبار ع المحاضرة 1: تطبيقات النيوماتيك والهيدروليك',
+      description: 'اختبار تفاعلي على المحاضرة الأولى مع الترجمة والتقييم الفوري',
+      type: 'lecture',
+      lectureNumber: 1,
+      url: 'https://pneumaticshydraulics-1-exam.vercel.app/',
+      questionCount: 20,
+      durationMinutes: 20,
+      isAiGenerated: true,
+    },
+    {
       id: 'pneumatics-final-exam',
-      title: 'الاختبار الشامل: تطبيقات النيوماتيك والهيدروليك',
-      description: 'منصة اختبارات تفاعلية شاملة تغطي المحاضرات الثلاث مع الترجمة الفورية والتقييم',
-      type: 'final',
+      title: 'إختبار ع جميع المحاضرات: تطبيقات النيوماتيك والهيدروليك',
+      description: 'امتحان ع كل المحاضرات بتاعت المادة',
+      type: 'lecture',
       url: 'https://pneumatics-examhtml.vercel.app/',
-      questionCount: 60,
+      questionCount: 110,
       isAiGenerated: true,
     }
   ]
