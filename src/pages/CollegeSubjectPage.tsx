@@ -1,16 +1,13 @@
-import { useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { 
   ArrowLeft, 
   ExternalLink, 
   FileText, 
   BookOpen, 
   ClipboardList, 
-  StickyNote, 
-  X,
-  Maximize2
+  StickyNote
 } from 'lucide-react';
 import { 
   year1MechatronicsCourses, 
@@ -34,17 +31,6 @@ export function CollegeSubjectPage() {
   const { yearId, deptId } = useParams();
   const { t } = useTranslation();
   const { animationsEnabled } = useTheme();
-
-  // Modal file preview state
-  const [selectedFile, setSelectedFile] = useState<{ name: string; url: string } | null>(null);
-
-  // Convert Google Drive view URL to preview embed format
-  const getEmbedUrl = (url: string) => {
-    if (url.includes('drive.google.com')) {
-      return url.replace(/\/view.*$/, '/preview').replace(/\/edit.*$/, '/preview');
-    }
-    return url;
-  };
 
   const getCourseData = () => {
     if (deptId === 'mechatronics') {
@@ -74,6 +60,11 @@ export function CollegeSubjectPage() {
   const yearTitle = yearId === 'year1' ? t('year1') : yearId === 'year2' ?  t('year2') : t('year3');
   const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : yearId === 'year2' ? 'الثانية' : 'الثالثة'} قسم ${deptName}`;
 
+  // فتح رابط المحاضرة أو الدرايف في صفحة خارجية مباشرة بضغطة واحدة
+  const handleOpenMaterial = (url: string) => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+  };
+
   // Render course item card
   const renderCourseCard = (course: any, index: number) => {
     return (
@@ -98,28 +89,20 @@ export function CollegeSubjectPage() {
               return (
                 <div
                   key={materialIndex}
-                  className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-accent/40 transition-colors group"
+                  onClick={() => handleOpenMaterial(material.url)}
+                  className="flex items-center gap-2.5 p-2 rounded-lg hover:bg-accent/40 transition-colors group cursor-pointer"
                 >
                   <IconComponent className="h-4 w-4 text-primary shrink-0" />
 
-                  <span 
-                    className="flex-1 text-xs sm:text-sm font-medium cursor-pointer truncate text-foreground hover:text-primary transition-all"
-                    onClick={() => setSelectedFile({ name: material.name, url: material.url })}
-                  >
+                  <span className="flex-1 text-xs sm:text-sm font-medium truncate text-foreground group-hover:text-primary transition-all">
                     {material.name}
                   </span>
 
                   {/* Actions */}
                   <div className="flex items-center gap-1 shrink-0">
-                    <a
-                      href={material.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="p-1.5 text-muted-foreground hover:text-primary rounded-md hover:bg-accent transition-colors"
-                      title="فتح في نافذة جديدة"
-                    >
+                    <span className="p-1.5 text-muted-foreground group-hover:text-primary rounded-md transition-colors">
                       <ExternalLink className="h-4 w-4" />
-                    </a>
+                    </span>
                   </div>
                 </div>
               );
@@ -174,64 +157,6 @@ export function CollegeSubjectPage() {
           </div>
         </TabsContent>
       </Tabs>
-
-      {/* Modal Preview for Documents */}
-      <AnimatePresence>
-        {selectedFile && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 bg-background/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-6"
-          >
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="bg-card border border-border rounded-xl w-full max-w-5xl h-[85vh] flex flex-col shadow-2xl overflow-hidden"
-            >
-              {/* Modal Header */}
-              <div className="flex items-center justify-between p-3 border-b border-border bg-muted/30">
-                <div className="flex items-center gap-2 overflow-hidden">
-                  <FileText className="h-4 w-4 text-primary shrink-0" />
-                  <h3 className="font-semibold text-xs sm:text-sm text-foreground truncate">{selectedFile.name}</h3>
-                </div>
-                
-                <div className="flex items-center gap-1 shrink-0">
-                  <a
-                    href={selectedFile.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <Button variant="outline" size="sm" className="h-7 text-[11px] px-2">
-                      <Maximize2 className="h-3 w-3 mr-1 rtl:ml-1" />
-                      فتح خارجي
-                    </Button>
-                  </a>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => setSelectedFile(null)}
-                    className="h-7 w-7 rounded-full"
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
-                </div>
-              </div>
-
-              {/* Embed Body */}
-              <div className="flex-1 bg-black/5 relative">
-                <iframe
-                  src={getEmbedUrl(selectedFile.url)}
-                  className="w-full h-full border-0"
-                  title={selectedFile.name}
-                  allow="autoplay"
-                />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }
