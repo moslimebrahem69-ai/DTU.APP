@@ -24,6 +24,7 @@ const CourseExamsPage = lazy(() => import('./pages/Exams/CourseExamsPage').then(
 function AppLoader({ onLoaded }: { onLoaded: () => void }) {
   useEffect(() => {
     const timer = setTimeout(() => {
+      sessionStorage.setItem('dtu_loaded', 'true');
       onLoaded();
     }, 1100); // مدة عرض شاشة التحميل الفخمة
     return () => clearTimeout(timer);
@@ -73,7 +74,10 @@ function AppLoader({ onLoaded }: { onLoaded: () => void }) {
 }
 
 function App() {
-  const [appIsReady, setAppIsReady] = useState(false);
+  const [appIsReady, setAppIsReady] = useState(() => {
+    // التحقق هل تم عرض شاشة التحميل مسبقاً في هذه الجلسة أم لا
+    return sessionStorage.getItem('dtu_loaded') === 'true';
+  });
 
   useEffect(() => {
     const savedLanguage = localStorage.getItem('dtu-language') || 'ar';
