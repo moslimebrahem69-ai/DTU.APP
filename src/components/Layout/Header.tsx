@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, 
-  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck 
+  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck, CheckSquare
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -33,6 +33,7 @@ const STATIC_SEARCH_ITEMS = [
   { id: 'p-6', title: 'البرامج الهندسية', category: 'قسم', path: '/engineering-software', icon: Wrench, keywords: 'autocad solidworks matlab proteus برامج' },
   { id: 'p-7', title: 'تايمر الدراسة (بومودورو)', category: 'أداة', path: '/timer', icon: Timer, keywords: 'بومودورو تايمر دراسة وقت' },
   { id: 'p-8', title: 'الاختبارات الإلكترونية', category: 'قسم', path: '/exams', icon: FileCheck, keywords: 'امتحانات كويزات اختبارات كويز ميدترم فاينل quiz test' },
+  { id: 'p-9', title: 'خطط المذاكرة والمهام', category: 'قسم', path: '/study-plan', icon: CheckSquare, keywords: 'مهام خطط مذاكرة تو دو ليست todo list أهداف' },
 
   { id: 'ai-1', title: 'ChatGPT', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'شات جي بي تي توليد نصوص' },
   { id: 'ai-2', title: 'Claude AI', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'كلاود برمجة كتابة' },
@@ -51,6 +52,27 @@ export function Header() {
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isTimerFullscreen, setIsTimerFullscreen] = useState(false);
+
+  // الاستماع لحدث الشاشة الكاملة الخاص بالتايمر لإخفاء الهيدر تماماً
+  useEffect(() => {
+    const handleFullscreenEvent = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setIsTimerFullscreen(customEvent.detail?.isFullscreen || false);
+    };
+
+    window.addEventListener('dtu_timer_fullscreen', handleFullscreenEvent);
+    return () => {
+      window.removeEventListener('dtu_timer_fullscreen', handleFullscreenEvent);
+    };
+  }, []);
+
+  // لو مش في صفحة التايمر، نضمن إن الهيدر ظاهر عادي
+  useEffect(() => {
+    if (location.pathname !== '/timer') {
+      setIsTimerFullscreen(false);
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     setMobileDrawerOpen(false);
@@ -80,7 +102,7 @@ export function Header() {
     const rawQuery = searchQuery.trim();
     
     if (!rawQuery) {
-      return STATIC_SEARCH_ITEMS.slice(0, 8).map(item => ({ ...item, isExternal: false }));
+      return STATIC_SEARCH_ITEMS.slice(0, 9).map(item => ({ ...item, isExternal: false }));
     }
 
     const normalizedQuery = normalizeArabicText(rawQuery);
@@ -124,9 +146,15 @@ export function Header() {
     { path: '/platforms', label: 'المنصات', icon: GraduationCap, desc: 'منصات التعلم الكبرى' },
     { path: '/college', label: 'أقسام الكلية', icon: BookOpen, desc: 'المواد والفرق الأكاديمية' },
     { path: '/exams', label: 'الاختبارات', icon: FileCheck, desc: 'امتحانات تفاعلية واختبارات AI' },
+    { path: '/study-plan', label: 'خطط المذاكرة', icon: CheckSquare, desc: 'قائمة المهام والأهداف اليومية' },
     { path: '/engineering-software', label: 'برامج هندسية', icon: Wrench, desc: 'برامج الرسم والمحاكاة' },
     { path: '/timer', label: 'التايمر', icon: Timer, desc: 'مؤقت بومودورو للتركيز' }
   ];
+
+  // لو التايمر في وضع الشاشة الكاملة، اخفي الهيدر تماماً
+  if (isTimerFullscreen) {
+    return null;
+  }
 
   return (
     <>
