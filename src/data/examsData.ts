@@ -52,7 +52,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       lectureNumber: 1.2,
       url: 'https://forms.google.com/example-link-1',
       questionCount: 110,
-            isAiGenerated: true,
+      isAiGenerated: true,
     },
     {
       id: 'ex-mid',
@@ -73,6 +73,63 @@ export const EXAMS_DATA: CourseExamsMap = {
       isAiGenerated: true,
     }
   ],
+  // مادة اختيار المواد - الفرقة الثانية الترم الأول
+  'materials-selection': [
+    {
+      id: 'materials-lec1-exam',
+      title: 'اختبار المحاضرة 1: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة الأولى لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 1,
+      url: 'https://materialsselection-1.vercel.app/',
+      isAiGenerated: true,
+    },
+    {
+      id: 'materials-lec2-exam',
+      title: 'اختبار المحاضرة 2: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة الثانية لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 2,
+      url: 'https://lec-2-azure.vercel.app/',
+      isAiGenerated: true,
+    },
+    {
+      id: 'materials-lec3-exam',
+      title: 'اختبار المحاضرة 3: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة الثالثة لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 3,
+      url: 'https://lec-3-mu.vercel.app/',
+      isAiGenerated: true,
+    },
+    {
+      id: 'materials-lec4-exam',
+      title: 'اختبار المحاضرة 4: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة الرابعة لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 4,
+      url: 'https://lec-4-nine.vercel.app/',
+      isAiGenerated: true,
+    },
+    {
+      id: 'materials-lec5-exam',
+      title: 'اختبار المحاضرة 5: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة الخامسة لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 5,
+      url: 'https://lec-5-beta.vercel.app/',
+      isAiGenerated: true,
+    },
+    {
+      id: 'materials-lec6-exam',
+      title: 'اختبار المحاضرة 6: إختيار المواد',
+      description: 'اختبار تفاعلي على المحاضرة السادسة لمادة إختيار المواد',
+      type: 'lecture',
+      lectureNumber: 6,
+      url: 'https://lec-6-nine.vercel.app/',
+      isAiGenerated: true,
+    }
+  ],
   // المفتاح هنا مطابق تماماً لـ ID المادة في year2MechatronicsCourses
   'pneumatics-hydraulics': [
     {
@@ -83,7 +140,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       lectureNumber: 1,
       url: 'https://pneumaticshydraulics-1-exam.vercel.app/',
       questionCount: 110,
-            isAiGenerated: true,
+      isAiGenerated: true,
     },
     {
       id: 'pneumatics-exam',
@@ -124,7 +181,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       questionCount: 110,
       isAiGenerated: true,
     },
-     {
+    {
       id: 'pneumatics-lec6-exam',
       title: 'إختبار ع المحاضرة 6: تطبيقات النيوماتيك والهيدروليك',
       description: 'اختبار ع المحاضرة السادسة',
@@ -134,7 +191,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       questionCount: 110,
       isAiGenerated: true,
     },
-     {
+    {
       id: 'pneumatics-lec7-exam',
       title: 'إختبار ع المحاضرة 7: تطبيقات النيوماتيك والهيدروليك',
       description: 'اختبار ع المحاضرة السابعة',
