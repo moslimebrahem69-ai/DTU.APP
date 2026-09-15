@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
 import { 
   Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, 
-  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck, CheckSquare
+  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck, CheckSquare,
+  Calendar
 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -148,7 +149,8 @@ export function Header() {
     { path: '/exams', label: 'الاختبارات', icon: FileCheck, desc: 'امتحانات تفاعلية واختبارات AI' },
     { path: '/study-plan', label: 'خطط المذاكرة', icon: CheckSquare, desc: 'قائمة المهام والأهداف اليومية' },
     { path: '/engineering-software', label: 'برامج هندسية', icon: Wrench, desc: 'برامج الرسم والمحاكاة' },
-    { path: '/timer', label: 'التايمر', icon: Timer, desc: 'مؤقت بومودورو للتركيز' }
+    { path: '/timer', label: 'التايمر', icon: Timer, desc: 'مؤقت بومودورو للتركيز' },
+    { path: '/schedule', label: 'الجدول الدراسي', icon: Calendar, desc: 'جدول المحاضرات والسكاشن التفاعلي' }
   ];
 
   // لو التايمر في وضع الشاشة الكاملة، اخفي الهيدر تماماً

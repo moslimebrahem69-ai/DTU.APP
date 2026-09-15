@@ -16,7 +16,9 @@ const CollegeSubjectPage = lazy(() => import('./pages/CollegeSubjectPage').then(
 const TimerPage = lazy(() => import('./pages/TimerPage').then(m => ({ default: m.TimerPage })));
 const EngineeringSoftwarePage = lazy(() => import('./pages/EngineeringSoftware').then(m => ({ default: m.EngineeringSoftware })));
 const StudyPlanPage = lazy(() => import('./pages/StudyPlanPage').then(m => ({ default: m.StudyPlanPage })));
-// Lazy Loading لصفحات قسم الاختبارات الإلكترونية الجديدة
+const SchedulePage = lazy(() => import('./pages/SchedulePage').then(m => ({ default: m.SchedulePage })));
+
+// Lazy Loading لصفحات قسم الاختبارات الإلكترونية
 const ExamsPage = lazy(() => import('./pages/Exams/ExamsPage').then(m => ({ default: m.ExamsPage })));
 const CourseExamsPage = lazy(() => import('./pages/Exams/CourseExamsPage').then(m => ({ default: m.CourseExamsPage })));
 
@@ -26,7 +28,7 @@ function AppLoader({ onLoaded }: { onLoaded: () => void }) {
     const timer = setTimeout(() => {
       sessionStorage.setItem('dtu_loaded', 'true');
       onLoaded();
-    }, 1100); // مدة عرض شاشة التحميل الفخمة
+    }, 1100); // مدة عرض شاشة التحميل
     return () => clearTimeout(timer);
   }, [onLoaded]);
 
@@ -75,7 +77,6 @@ function AppLoader({ onLoaded }: { onLoaded: () => void }) {
 
 function App() {
   const [appIsReady, setAppIsReady] = useState(() => {
-    // التحقق هل تم عرض شاشة التحميل مسبقاً في هذه الجلسة أم لا
     return sessionStorage.getItem('dtu_loaded') === 'true';
   });
 
@@ -114,6 +115,8 @@ function App() {
               <Route path="/engineering-software" element={<EngineeringSoftwarePage />} />
               <Route path="/timer" element={<TimerPage />} />
               <Route path="/study-plan" element={<StudyPlanPage />} />
+              <Route path="/schedule" element={<SchedulePage />} />
+              
               {/* مسارات قسم الاختبارات الإلكترونية */}
               <Route path="/exams" element={<ExamsPage />} />
               <Route path="/exams/:deptId/:yearId/:semesterId/:courseId" element={<CourseExamsPage />} />
