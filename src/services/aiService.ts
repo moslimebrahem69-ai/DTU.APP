@@ -1,8 +1,4 @@
-import { GoogleGenAI } from '@google/genai';
-
-const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (window as any).VITE_GEMINI_API_KEY || '';
-
-const ai = new GoogleGenAI({ apiKey });
+import { GoogleGenerativeAI } from '@google/generative-ai';
 
 const SYSTEM_INSTRUCTION = `
 أنت المساعد الأكاديمي الذكي لمنصة DTU Learning Hub المخصصة لطلاب الهندسة وقسم الميكاترونكس.
@@ -10,28 +6,41 @@ const SYSTEM_INSTRUCTION = `
 `;
 
 export async function askDTUAssistant(userPrompt: string): Promise<string> {
+  const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (window as any).VITE_GEMINI_API_KEY || '';
+
   if (!apiKey) {
-    return 'تنبيه: مفتاح الـ API غير معرف على هذا السيرفر. يرجى إضافة VITE_GEMINI_API_KEY في إعدادات Vercel.';
+    console.error('Gemini Error: VITE_GEMINI_API_KEY is undefined');
+    return 'تنبيه: مفتاح VITE_GEMINI_API_KEY غير معرف. تأكد من إضافته في ملف .env وإعادة تشغيل السيرفر.';
   }
 
-  try {
-    const response = await ai.models.generateContent({
-      model: 'gemini-1.5-flash',
-      contents: userPrompt,
-      config: {
+  const genAI = new GoogleGenerativeAI(apiKey);
+
+  // تجربة الموديلات الأساسية المستقرة بالترتيب
+  const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro'];
+
+  for (const modelName of modelsToTry) {
+    try {
+      const model = genAI.getGenerativeModel({
+        model: modelName,
         systemInstruction: SYSTEM_INSTRUCTION,
-      },
-    });
+      });
 
-    return response.text || 'أهلاً بك يا هندسة، كيف يمكنني مساعدتك اليوم؟';
-  } catch (error: any) {
-    console.error('AI Error:', error);
-
-    // إذا حدث خطأ بسبب تجاوز معدل الطلبات السريع (Rate Limit / 429)
-    if (error?.status === 429 || error?.message?.includes('429')) {
-      return 'تم إرسال عدة طلبات متتالية بسرعة! انتظر بضع ثوانٍ واطلب مجدداً يا هندسة ⏳';
+      const result = await model.generateContent(userPrompt);
+      const response = await result.response;
+      const text = response.text();
+      
+      if (text) {
+        return text;
+      }
+    } catch (error: any) {
+      console.warn(`Model ${modelName} failed:`, error);
+      
+      // لو الخطأ مفتاح غير صالح أو Rate Limit
+      if (error?.message?.includes('API key not valid')) {
+        return 'مفتاح VITE_GEMINI_API_KEY غير صالح. يرجى التأكد من إنشاء مفتاح جديد من Google AI Studio.';
+      }
     }
-
-    return 'حدث خطأ أثناء الاتصال بالذكاء الاصطناعي. يرجى المحاولة مرة أخرى بعد قليل.';
   }
+
+  return 'حدث خطأ أثناء التواصل مع الذكاء الاصطناعي. يرجى التأكد من إنشاء API Key جديد وإعادة السيرفر.';
 }
