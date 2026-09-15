@@ -21,6 +21,7 @@ const SchedulePage = lazy(() => import('./pages/SchedulePage').then(m => ({ defa
 // Lazy Loading لصفحات قسم الاختبارات الإلكترونية
 const ExamsPage = lazy(() => import('./pages/Exams/ExamsPage').then(m => ({ default: m.ExamsPage })));
 const CourseExamsPage = lazy(() => import('./pages/Exams/CourseExamsPage').then(m => ({ default: m.CourseExamsPage })));
+const AITutorPage = lazy(() => import('./pages/AITutorPage').then(m => ({ default: m.AITutorPage })));
 
 // مكون شاشة التحميل الخرافية (App Splash Screen)
 function AppLoader({ onLoaded }: { onLoaded: () => void }) {
@@ -116,6 +117,7 @@ function App() {
               <Route path="/timer" element={<TimerPage />} />
               <Route path="/study-plan" element={<StudyPlanPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
+              <Route path="/ai-tutor" element={<AITutorPage />} />
               
               {/* مسارات قسم الاختبارات الإلكترونية */}
               <Route path="/exams" element={<ExamsPage />} />

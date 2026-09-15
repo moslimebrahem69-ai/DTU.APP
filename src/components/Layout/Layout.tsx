@@ -5,6 +5,7 @@ import { ArrowRight, ArrowLeft } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { Header } from './Header';
 import { BackgroundAnimation } from '../Animations/BackgroundAnimation';
+import { AiChatWidget } from '../AI/AiChatWidget';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -55,6 +56,9 @@ export function Layout({ children }: LayoutProps) {
           {children}
         </div>
       </main>
+
+      {/* مساعد DTU الذكي العائم */}
+      <AiChatWidget />
     </div>
   );
 }
