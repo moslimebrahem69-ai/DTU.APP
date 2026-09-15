@@ -9,38 +9,21 @@ export async function askDTUAssistant(userPrompt: string): Promise<string> {
   const apiKey = import.meta.env.VITE_GEMINI_API_KEY || (window as any).VITE_GEMINI_API_KEY || '';
 
   if (!apiKey) {
-    console.error('Gemini Error: VITE_GEMINI_API_KEY is undefined');
-    return 'تنبيه: مفتاح VITE_GEMINI_API_KEY غير معرف. تأكد من إضافته في ملف .env وإعادة تشغيل السيرفر.';
+    return 'تنبيه: مفتاح VITE_GEMINI_API_KEY غير موجود في ملف .env أو Vercel.';
   }
 
-  const genAI = new GoogleGenerativeAI(apiKey);
+  try {
+    const genAI = new GoogleGenerativeAI(apiKey);
+    const model = genAI.getGenerativeModel({
+      model: 'gemini-1.5-flash',
+      systemInstruction: SYSTEM_INSTRUCTION,
+    });
 
-  // تجربة الموديلات الأساسية المستقرة بالترتيب
-  const modelsToTry = ['gemini-1.5-flash', 'gemini-1.5-pro'];
-
-  for (const modelName of modelsToTry) {
-    try {
-      const model = genAI.getGenerativeModel({
-        model: modelName,
-        systemInstruction: SYSTEM_INSTRUCTION,
-      });
-
-      const result = await model.generateContent(userPrompt);
-      const response = await result.response;
-      const text = response.text();
-      
-      if (text) {
-        return text;
-      }
-    } catch (error: any) {
-      console.warn(`Model ${modelName} failed:`, error);
-      
-      // لو الخطأ مفتاح غير صالح أو Rate Limit
-      if (error?.message?.includes('API key not valid')) {
-        return 'مفتاح VITE_GEMINI_API_KEY غير صالح. يرجى التأكد من إنشاء مفتاح جديد من Google AI Studio.';
-      }
-    }
+    const result = await model.generateContent(userPrompt);
+    const response = await result.response;
+    return response.text();
+  } catch (error: any) {
+    console.error('Gemini Error Details:', error);
+    return `حدث خطأ: ${error?.message || 'تأكد من صحة المفتاح وسيرفر التطوير'}`;
   }
-
-  return 'حدث خطأ أثناء التواصل مع الذكاء الاصطناعي. يرجى التأكد من إنشاء API Key جديد وإعادة السيرفر.';
 }
