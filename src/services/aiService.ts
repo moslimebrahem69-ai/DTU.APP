@@ -12,19 +12,17 @@ export async function askDTUAssistant(userPrompt: string): Promise<string> {
 
   try {
     const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          system_instruction: {
-            parts: [{ text: SYSTEM_INSTRUCTION }],
-          },
           contents: [
             {
-              parts: [{ text: userPrompt }],
+              role: 'user',
+              parts: [{ text: `${SYSTEM_INSTRUCTION}\n\nسؤال الطالب: ${userPrompt}` }],
             },
           ],
         }),
@@ -34,28 +32,31 @@ export async function askDTUAssistant(userPrompt: string): Promise<string> {
     const data = await response.json();
 
     if (!response.ok) {
-      console.error('Gemini API Fetch Error:', data);
+      console.error('Gemini API Error:', data);
       
-      // تجربة الموديل الاحتياطي gemini-2.0-flash فوراً في حالة فشل 2.5
-      const fallbackResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            system_instruction: { parts: [{ text: SYSTEM_INSTRUCTION }] },
-            contents: [{ parts: [{ text: userPrompt }] }],
-          }),
-        }
-      );
-      const fallbackData = await fallbackResponse.json();
-      return fallbackData?.candidates?.[0]?.content?.parts?.[0]?.text || 'حدث خطأ في جلب الإجابة.';
+      if (data?.error?.code === 404) {
+        // تجربة مسار gemini-2.5-flash المباشر كخيار أساسي حديث
+        const altResponse = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+          {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: `${SYSTEM_INSTRUCTION}\n\nسؤال الطالب: ${userPrompt}` }] }],
+            }),
+          }
+        );
+        const altData = await altResponse.json();
+        return altData?.candidates?.[0]?.content?.parts?.[0]?.text || `حدث خطأ 404: ${data?.error?.message}`;
+      }
+
+      return `حدث خطأ: ${data?.error?.message || response.statusText}`;
     }
 
     const replyText = data?.candidates?.[0]?.content?.parts?.[0]?.text;
     return replyText || 'أهلاً بك يا هندسة، كيف يمكنني مساعدتك اليوم؟';
   } catch (error: any) {
     console.error('Fetch Network Error:', error);
-    return 'حدث خطأ في الاتصال بالسيرفر. تأكد من اتصال الإنترنت ورستر السيرفر.';
+    return 'حدث خطأ في الاتصال بالشبكة. تأكد من اتصال الإنترنت ورستر السيرفر.';
   }
 }
