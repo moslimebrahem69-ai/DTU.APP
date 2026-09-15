@@ -132,5 +132,5 @@ src/
 ## المطور
 
 محمد إبراهيم - [edu.box.media@gmail.com](mailto:edu.box.media@gmail.com)
-
+مسلم ابراهيم 
 الإصدار 2.0
