@@ -8,8 +8,8 @@ const OLLAMA_URL = (import.meta.env.VITE_OLLAMA_BASE_URL || 'http://localhost:11
 const MODEL = import.meta.env.VITE_OLLAMA_MODEL || 'qwen2.5:7b-instruct';
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
-  chat: 'Answer the request directly and clearly.',
-  explain: 'Explain from fundamentals, then give one practical mechatronics example.',
+  chat: 'Answer the request directly and clearly in Egyptian Arabic.',
+  explain: 'Explain from fundamentals briefly, then give one practical mechatronics example in Egyptian Arabic.',
   solve: 'Use: given data, governing principle, substitution, calculation, units, answer, and a reasonableness check.',
   quiz: 'Create the requested assessment. For MCQ, use four choices and add an answer key after all questions.',
   flashcards: 'Create concise front/back flashcards suitable for revision.',
@@ -18,7 +18,9 @@ const MODE_GUIDANCE: Record<AiMode, string> = {
 };
 
 function instructions(mode: AiMode, subject: EngineeringSubject, calculation?: EngineeringCalculation): string {
-  return `أنت حنكش 🤖، مساعد مذاكرة مصري لطلاب الفرقة التانية ميكاترونكس في DTU. اتكلم بالمصري فقط، وبأسلوب بسيط وعملي. المادة المختارة: ${subject}.
+  return `CRITICAL INSTRUCTION: Respond ONLY in Egyptian Arabic (العامية المصرية) and English technical terms when needed. NEVER write any Chinese characters or words (禁用中文).
+
+أنت حنكش 🤖، مساعد مذاكرة مصري لطلاب الفرقة التانية ميكاترونكس في DTU. اتكلم بالمصري فقط، وبأسلوب بسيط وعملي ومباشر بدون إطالة. المادة المختارة: ${subject}.
 
 تساعد في: PLC، Computer Control، MATLAB، Materials Selection، Pneumatics & Hydraulics، PCB، Electromechanical Maintenance، Mechatronics Systems، Capstone Design، Entrepreneurship، Manufacturing Technology. اربط عند اللزوم: Sensor → PLC/Controller → Control Logic → Actuator → حركة ميكانيكية.
 
@@ -62,12 +64,39 @@ function unavailable() { return `استنى ثانية يا صاحبي، حنك�
 export async function askDTUAssistant(userPrompt: string, history: ChatMessage[] = [], mode: AiMode = 'chat', subject: EngineeringSubject = 'عام'): Promise<AssistantResponse> {
   if (userPrompt.trim().length > 4000) return { ok: false, text: 'الرسالة طويلة شوية. ابعتها على أجزاء عشان أركز معاك كويس.' };
   const calculation = calculateEngineeringProblem(userPrompt);
-  const messages = [{ role: 'system', content: instructions(mode, subject, calculation) }, ...history.slice(-12), { role: 'user', content: userPrompt.trim() }];
+  
+  // تقليل عدد الرسائل المبعوثة من 12 إلى 4 لتسريع المعالجة بشكل كبير
+  const messages = [
+    { role: 'system', content: instructions(mode, subject, calculation) },
+    ...history.slice(-4),
+    { role: 'user', content: userPrompt.trim() }
+  ];
+
   try {
-    const response = await fetch(`${OLLAMA_URL}/api/chat`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ model: MODEL, messages, stream: false, options: { temperature: 0.25 } }) });
+    const response = await fetch(`${OLLAMA_URL}/api/chat`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: MODEL,
+        messages,
+        stream: false,
+        options: {
+          temperature: 0.6,    // تحسين جودة اللغة وتجنب التكرار
+          num_predict: 400,    // تحديد أقصى عدد كلمات للإجابة لتسريع الاستجابة جداً
+          top_p: 0.9
+        }
+      })
+    });
+    
     const data = await response.json().catch(() => null);
     if (!response.ok) return { ok: false, text: `${unavailable()}${data?.error ? ` (${data.error})` : ''}`, calculation };
-    const text = data?.message?.content?.trim();
+    
+    // فلترة أي حروف صينية إن وجدت بشكل استثنائي
+    let text = data?.message?.content?.trim();
+    if (text) {
+      text = text.replace(/[\u4e00-\u9fa5]/g, '').trim();
+    }
+    
     return text ? { ok: true, text, calculation } : { ok: false, text: 'حنكش ما رجّعش إجابة المرة دي. جرّب تاني يا صاحبي.', calculation };
   } catch { return { ok: false, text: unavailable(), calculation }; }
 }
