@@ -4,8 +4,8 @@ export interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 export interface EngineeringCalculation { title: string; steps: string[]; result: string; }
 export interface AssistantResponse { ok: boolean; text: string; calculation?: EngineeringCalculation; }
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
-const MODEL = 'gpt-4o-mini';
+const GROQ_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
+const MODEL = 'llama-3.3-70b-versatile'; // موديل ممتاز ومجاني وسريع جداً على Groq
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
   chat: 'Answer the request directly and clearly in Egyptian Arabic.',
@@ -57,12 +57,12 @@ function ohmsLaw(prompt: string): EngineeringCalculation | null {
 }
 
 export function calculateEngineeringProblem(prompt: string) { return hydraulicForce(prompt) || ohmsLaw(prompt) || undefined; }
-function unavailable() { return `مش قادر أوصل لسيرفر الذكاء الاصطناعي دلوقتي 😅 تأكد من إضافة API Key الخاص بـ OpenAI.`; }
+function unavailable() { return `مش قادر أوصل لسيرفر الذكاء الاصطناعي دلوقتي 😅 تأكد من إضافة API Key الخاص بـ Groq.`; }
 
 export async function askDTUAssistant(userPrompt: string, history: ChatMessage[] = [], mode: AiMode = 'chat', subject: EngineeringSubject = 'عام'): Promise<AssistantResponse> {
   if (userPrompt.trim().length > 4000) return { ok: false, text: 'الرسالة طويلة شوية. ابعتها على أجزاء عشان أركز معاك كويس.' };
   
-  if (!OPENAI_API_KEY) {
+  if (!GROQ_API_KEY) {
     return { ok: false, text: 'برجاء إضافة VITE_OPENAI_API_KEY في ملف البيئة أولاً.' };
   }
 
@@ -74,11 +74,11 @@ export async function askDTUAssistant(userPrompt: string, history: ChatMessage[]
   ];
 
   try {
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${OPENAI_API_KEY}`
+        'Authorization': `Bearer ${GROQ_API_KEY}`
       },
       body: JSON.stringify({
         model: MODEL,
