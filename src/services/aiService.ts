@@ -4,8 +4,9 @@ export interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 export interface EngineeringCalculation { title: string; steps: string[]; result: string; }
 export interface AssistantResponse { ok: boolean; text: string; calculation?: EngineeringCalculation; }
 
-const GROQ_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
-const MODEL = 'llama-3.1-8b-instant';// موديل ممتاز ومجاني وسريع جداً على Groq
+// قراءة المفتاح بحماية fallback في حال عدم تعريفه
+const GROQ_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_GROQ_API_KEY || '';
+const MODEL = 'llama-3.1-8b-instant'; // موديل سريع جداً ومتاح مجاناً على Groq
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
   chat: 'Answer the request directly and clearly in Egyptian Arabic.',
@@ -63,7 +64,7 @@ export async function askDTUAssistant(userPrompt: string, history: ChatMessage[]
   if (userPrompt.trim().length > 4000) return { ok: false, text: 'الرسالة طويلة شوية. ابعتها على أجزاء عشان أركز معاك كويس.' };
   
   if (!GROQ_API_KEY) {
-    return { ok: false, text: 'برجاء إضافة VITE_OPENAI_API_KEY في ملف البيئة أولاً.' };
+    return { ok: false, text: 'برجاء إضافة VITE_OPENAI_API_KEY أو VITE_GROQ_API_KEY في إعدادات البيئة أولاً.' };
   }
 
   const calculation = calculateEngineeringProblem(userPrompt);
