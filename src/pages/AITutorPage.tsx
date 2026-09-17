@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Bot, Sparkles, Send, User, Loader2, Code, BookOpen, Calendar, Cpu, Wrench, Trash2, Copy, Check 
 } from 'lucide-react';
-import { askDTUAssistant } from '../services/aiService';
+import { askDTUAssistant, type AiMode, type ChatMessage, type EngineeringSubject } from '../services/aiService';
 import { useTheme } from '../contexts/ThemeContext';
 
 interface Message {
@@ -11,9 +11,14 @@ interface Message {
   sender: 'user' | 'ai';
   text: string;
   time: string;
+  error?: boolean;
 }
 
 const TEMPLATE_PROMPTS = [
+  { icon: BookOpen, title: 'Explain Topic', prompt: 'Explain PID controller from basics with a practical mechatronics example.' },
+  { icon: Wrench, title: 'Solve Problem', prompt: 'Solve this hydraulic cylinder problem step by step: pressure = 100 bar, bore diameter = 50 mm. Find the extension force.' },
+  { icon: Sparkles, title: 'Generate Quiz', prompt: 'اعمللي 10 أسئلة MCQ عن PLC مع الإجابات في النهاية.' },
+  { icon: BookOpen, title: 'Create Flashcards', prompt: 'أنشئ Flashcards مختصرة لمراجعة أساسيات Pneumatics.' },
   {
     icon: Code,
     title: 'تصحيح وشرح كود C++ / Matlab',
@@ -36,6 +41,7 @@ const TEMPLATE_PROMPTS = [
   }
 ];
 
+const SUBJECTS: EngineeringSubject[] = ['عام', 'PLC', 'Computer Control', 'MATLAB', 'Materials Selection', 'Pneumatics & Hydraulics', 'PCB', 'Electromechanical Maintenance', 'Mechatronics Systems', 'Capstone Design', 'Entrepreneurship', 'Manufacturing Technology'];
 export function AITutorPage() {
   const { animationsEnabled } = useTheme();
   const [messages, setMessages] = useState<Message[]>([
@@ -48,6 +54,7 @@ export function AITutorPage() {
   ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [subject, setSubject] = useState<EngineeringSubject>('عام');
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -56,7 +63,7 @@ export function AITutorPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isLoading]);
 
-  const handleSend = async (textToSend?: string) => {
+  const handleSend = async (textToSend?: string, mode: AiMode = 'mechatronics') => {
     const query = textToSend || input;
     if (!query.trim() || isLoading) return;
 
@@ -73,12 +80,18 @@ export function AITutorPage() {
     if (!textToSend) setInput('');
     setIsLoading(true);
 
-    const replyText = await askDTUAssistant(query);
+    const history: ChatMessage[] = messages.map((message) => ({
+      role: message.sender === 'user' ? 'user' : 'assistant',
+      content: message.text,
+    }));
+    const result = await askDTUAssistant(query, history, mode, subject);
+    const replyText = result.text;
 
     const aiMessage: Message = {
       id: (Date.now() + 1).toString(),
       sender: 'ai',
       text: replyText,
+      error: !result.ok,
       time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' })
     };
 
@@ -118,24 +131,18 @@ export function AITutorPage() {
           </div>
           <div>
             <h1 className="text-lg sm:text-2xl font-black text-foreground">
-              المساعد الهندي الذكي (DTU AI Tutor) 🤖
+              حنكش 🤖
             </h1>
             <p className="text-xs text-muted-foreground">
-              مساعدك الشخصي للتحكم، الهيدروليك، الـ PLC والتكويد
+              مساعد مذاكرة ميكاترونكس للفرقة التانية
             </p>
           </div>
         </div>
 
-        {messages.length > 1 && (
-          <button
-            onClick={handleClearChat}
-            className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-destructive px-3 py-2 rounded-xl bg-muted/50 hover:bg-destructive/10 transition-colors cursor-pointer"
-            title="مسح المحادثة"
-          >
-            <Trash2 className="h-4 w-4" />
-            <span className="hidden sm:inline">مسح المحادثة</span>
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          <select value={subject} onChange={(event) => setSubject(event.target.value as EngineeringSubject)} aria-label="اختار المادة" className="rounded-xl border border-border bg-background px-2 py-2 text-xs text-foreground"><option value="عام">اختار المادة</option>{SUBJECTS.slice(1).map((item) => <option key={item} value={item}>{item}</option>)}</select>
+          {messages.length > 1 && <button onClick={handleClearChat} className="flex items-center gap-1.5 rounded-xl bg-muted/50 px-3 py-2 text-xs text-muted-foreground hover:bg-destructive/10 hover:text-destructive cursor-pointer" title="مسح المحادثة"><Trash2 className="h-4 w-4" /><span className="hidden sm:inline">مسح المحادثة</span></button>}
+        </div>
       </motion.div>
 
       {/* Main Chat Workspace */}
@@ -168,7 +175,7 @@ export function AITutorPage() {
                 className={`group relative max-w-[85%] sm:max-w-[75%] p-4 rounded-3xl space-y-1 text-xs sm:text-sm leading-relaxed whitespace-pre-wrap ${
                   msg.sender === 'user'
                     ? 'bg-primary text-primary-foreground rounded-tr-none font-medium shadow-md'
-                    : 'bg-muted/60 text-foreground border border-border/60 rounded-tl-none shadow-xs'
+                    : msg.error ? 'bg-destructive/10 text-destructive border border-destructive/30 rounded-tl-none shadow-xs' : 'bg-muted/60 text-foreground border border-border/60 rounded-tl-none shadow-xs'
                 }`}
               >
                 <div>{msg.text}</div>
@@ -210,7 +217,7 @@ export function AITutorPage() {
                 return (
                   <button
                     key={i}
-                    onClick={() => handleSend(tp.prompt)}
+                    onClick={() => handleSend(tp.prompt, tp.title === 'Generate Quiz' ? 'quiz' : tp.title === 'Create Flashcards' ? 'flashcards' : tp.title === 'Solve Problem' ? 'solve' : 'explain')}
                     className="flex items-center gap-2 p-2.5 rounded-2xl bg-background border border-border/60 hover:border-primary text-right text-xs transition-all shrink-0 cursor-pointer hover:shadow-md max-w-[240px]"
                   >
                     <div className="p-2 rounded-xl bg-primary/10 text-primary shrink-0">
@@ -234,7 +241,7 @@ export function AITutorPage() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-            placeholder="اسأل المساعد الذكي في الـ PLC، الهيدروليك، أو اطلب مراجعة كود..."
+            maxLength={4000}
             className="flex-1 bg-background border border-border rounded-2xl px-4 py-3 text-xs sm:text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 transition-all shadow-inner"
           />
           <button

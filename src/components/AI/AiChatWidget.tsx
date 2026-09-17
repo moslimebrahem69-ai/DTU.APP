@@ -1,12 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Bot, Sparkles, X, Send, User, Loader2, Code, BookOpen, Calendar, HelpCircle } from 'lucide-react';
-import { askDTUAssistant } from '../../services/aiService';
+import { askDTUAssistant, type ChatMessage } from '../../services/aiService';
 
 interface Message {
   id: string;
   sender: 'user' | 'ai';
   text: string;
+  error?: boolean;
 }
 
 const QUICK_PROMPTS = [
@@ -21,7 +22,7 @@ export function AiChatWidget() {
     {
       id: '1',
       sender: 'ai',
-      text: 'أهلاً بك يا هندسة! 🚀 أنا مساعدك الذكي في DTU Hub. كيف يمكنني مساعدتك في دراستك اليوم؟',
+      text: 'أهلاً يا صاحبي، أنا حنكش 🤖. قولي إيه اللي واقف معاك في الميكاترونكس؟',
     },
   ]);
   const [input, setInput] = useState('');
@@ -41,8 +42,9 @@ export function AiChatWidget() {
     if (!textToSend) setInput('');
     setIsLoading(true);
 
-    const reply = await askDTUAssistant(query);
-    const aiMsg: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: reply };
+    const history: ChatMessage[] = messages.map((message) => ({ role: message.sender === 'user' ? 'user' : 'assistant', content: message.text }));
+    const result = await askDTUAssistant(query, history, 'chat');
+    const aiMsg: Message = { id: (Date.now() + 1).toString(), sender: 'ai', text: result.text, error: !result.ok };
 
     setMessages((prev) => [...prev, aiMsg]);
     setIsLoading(false);
@@ -77,7 +79,7 @@ export function AiChatWidget() {
                   <Bot className="h-5 w-5" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-black text-foreground">مساعد DTU الذكي</h3>
+                  <h3 className="text-sm font-black text-foreground">حنكش 🤖</h3>
                   <p className="text-[10px] text-muted-foreground">متصل ومستعد للمساعدة ⚡</p>
                 </div>
               </div>
@@ -104,7 +106,7 @@ export function AiChatWidget() {
                     className={`p-3 rounded-2xl text-xs sm:text-sm leading-relaxed max-w-[80%] whitespace-pre-wrap ${
                       msg.sender === 'user'
                         ? 'bg-primary text-primary-foreground font-medium rounded-tr-none'
-                        : 'bg-muted/70 text-foreground border border-border/50 rounded-tl-none'
+                        : msg.error ? 'bg-destructive/10 text-destructive border border-destructive/30 rounded-tl-none' : 'bg-muted/70 text-foreground border border-border/50 rounded-tl-none'
                     }`}
                   >
                     {msg.text}
