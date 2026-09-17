@@ -5,7 +5,7 @@ export interface EngineeringCalculation { title: string; steps: string[]; result
 export interface AssistantResponse { ok: boolean; text: string; calculation?: EngineeringCalculation; }
 
 const GROQ_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || '';
-const MODEL = 'llama3-8b-8192';// موديل ممتاز ومجاني وسريع جداً على Groq
+const MODEL = 'llama-3.1-8b-instant';// موديل ممتاز ومجاني وسريع جداً على Groq
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
   chat: 'Answer the request directly and clearly in Egyptian Arabic.',
