@@ -25,6 +25,8 @@
     <meta name="description" content="مركز تعليمي شامل مع تايمر دراسة احترافي - DTU Learning Hub" />
     <meta name="keywords" content="دراسة, تايمر, تعليم, ذكاء اصطناعي, يوتيوب, منصات تعلم" />
     <meta name="author" content="Moslim Ebrahim" />
+    <meta name="theme-color" content="#3b82f6" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0f172a" media="(prefers-color-scheme: dark)" />
 
     <!-- Open Graph -->
     <meta property="og:title" content="DTU Learning Hub" />
@@ -58,7 +60,7 @@
         background-color: #0f172a;
         color: #ffffff;
         font-family: 'Cairo', system-ui, -apple-system, sans-serif;
-        transition: opacity 0.3s ease, visibility 0.3s ease;
+        transition: opacity 0.4s ease, visibility 0.4s ease;
       }
       .splash-logo-box {
         position: relative;
@@ -79,7 +81,6 @@
         letter-spacing: -0.025em;
         background: linear-gradient(to right, #ffffff, #93c5fd);
         -webkit-background-clip: text;
-        background-clip: text;
         -webkit-text-fill-color: transparent;
       }
       .splash-subtitle {
@@ -122,7 +123,7 @@
     <!-- App Splash Screen -->
     <div id="app-splash-screen">
       <div class="splash-logo-box">
-        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-white">
+        <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
           <path d="M12 8V4H8"></path>
           <rect width="16" height="12" x="4" y="8" rx="2"></rect>
           <path d="M2 14h2"></path>
@@ -140,20 +141,16 @@
 
     <div id="root"></div>
 
-    <!-- Bypass splash screen delay automatically for Lighthouse audit -->
     <script>
       window.addEventListener('DOMContentLoaded', () => {
-        const isLighthouse = navigator.userAgent.includes('Chrome-Lighthouse');
-        const delay = isLighthouse ? 0 : 150;
-
         setTimeout(() => {
           const splash = document.getElementById('app-splash-screen');
           if (splash) {
             splash.style.opacity = '0';
             splash.style.visibility = 'hidden';
-            setTimeout(() => splash.remove(), isLighthouse ? 0 : 300);
+            setTimeout(() => splash.remove(), 400);
           }
-        }, delay);
+        }, 200);
       });
     </script>
 
