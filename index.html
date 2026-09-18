@@ -7,10 +7,14 @@
 
     <!-- Preconnect for fast font loading -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    
-    <!-- Optimized Font Imports -->
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="anonymous" />
+
+    <!-- Non-blocking Async Font Imports -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" media="print" onload="this.media='all'" />
+    <noscript>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" />
+    </noscript>
 
     <!-- Icons -->
     <link rel="icon" type="image/png" href="/icons/icon-192.png" />
@@ -43,7 +47,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <meta name="apple-mobile-web-app-title" content="DTU" />
 
-    <!-- ستايلات شاشة التحميل الأولية الاحترافية (Splash Screen) -->
+    <!-- Splash Screen Critical Styles -->
     <style>
       #app-splash-screen {
         position: fixed;
@@ -55,8 +59,8 @@
         justify-content: center;
         background-color: #0f172a;
         color: #ffffff;
-        font-family: 'Cairo', sans-serif;
-        transition: opacity 0.5s ease, visibility 0.5s ease;
+        font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+        transition: opacity 0.4s ease, visibility 0.4s ease;
       }
       .splash-logo-box {
         position: relative;
@@ -116,7 +120,7 @@
   </head>
   <body class="font-arabic antialiased selection:bg-primary selection:text-primary-foreground bg-background text-foreground">
     
-    <!-- شاشة التحميل الأولية الاحترافية -->
+    <!-- App Splash Screen -->
     <div id="app-splash-screen">
       <div class="splash-logo-box">
         <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="color: white;">
@@ -137,7 +141,6 @@
 
     <div id="root"></div>
 
-    <!-- سكريبت لإخفاء شاشة التحميل فور تحميل الـ React أول مرة -->
     <script>
       window.addEventListener('DOMContentLoaded', () => {
         setTimeout(() => {
@@ -145,9 +148,9 @@
           if (splash) {
             splash.style.opacity = '0';
             splash.style.visibility = 'hidden';
-            setTimeout(() => splash.remove(), 500);
+            setTimeout(() => splash.remove(), 400);
           }
-        }, 300);
+        }, 200);
       });
     </script>
 

@@ -32,7 +32,6 @@ export function ContentCard({
   const { elementRef, isIntersecting } = useIntersectionObserver();
   const [showInternalModal, setShowInternalModal] = useState(false);
 
-  // تعديل فتح الرابط ليفتح في نفس التاب الحالية تماماً
   const handleOpenLink = (e: React.MouseEvent) => {
     e.preventDefault();
     if (onOpen) {
@@ -45,7 +44,6 @@ export function ContentCard({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
-      console.log(t('linkCopied'));
     } catch (err) {
       console.error('Failed to copy: ', err);
     }
@@ -101,7 +99,6 @@ export function ContentCard({
         whileHover={animationsEnabled ? "hover" : undefined}
         className="bg-card border border-border/80 rounded-xl p-3.5 sm:p-5 shadow-sm transition-all duration-200 relative overflow-hidden group glass-morphism"
       >
-        {/* Animated background gradient */}
         <motion.div
           className="absolute inset-0 bg-gradient-to-br from-primary/10 via-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
           initial={false}
@@ -116,22 +113,22 @@ export function ContentCard({
           transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
         />
 
-        {/* Header Section: العنوان والبادجات */}
+        {/* Header Section */}
         <div className="flex justify-between items-start gap-2 mb-2">
-          <motion.h3 
-            className="font-bold text-foreground text-sm sm:text-base leading-snug relative z-10"
+          <motion.h2 
+            className="font-black text-foreground text-sm sm:text-base leading-snug relative z-10"
             whileHover={animationsEnabled ? { x: 2 } : undefined}
           >
             {title}
-          </motion.h3>
+          </motion.h2>
 
           <div className="flex items-center gap-1 shrink-0">
             {paid !== undefined && (
               <span 
-                className={`px-2 py-0.5 rounded-md text-[10px] font-semibold relative z-10 backdrop-blur-sm flex items-center gap-0.5 ${
-                paid 
-                  ? 'bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20'
-                  : 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20'
+                className={`px-2.5 py-1 rounded-md text-[11px] font-bold relative z-10 backdrop-blur-sm flex items-center gap-0.5 ${
+                  paid 
+                    ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40'
+                    : 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-200 border border-emerald-500/40'
                 }`}
               >
                 {paid && <Star className="h-2.5 w-2.5" />}
@@ -141,7 +138,7 @@ export function ContentCard({
 
             {language && (
               <span 
-                className="px-2 py-0.5 rounded-md text-[10px] font-semibold bg-blue-500/10 text-blue-600 dark:text-blue-400 relative z-10 backdrop-blur-sm border border-blue-500/20"
+                className="px-2.5 py-1 rounded-md text-[11px] font-bold bg-blue-500/20 text-blue-800 dark:text-blue-200 relative z-10 backdrop-blur-sm border border-blue-500/40"
               >
                 {language === 'ar' ? t('arabic') : language === 'en' ? t('english') : t('both')}
               </span>
@@ -150,7 +147,7 @@ export function ContentCard({
         </div>
         
         {/* Description Section */}
-        <p className="text-muted-foreground text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed relative z-10">
+        <p className="text-muted-foreground text-xs sm:text-sm mb-3 line-clamp-2 leading-relaxed relative z-10 font-medium">
           {description}
         </p>
         
@@ -159,7 +156,7 @@ export function ContentCard({
           <Button 
             size="sm" 
             onClick={handleOpenLink}
-            className="flex-1 h-8 sm:h-9 text-xs font-semibold rounded-lg shadow-sm"
+            className="flex-1 h-8 sm:h-9 text-xs font-bold rounded-lg shadow-sm"
           >
             <ExternalLink className="h-3.5 w-3.5 mr-1 rtl:ml-1" />
             زيارة
@@ -187,7 +184,6 @@ export function ContentCard({
         </div>
       </motion.div>
 
-      {/* المودال الاحتياطي */}
       {showInternalModal && (
         <UniversalViewerModal
           title={title}
