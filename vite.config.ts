@@ -99,14 +99,30 @@ export default defineConfig({
     target: 'esnext',
     minify: 'esbuild',
     cssCodeSplit: true,
-    chunkSizeWarningLimit: 1000,
+    chunkSizeWarningLimit: 800,
     rollupOptions: {
       output: {
-        manualChunks: {
-          vendor: ['react', 'react-dom', 'react-router-dom'],
-          ui: ['framer-motion', 'lucide-react']
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('react-dom') || id.includes('react-router-dom')) {
+              return 'vendor-core';
+            }
+            if (id.includes('lucide-react')) {
+              return 'vendor-icons';
+            }
+            if (id.includes('framer-motion')) {
+              return 'vendor-animation';
+            }
+            if (id.includes('@radix-ui') || id.includes('i18next')) {
+              return 'vendor-ui-helpers';
+            }
+            return 'vendor-utils';
+          }
         }
       }
     }
+  },
+  esbuild: {
+    drop: ['console', 'debugger']
   }
 });
