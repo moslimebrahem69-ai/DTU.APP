@@ -6,7 +6,7 @@ export interface AssistantResponse { ok: boolean; text: string; calculation?: En
 
 // قراءة المفتاح بمرونة من كافة البيئات
 const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || (window as any).VITE_GROQ_API_KEY || '').trim();
-const MODEL = 'llama3-8b-8192';
+const MODEL = 'llama-3.1-8b-instant';
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
   chat: 'Answer the request directly and clearly in Egyptian Arabic.',
