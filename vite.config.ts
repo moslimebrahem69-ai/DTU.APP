@@ -33,22 +33,19 @@ export default defineConfig({
         ]
       },
       workbox: {
-        // Caching all static build assets
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,json,jpg,jpeg}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,
         skipWaiting: true,
-        // Runtime Offline Caching for External Resources & APIs
         runtimeCaching: [
           {
-            // Google Fonts Stylesheets
             urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'google-fonts-cache',
               expiration: {
                 maxEntries: 10,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -56,14 +53,13 @@ export default defineConfig({
             }
           },
           {
-            // Google Fonts Webfonts
             urlPattern: /^https:\/\/fonts\.gstatic\.com\/.*/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'gstatic-fonts-cache',
               expiration: {
                 maxEntries: 20,
-                maxAgeSeconds: 60 * 60 * 24 * 365 // 1 year
+                maxAgeSeconds: 60 * 60 * 24 * 365
               },
               cacheableResponse: {
                 statuses: [0, 200]
@@ -71,19 +67,17 @@ export default defineConfig({
             }
           },
           {
-            // Images & Media Caching
             urlPattern: /\.(?:png|jpg|jpeg|svg|gif|webp|ico)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'app-images-cache',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 60 // 60 Days
+                maxAgeSeconds: 60 * 60 * 24 * 60
               }
             }
           },
           {
-            // Documents, Scripts & Styles
             urlPattern: ({ request }) =>
               request.destination === 'document' ||
               request.destination === 'script' ||
@@ -93,12 +87,26 @@ export default defineConfig({
               cacheName: 'app-static-assets',
               expiration: {
                 maxEntries: 100,
-                maxAgeSeconds: 60 * 60 * 24 * 30 // 30 Days
+                maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }
           }
         ]
       }
     })
-  ]
+  ],
+  build: {
+    target: 'esnext',
+    minify: 'esbuild',
+    cssCodeSplit: true,
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom', 'react-router-dom'],
+          ui: ['framer-motion', 'lucide-react']
+        }
+      }
+    }
+  }
 });

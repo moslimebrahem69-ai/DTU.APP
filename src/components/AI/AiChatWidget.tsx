@@ -25,8 +25,10 @@ export function AiChatWidget() {
   const chatEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isLoading]);
+    if (isOpen) {
+      chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [messages, isLoading, isOpen]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -86,13 +88,14 @@ export function AiChatWidget() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+            initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="absolute bottom-16 left-0 w-[92vw] sm:w-[380px] h-[520px] max-h-[80vh] bg-card border border-border/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50"
+            exit={{ opacity: 0, scale: 0.95, y: 15 }}
+            transition={{ duration: 0.2 }}
+            className="absolute bottom-16 left-0 w-[92vw] sm:w-[380px] h-[500px] max-h-[75vh] bg-card border border-border/80 rounded-3xl shadow-2xl flex flex-col overflow-hidden z-50"
           >
             {/* Header */}
-            <div className="flex items-center justify-between p-3.5 bg-primary/10 border-b border-border/40">
+            <div className="flex items-center justify-between p-3.5 bg-primary/10 border-b border-border/40 shrink-0">
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-xl bg-primary text-primary-foreground shadow-sm">
                   <Bot className="h-5 w-5" />
@@ -146,7 +149,7 @@ export function AiChatWidget() {
                       {msg.text}
                     </div>
 
-                    {/* عرض الحسابات الهندسية الحسابية إن وجدت */}
+                    {/* عرض الحسابات الهندسية إن وجدت */}
                     {msg.calculation && (
                       <div className="p-2.5 rounded-xl bg-primary/5 border border-primary/20 text-xs space-y-1">
                         <div className="flex items-center gap-1.5 font-bold text-primary">
@@ -175,7 +178,7 @@ export function AiChatWidget() {
             </div>
 
             {/* Footer Input */}
-            <div className="p-3 border-t border-border/40 bg-card flex gap-2 items-center">
+            <div className="p-3 border-t border-border/40 bg-card flex gap-2 items-center shrink-0">
               <input
                 type="text"
                 value={input}

@@ -4,9 +4,9 @@ export interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 export interface EngineeringCalculation { title: string; steps: string[]; result: string; }
 export interface AssistantResponse { ok: boolean; text: string; calculation?: EngineeringCalculation; }
 
-// قراءة المفتاح بحماية fallback في حال عدم تعريفه
-const GROQ_API_KEY = import.meta.env.VITE_OPENAI_API_KEY || import.meta.env.VITE_GROQ_API_KEY || '';
-const MODEL = 'llama-3.1-8b-instant'; // موديل سريع جداً ومتاح مجاناً على Groq
+// قراءة المفتاح بمرونة من كافة البيئات
+const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || (window as any).VITE_GROQ_API_KEY || '').trim();
+const MODEL = 'llama-3.1-8b-instant'; 
 
 const MODE_GUIDANCE: Record<AiMode, string> = {
   chat: 'Answer the request directly and clearly in Egyptian Arabic.',
@@ -58,13 +58,13 @@ function ohmsLaw(prompt: string): EngineeringCalculation | null {
 }
 
 export function calculateEngineeringProblem(prompt: string) { return hydraulicForce(prompt) || ohmsLaw(prompt) || undefined; }
-function unavailable() { return `مش قادر أوصل لسيرفر الذكاء الاصطناعي دلوقتي 😅 تأكد من إضافة API Key الخاص بـ Groq.`; }
+function unavailable() { return `مش قادر أوصل لسيرفر الذكاء الاصطناعي دلوقتي 😅 تأكد من إضافة VITE_GROQ_API_KEY في إعدادات البيئة.`; }
 
 export async function askDTUAssistant(userPrompt: string, history: ChatMessage[] = [], mode: AiMode = 'chat', subject: EngineeringSubject = 'عام'): Promise<AssistantResponse> {
   if (userPrompt.trim().length > 4000) return { ok: false, text: 'الرسالة طويلة شوية. ابعتها على أجزاء عشان أركز معاك كويس.' };
   
   if (!GROQ_API_KEY) {
-    return { ok: false, text: 'برجاء إضافة VITE_OPENAI_API_KEY أو VITE_GROQ_API_KEY في إعدادات البيئة أولاً.' };
+    return { ok: false, text: 'برجاء إضافة VITE_GROQ_API_KEY في إعدادات Vercel أو ملف .env أولاً.' };
   }
 
   const calculation = calculateEngineeringProblem(userPrompt);
