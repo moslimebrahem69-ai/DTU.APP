@@ -4,8 +4,15 @@ export interface ChatMessage { role: 'user' | 'assistant'; content: string; }
 export interface EngineeringCalculation { title: string; steps: string[]; result: string; }
 export interface AssistantResponse { ok: boolean; text: string; calculation?: EngineeringCalculation; }
 
-// قراءة المفتاح بمرونة من كافة البيئات
-const GROQ_API_KEY = (import.meta.env.VITE_GROQ_API_KEY || import.meta.env.VITE_OPENAI_API_KEY || (window as any).VITE_GROQ_API_KEY || '').trim();
+// قراءة المفتاح بمرونة من جميع البيئات
+const GROQ_API_KEY = (
+  import.meta.env.VITE_GROQ_API_KEY || 
+  import.meta.env.VITE_OPENAI_API_KEY || 
+  (typeof window !== 'undefined' && (window as any).VITE_GROQ_API_KEY) || 
+  ''
+).trim();
+
+// الموديل النشط والمستقر بـ Groq
 const MODEL = 'llama-3.1-8b-instant';
 
 const MODE_GUIDANCE: Record<AiMode, string> = {

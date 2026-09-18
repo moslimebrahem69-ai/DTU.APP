@@ -9,8 +9,7 @@ import {
   Timer, 
   FileCheck2, 
   ChevronLeft,
-  Sparkles,
-  Flame
+  Sparkles
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
@@ -23,7 +22,7 @@ const sections = [
     count: '100+',
     icon: Bot,
     gradient: 'from-purple-500 to-pink-500',
-    bgLight: 'bg-purple-500/10 text-purple-600 border-purple-500/20 dark:text-purple-400',
+    bgLight: 'bg-purple-500/20 text-purple-800 dark:text-purple-200 border-purple-500/40',
     route: '/ai-tools'
   },
   {
@@ -33,7 +32,7 @@ const sections = [
     count: '50+',
     icon: Youtube,
     gradient: 'from-red-500 to-orange-500',
-    bgLight: 'bg-red-500/10 text-red-600 border-red-500/20 dark:text-red-400',
+    bgLight: 'bg-red-500/20 text-red-800 dark:text-red-200 border-red-500/40',
     route: '/youtube'
   },
   {
@@ -43,7 +42,7 @@ const sections = [
     count: '25+',
     icon: GraduationCap,
     gradient: 'from-blue-500 to-indigo-500',
-    bgLight: 'bg-blue-500/10 text-blue-600 border-blue-500/20 dark:text-blue-400',
+    bgLight: 'bg-blue-500/20 text-blue-800 dark:text-blue-200 border-blue-500/40',
     route: '/platforms'
   },
   {
@@ -53,7 +52,7 @@ const sections = [
     count: 'المقررات',
     icon: BookOpen,
     gradient: 'from-emerald-500 to-teal-500',
-    bgLight: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20 dark:text-emerald-400',
+    bgLight: 'bg-emerald-500/20 text-emerald-800 dark:text-emerald-200 border-emerald-500/40',
     route: '/college'
   },
   {
@@ -64,7 +63,7 @@ const sections = [
     count: 'جديد',
     icon: FileCheck2,
     gradient: 'from-cyan-500 to-blue-600',
-    bgLight: 'bg-cyan-500/10 text-cyan-600 border-cyan-500/20 dark:text-cyan-400',
+    bgLight: 'bg-cyan-500/20 text-cyan-800 dark:text-cyan-200 border-cyan-500/40',
     route: '/exams'
   },
   {
@@ -74,7 +73,7 @@ const sections = [
     count: 'أداة',
     icon: Timer,
     gradient: 'from-amber-500 to-orange-500',
-    bgLight: 'bg-amber-500/10 text-amber-600 border-amber-500/20 dark:text-amber-400',
+    bgLight: 'bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40',
     route: '/timer'
   }
 ];
@@ -100,28 +99,28 @@ export function Home() {
         <div className="absolute -left-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-1.5">
-          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-[11px] font-bold mb-1">
+          <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/20 text-primary-foreground dark:text-primary font-bold text-[11px] mb-1">
             <Sparkles className="w-3.5 h-3.5" />
             <span>لوحة التحكم الرئيسية</span>
           </div>
           <h1 className="text-lg sm:text-2xl font-black text-foreground tracking-tight flex items-center gap-2">
             أهلاً بيك يا صديقي <span className="inline-block animate-bounce">👋</span>
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground max-w-md">
+          <p className="text-xs sm:text-sm text-muted-foreground max-w-md font-medium">
             كل الأدوات، المحاضرات، والاختبارات اللي تساعدك تذاكر وتتميز بكل سهولة.
           </p>
         </div>
 
         <div className="hidden sm:flex flex-col items-end gap-2 relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20">
+          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/20 px-3 py-1.5 rounded-full border border-emerald-500/40">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
             جاهز للإنجاز
           </span>
-          <span className="text-[10px] text-muted-foreground">التحديث الأخير نشط 🚀</span>
+          <span className="text-[10px] text-muted-foreground font-semibold">التحديث الأخير نشط 🚀</span>
         </div>
       </motion.div>
 
-      {/* Grid Sections with Spring Animation & Hover Effects */}
+      {/* Grid Sections */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
         {sections.map((section, index) => (
           <motion.button
@@ -147,10 +146,10 @@ export function Home() {
                 </span>
               </div>
 
-              <h3 className="text-sm sm:text-base font-black text-foreground mb-1.5 group-hover:text-primary transition-colors line-clamp-1">
+              <h2 className="text-sm sm:text-base font-black text-foreground mb-1.5 group-hover:text-primary transition-colors line-clamp-1">
                 {section.customTitle || t(section.titleKey)}
-              </h3>
-              <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-2 leading-relaxed">
+              </h2>
+              <p className="text-[11px] sm:text-xs text-muted-foreground line-clamp-2 leading-relaxed font-medium">
                 {section.desc}
               </p>
             </div>
