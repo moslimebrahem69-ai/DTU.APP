@@ -1,58 +1,163 @@
-import { useState, useEffect, useMemo } from 'react';
-import { 
-  Bot, Sparkles, Home, Cpu, Youtube, GraduationCap, 
-  BookOpen, Timer, Wrench, Menu, X, Search, FileText, ArrowLeft, ExternalLink, ChevronLeft, FileCheck, CheckSquare,
-  Calendar
-} from 'lucide-react';
-import { useTranslation } from 'react-i18next';
-import { useNavigate, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
-import { Button } from '../ui/button';
-import { useTheme } from '../../contexts/ThemeContext';
-import { ThemeToggle } from '../Common/ThemeToggle';
-import { globalSearch } from '../../data/collegeData';
+import { useState, useEffect, useMemo } from "react";
+import {
+  Bot,
+  Sparkles,
+  Home,
+  Cpu,
+  Youtube,
+  GraduationCap,
+  BookOpen,
+  Timer,
+  Wrench,
+  Menu,
+  X,
+  Search,
+  FileText,
+  ArrowLeft,
+  ExternalLink,
+  ChevronLeft,
+  FileCheck,
+  CheckSquare,
+  Calendar,
+} from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import { Button } from "../ui/button";
+import { useTheme } from "../../contexts/ThemeContext";
+import { ThemeToggle } from "../Common/ThemeToggle";
+import { globalSearch } from "../../data/collegeData";
 
 const normalizeArabicText = (text: string) => {
-  if (!text) return '';
+  if (!text) return "";
   return text
     .toLowerCase()
-    .replace(/[أإآ]/g, 'ا')
-    .replace(/ة/g, 'ه')
-    .replace(/ى/g, 'ي')
-    .replace(/[\u064B-\u0652]/g, '')
-    .replace(/\s+/g, ' ')
-    .replace(/\bو\s+/g, 'و')
+    .replace(/[أإآ]/g, "ا")
+    .replace(/ة/g, "ه")
+    .replace(/ى/g, "ي")
+    .replace(/[\u064B-\u0652]/g, "")
+    .replace(/\s+/g, " ")
+    .replace(/\bو\s+/g, "و")
     .trim();
 };
 
 const STATIC_SEARCH_ITEMS = [
-  { id: 'p-1', title: 'الرئيسية', category: 'صفحة', path: '/', icon: Home },
-  { id: 'p-2', title: 'أدوات الذكاء الاصطناعي', category: 'قسم', path: '/ai-tools', icon: Cpu, keywords: 'chatgpt claude gemini ai ذكاء اصطناعي' },
-  { id: 'p-3', title: 'قنوات يوتيوب التعليمية', category: 'قسم', path: '/youtube', icon: Youtube, keywords: 'شرح كورسات يوتيوب فيديوهات' },
-  { id: 'p-4', title: 'منصات التعليم', category: 'قسم', path: '/platforms', icon: GraduationCap, keywords: 'udemy coursera منصات كورسات' },
-  { id: 'p-5', title: 'أقسام الكلية والمواد', category: 'قسم', path: '/college', icon: BookOpen, keywords: 'مواد محاضرة سكاشن امتحانات فرق دراسية' },
-  { id: 'p-6', title: 'البرامج الهندسية', category: 'قسم', path: '/engineering-software', icon: Wrench, keywords: 'autocad solidworks matlab proteus برامج' },
-  { id: 'p-7', title: 'تايمر الدراسة (بومودورو)', category: 'أداة', path: '/timer', icon: Timer, keywords: 'بومودورو تايمر دراسة وقت' },
-  { id: 'p-8', title: 'الاختبارات الإلكترونية', category: 'قسم', path: '/exams', icon: FileCheck, keywords: 'امتحانات كويزات اختبارات كويز ميدترم فاينل quiz test' },
-  { id: 'p-9', title: 'خطط المذاكرة والمهام', category: 'قسم', path: '/study-plan', icon: CheckSquare, keywords: 'مهام خطط مذاكرة تو دو ليست todo list أهداف' },
+  { id: "p-1", title: "الرئيسية", category: "صفحة", path: "/", icon: Home },
+  {
+    id: "p-2",
+    title: "أدوات الذكاء الاصطناعي",
+    category: "قسم",
+    path: "/ai-tools",
+    icon: Cpu,
+    keywords: "chatgpt claude gemini ai ذكاء اصطناعي",
+  },
+  {
+    id: "p-3",
+    title: "قنوات يوتيوب التعليمية",
+    category: "قسم",
+    path: "/youtube",
+    icon: Youtube,
+    keywords: "شرح كورسات يوتيوب فيديوهات",
+  },
+  {
+    id: "p-4",
+    title: "منصات التعليم",
+    category: "قسم",
+    path: "/platforms",
+    icon: GraduationCap,
+    keywords: "udemy coursera منصات كورسات",
+  },
+  {
+    id: "p-5",
+    title: "أقسام الكلية والمواد",
+    category: "قسم",
+    path: "/college",
+    icon: BookOpen,
+    keywords: "مواد محاضرة سكاشن امتحانات فرق دراسية",
+  },
+  {
+    id: "p-6",
+    title: "البرامج الهندسية",
+    category: "قسم",
+    path: "/engineering-software",
+    icon: Wrench,
+    keywords: "autocad solidworks matlab proteus برامج",
+  },
+  {
+    id: "p-7",
+    title: "تايمر الدراسة (بومودورو)",
+    category: "أداة",
+    path: "/timer",
+    icon: Timer,
+    keywords: "بومودورو تايمر دراسة وقت",
+  },
+  {
+    id: "p-8",
+    title: "الاختبارات الإلكترونية",
+    category: "قسم",
+    path: "/exams",
+    icon: FileCheck,
+    keywords: "امتحانات كويزات اختبارات كويز ميدترم فاينل quiz test",
+  },
+  {
+    id: "p-9",
+    title: "خطط المذاكرة والمهام",
+    category: "قسم",
+    path: "/study-plan",
+    icon: CheckSquare,
+    keywords: "مهام خطط مذاكرة تو دو ليست todo list أهداف",
+  },
 
-  { id: 'ai-1', title: 'ChatGPT', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'شات جي بي تي توليد نصوص' },
-  { id: 'ai-2', title: 'Claude AI', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'كلاود برمجة كتابة' },
-  { id: 'ai-3', title: 'Gemini', category: 'أداة AI', path: '/ai-tools', icon: Cpu, keywords: 'جميناي جوجل' },
+  {
+    id: "ai-1",
+    title: "ChatGPT",
+    category: "أداة AI",
+    path: "/ai-tools",
+    icon: Cpu,
+    keywords: "شات جي بي تي توليد نصوص",
+  },
+  {
+    id: "ai-2",
+    title: "Claude AI",
+    category: "أداة AI",
+    path: "/ai-tools",
+    icon: Cpu,
+    keywords: "كلاود برمجة كتابة",
+  },
+  {
+    id: "ai-3",
+    title: "Gemini",
+    category: "أداة AI",
+    path: "/ai-tools",
+    icon: Cpu,
+    keywords: "جميناي جوجل",
+  },
 
-  { id: 'sw-1', title: 'AutoCAD', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'أوتوكاد رسم هندسي 2D' },
-  { id: 'sw-2', title: 'SolidWorks', category: 'برنامج هندسي', path: '/engineering-software', icon: Wrench, keywords: 'سوليد وركس تصميم 3D' },
+  {
+    id: "sw-1",
+    title: "AutoCAD",
+    category: "برنامج هندسي",
+    path: "/engineering-software",
+    icon: Wrench,
+    keywords: "أوتوكاد رسم هندسي 2D",
+  },
+  {
+    id: "sw-2",
+    title: "SolidWorks",
+    category: "برنامج هندسي",
+    path: "/engineering-software",
+    icon: Wrench,
+    keywords: "سوليد وركس تصميم 3D",
+  },
 ];
 
 export function Header() {
-  const { } = useTranslation();
   const { animationsEnabled } = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
-  
+
   const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
   const [searchModalOpen, setSearchModalOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isTimerFullscreen, setIsTimerFullscreen] = useState(false);
 
   // الاستماع لحدث الشاشة الكاملة الخاص بالتايمر لإخفاء الهيدر تماماً
@@ -62,15 +167,15 @@ export function Header() {
       setIsTimerFullscreen(customEvent.detail?.isFullscreen || false);
     };
 
-    window.addEventListener('dtu_timer_fullscreen', handleFullscreenEvent);
+    window.addEventListener("dtu_timer_fullscreen", handleFullscreenEvent);
     return () => {
-      window.removeEventListener('dtu_timer_fullscreen', handleFullscreenEvent);
+      window.removeEventListener("dtu_timer_fullscreen", handleFullscreenEvent);
     };
   }, []);
 
   // لو مش في صفحة التايمر، نضمن إن الهيدر ظاهر عادي
   useEffect(() => {
-    if (location.pathname !== '/timer') {
+    if (location.pathname !== "/timer") {
       setIsTimerFullscreen(false);
     }
   }, [location.pathname]);
@@ -81,41 +186,50 @@ export function Header() {
 
   useEffect(() => {
     if (mobileDrawerOpen) {
-      document.body.style.overflow = 'hidden';
+      document.body.style.overflow = "hidden";
     } else {
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = "unset";
     }
-    return () => { document.body.style.overflow = 'unset'; };
+    return () => {
+      document.body.style.overflow = "unset";
+    };
   }, [mobileDrawerOpen]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
         e.preventDefault();
         setSearchModalOpen((prev) => !prev);
       }
     };
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
   }, []);
 
   const filteredResults = useMemo(() => {
     const rawQuery = searchQuery.trim();
-    
+
     if (!rawQuery) {
-      return STATIC_SEARCH_ITEMS.slice(0, 9).map(item => ({ ...item, isExternal: false }));
+      return STATIC_SEARCH_ITEMS.slice(0, 9).map((item) => ({
+        ...item,
+        isExternal: false,
+      }));
     }
 
     const normalizedQuery = normalizeArabicText(rawQuery);
 
-    const matchedStaticItems = STATIC_SEARCH_ITEMS.filter(item => {
+    const matchedStaticItems = STATIC_SEARCH_ITEMS.filter((item) => {
       const title = normalizeArabicText(item.title);
       const category = normalizeArabicText(item.category);
-      const keywords = normalizeArabicText(item.keywords || '');
-      return title.includes(normalizedQuery) || category.includes(normalizedQuery) || keywords.includes(normalizedQuery);
-    }).map(item => ({
+      const keywords = normalizeArabicText(item.keywords || "");
+      return (
+        title.includes(normalizedQuery) ||
+        category.includes(normalizedQuery) ||
+        keywords.includes(normalizedQuery)
+      );
+    }).map((item) => ({
       ...item,
-      isExternal: false
+      isExternal: false,
     }));
 
     const collegeCourseResults = globalSearch(rawQuery).map((res, index) => ({
@@ -123,37 +237,89 @@ export function Header() {
       title: `${res.courseName} - ${res.materialName}`,
       category: `${res.yearName} (${res.deptName}) • ${res.semesterName}`,
       path: res.materialUrl,
-      icon: res.materialType === 'drive' ? FileText : BookOpen,
-      isExternal: true
+      icon: res.materialType === "drive" ? FileText : BookOpen,
+      isExternal: true,
     }));
 
     return [...collegeCourseResults, ...matchedStaticItems];
   }, [searchQuery]);
 
   const handleSelectResult = (path: string, isExternal: boolean) => {
-    if (isExternal && (path.startsWith('http://') || path.startsWith('https://'))) {
-      window.open(path, '_blank', 'noopener,noreferrer');
+    if (
+      isExternal &&
+      (path.startsWith("http://") || path.startsWith("https://"))
+    ) {
+      window.open(path, "_blank", "noopener,noreferrer");
     } else {
       navigate(path);
     }
     setSearchModalOpen(false);
-    setSearchQuery('');
+    setSearchQuery("");
   };
 
   const navItems = [
-    { path: '/', label: 'الرئيسية', icon: Home, desc: 'الصفحة الرئيسية للمنصة' },
-    { path: '/ai-tools', label: 'أدوات AI', icon: Cpu, desc: 'أفضل أدوات الذكاء الاصطناعي' },
-    { path: '/youtube', label: 'يوتيوب', icon: Youtube, desc: 'قنوات ومصادر الشرح' },
-    { path: '/platforms', label: 'المنصات', icon: GraduationCap, desc: 'منصات التعلم الكبرى' },
-    { path: '/college', label: 'أقسام الكلية', icon: BookOpen, desc: 'المواد والفرق الأكاديمية' },
-    { path: '/exams', label: 'الاختبارات', icon: FileCheck, desc: 'امتحانات تفاعلية واختبارات AI' },
-    { path: '/study-plan', label: 'خطط المذاكرة', icon: CheckSquare, desc: 'قائمة المهام والأهداف اليومية' },
-    { path: '/engineering-software', label: 'برامج هندسية', icon: Wrench, desc: 'برامج الرسم والمحاكاة' },
-    { path: '/timer', label: 'التايمر', icon: Timer, desc: 'مؤقت بومودورو للتركيز' },
-    { path: '/schedule', label: 'الجدول الدراسي', icon: Calendar, desc: 'جدول المحاضرات والسكاشن التفاعلي' }
+    {
+      path: "/",
+      label: "الرئيسية",
+      icon: Home,
+      desc: "الصفحة الرئيسية للمنصة",
+    },
+    {
+      path: "/ai-tools",
+      label: "أدوات AI",
+      icon: Cpu,
+      desc: "أفضل أدوات الذكاء الاصطناعي",
+    },
+    {
+      path: "/youtube",
+      label: "يوتيوب",
+      icon: Youtube,
+      desc: "قنوات ومصادر الشرح",
+    },
+    {
+      path: "/platforms",
+      label: "المنصات",
+      icon: GraduationCap,
+      desc: "منصات التعلم الكبرى",
+    },
+    {
+      path: "/college",
+      label: "أقسام الكلية",
+      icon: BookOpen,
+      desc: "المواد والفرق الأكاديمية",
+    },
+    {
+      path: "/exams",
+      label: "الاختبارات",
+      icon: FileCheck,
+      desc: "امتحانات تفاعلية واختبارات AI",
+    },
+    {
+      path: "/study-plan",
+      label: "خطط المذاكرة",
+      icon: CheckSquare,
+      desc: "قائمة المهام والأهداف اليومية",
+    },
+    {
+      path: "/engineering-software",
+      label: "برامج هندسية",
+      icon: Wrench,
+      desc: "برامج الرسم والمحاكاة",
+    },
+    {
+      path: "/timer",
+      label: "التايمر",
+      icon: Timer,
+      desc: "مؤقت بومودورو للتركيز",
+    },
+    {
+      path: "/schedule",
+      label: "الجدول الدراسي",
+      icon: Calendar,
+      desc: "جدول المحاضرات والسكاشن التفاعلي",
+    },
   ];
 
-  // لو التايمر في وضع الشاشة الكاملة، اخفي الهيدر تماماً
   if (isTimerFullscreen) {
     return null;
   }
@@ -168,12 +334,11 @@ export function Header() {
       >
         <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-14 sm:h-16 flex-row-reverse lg:flex-row">
-            
             {/* Logo Section */}
-            <motion.div 
+            <motion.div
               className="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer select-none"
               onClick={() => {
-                navigate('/');
+                navigate("/");
                 setMobileDrawerOpen(false);
               }}
               whileHover={animationsEnabled ? { scale: 1.02 } : {}}
@@ -200,9 +365,9 @@ export function Header() {
                     whileHover={animationsEnabled ? { scale: 1.03 } : {}}
                     whileTap={animationsEnabled ? { scale: 0.97 } : {}}
                     className={`relative px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 shrink-0 cursor-pointer ${
-                      isActive 
-                        ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/25' 
-                        : 'text-muted-foreground hover:text-foreground hover:bg-accent/60'
+                      isActive
+                        ? "bg-primary text-primary-foreground shadow-sm shadow-primary/25"
+                        : "text-muted-foreground hover:text-foreground hover:bg-accent/60"
                     }`}
                   >
                     <Icon className="h-3.5 w-3.5" />
@@ -222,7 +387,9 @@ export function Header() {
               >
                 <Search className="h-3.5 w-3.5 text-primary" />
                 <span className="truncate max-w-[130px]">بحث سريع...</span>
-                <kbd className="text-[10px] bg-background px-1.5 py-0.5 rounded border border-border/60 text-muted-foreground font-mono">⌘K</kbd>
+                <kbd className="text-[10px] bg-background px-1.5 py-0.5 rounded border border-border/60 text-muted-foreground font-mono">
+                  ⌘K
+                </kbd>
               </motion.button>
 
               <ThemeToggle />
@@ -250,7 +417,6 @@ export function Header() {
 
               <ThemeToggle />
             </div>
-
           </div>
         </div>
       </motion.header>
@@ -269,10 +435,10 @@ export function Header() {
             />
 
             <motion.div
-              initial={{ x: '100%' }}
+              initial={{ x: "100%" }}
               animate={{ x: 0 }}
-              exit={{ x: '100%' }}
-              transition={{ type: 'spring', damping: 26, stiffness: 220 }}
+              exit={{ x: "100%" }}
+              transition={{ type: "spring", damping: 26, stiffness: 220 }}
               className="absolute inset-y-0 right-0 w-[85%] max-w-xs bg-card/95 backdrop-blur-2xl border-l border-border/50 shadow-2xl flex flex-col justify-between"
             >
               <div>
@@ -282,8 +448,12 @@ export function Header() {
                       <Bot className="h-4 w-4" />
                     </div>
                     <div>
-                      <h2 className="text-xs sm:text-sm font-bold text-foreground">DTU Learning Hub</h2>
-                      <p className="text-[10px] text-muted-foreground">منصتك الهندسية المتكاملة</p>
+                      <h2 className="text-xs sm:text-sm font-bold text-foreground">
+                        DTU Learning Hub
+                      </h2>
+                      <p className="text-[10px] text-muted-foreground">
+                        منصتك الهندسية المتكاملة
+                      </p>
                     </div>
                   </div>
 
@@ -313,27 +483,35 @@ export function Header() {
                         }}
                         className={`w-full flex items-center justify-between p-3 rounded-2xl text-right transition-all group cursor-pointer ${
                           isActive
-                            ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold'
-                            : 'hover:bg-accent/70 text-foreground/80'
+                            ? "bg-primary text-primary-foreground shadow-md shadow-primary/20 font-bold"
+                            : "hover:bg-accent/70 text-foreground/80"
                         }`}
                       >
                         <div className="flex items-center gap-3 min-w-0">
-                          <div className={`p-2 rounded-xl transition-colors shrink-0 ${
-                            isActive 
-                              ? 'bg-white/20 text-primary-foreground' 
-                              : 'bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground'
-                          }`}>
+                          <div
+                            className={`p-2 rounded-xl transition-colors shrink-0 ${
+                              isActive
+                                ? "bg-white/20 text-primary-foreground"
+                                : "bg-primary/10 text-primary group-hover:bg-primary group-hover:text-primary-foreground"
+                            }`}
+                          >
                             <Icon className="h-4 w-4" />
                           </div>
                           <div className="min-w-0 text-right">
-                            <div className="text-xs font-bold truncate">{item.label}</div>
-                            <div className={`text-[10px] truncate ${isActive ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
+                            <div className="text-xs font-bold truncate">
+                              {item.label}
+                            </div>
+                            <div
+                              className={`text-[10px] truncate ${isActive ? "text-primary-foreground/80" : "text-muted-foreground"}`}
+                            >
                               {item.desc}
                             </div>
                           </div>
                         </div>
 
-                        <ChevronLeft className={`h-4 w-4 shrink-0 transition-transform ${isActive ? 'text-primary-foreground' : 'text-muted-foreground/40 group-hover:-translate-x-1'}`} />
+                        <ChevronLeft
+                          className={`h-4 w-4 shrink-0 transition-transform ${isActive ? "text-primary-foreground" : "text-muted-foreground/40 group-hover:-translate-x-1"}`}
+                        />
                       </motion.button>
                     );
                   })}
@@ -341,7 +519,9 @@ export function Header() {
               </div>
 
               <div className="p-3 m-3 rounded-2xl bg-accent/30 border border-border/40 text-center flex items-center justify-between">
-                <p className="text-[11px] text-muted-foreground font-medium">DTU Learning © 2026</p>
+                <p className="text-[11px] text-muted-foreground font-medium">
+                  DTU Learning © 2026
+                </p>
                 <ThemeToggle />
               </div>
             </motion.div>
@@ -393,7 +573,9 @@ export function Header() {
                     return (
                       <button
                         key={item.id}
-                        onClick={() => handleSelectResult(item.path, item.isExternal)}
+                        onClick={() =>
+                          handleSelectResult(item.path, item.isExternal)
+                        }
                         className="w-full flex items-center justify-between p-2.5 rounded-xl text-right hover:bg-accent/60 transition-colors group cursor-pointer"
                       >
                         <div className="flex items-center gap-3 min-w-0">
@@ -411,7 +593,9 @@ export function Header() {
                         </div>
 
                         <div className="flex items-center gap-1 text-[10px] text-primary font-medium opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
-                          <span>{item.isExternal ? 'فتح الرابط' : 'انتقال'}</span>
+                          <span>
+                            {item.isExternal ? "فتح الرابط" : "انتقال"}
+                          </span>
                           {item.isExternal ? (
                             <ExternalLink className="h-3 w-3" />
                           ) : (
