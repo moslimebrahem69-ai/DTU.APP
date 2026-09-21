@@ -129,7 +129,7 @@ export const EXAMS_DATA: CourseExamsMap = {
       description: 'اختبار على المحاضرة الأولى لمادة أساسيات التحكم بالحاسبات',
       type: 'lecture',
       lectureNumber: 1,
-      url: 'https://lec-1-pc.vercel.app/',
+      url: 'https://lec-one-pc.vercel.app/',
       isAiGenerated: true,
     },
     {
