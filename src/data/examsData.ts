@@ -126,7 +126,7 @@ export const EXAMS_DATA: CourseExamsMap = {
     {
       id: 'pc-control-lec1-exam',
       title: 'اختبار المحاضرة 1: أساسيات التحكم بالحاسبات',
-      description: 'اختبار على المحاضرة الأولى لمادة أساسيات التحكم بالحاسبات',
+      description: '(Raspberry PI computer)اختبار ع المحاضرة الأولي',
       type: 'lecture',
       lectureNumber: 1,
       url: 'https://lec-one-pc.vercel.app/',
