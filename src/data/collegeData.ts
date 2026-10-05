@@ -1,7 +1,7 @@
 export interface CourseMaterial {
   name: string;
   url: string;
-  type: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other';
+  type: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other' | 'sections';
 }
 
 export interface Course {
@@ -33,7 +33,7 @@ export interface SearchResultItem {
   courseName: string;
   materialName: string;
   materialUrl: string;
-  materialType: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other' | 'drive';
+  materialType: 'lectures' | 'sheets' | 'exams' | 'notes' | 'other' | 'drive' | 'sections';
 }
 
 export const collegeData: Year[] = [
@@ -404,7 +404,8 @@ export const year2MechatronicsCourses: Record<string, Course[]> = {
         { name: 'شيتات & حل الشيتات', url: 'https://drive.google.com/drive/folders/108amHEh3Sj94haacjh-2nuvAdTr7SVuE?usp=drive_link', type: 'sheets' },
         { name: 'محاضرات مترجمه', url: 'https://drive.google.com/drive/folders/1bLVlA_f91vmWSxSp5zzLtJL8yhmJjMra?usp=drive_link', type: 'notes' },
         { name: 'مراجعات & ملخصات', url: 'https://drive.google.com/drive/folders/1tsI4DVVwj2XkMgT-xyG5YCRemgbbYK-3?usp=drive_link', type: 'notes' },
-        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1SZq3gI9EjzsQlOcqDgvrvcPbwIc0QSEg?usp=drive_link', type: 'exams' }
+        { name: 'امتحانات سابقه', url: 'https://drive.google.com/drive/folders/1SZq3gI9EjzsQlOcqDgvrvcPbwIc0QSEg?usp=drive_link', type: 'exams' },
+        {name: 'سكاشن', url: 'https://drive.google.com/drive/folders/10UwI91FLVhlk1OhJY6XkTLJMK4mskCO3?usp=drive_link', type: 'sections'}
       ]
     },
     {
