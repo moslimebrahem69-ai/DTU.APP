@@ -74,14 +74,7 @@ const STATIC_SEARCH_ITEMS = [
     icon: BookOpen,
     keywords: "مواد محاضرة سكاشن امتحانات فرق دراسية",
   },
-  {
-    id: "p-6",
-    title: "البرامج الهندسية",
-    category: "قسم",
-    path: "/engineering-software",
-    icon: Wrench,
-    keywords: "autocad solidworks matlab proteus برامج",
-  },
+ 
   {
     id: "p-7",
     title: "تايمر الدراسة (بومودورو)",
@@ -300,12 +293,7 @@ export function Header() {
       icon: CheckSquare,
       desc: "قائمة المهام والأهداف اليومية",
     },
-    {
-      path: "/engineering-software",
-      label: "برامج هندسية",
-      icon: Wrench,
-      desc: "برامج الرسم والمحاكاة",
-    },
+   
     {
       path: "/timer",
       label: "التايمر",

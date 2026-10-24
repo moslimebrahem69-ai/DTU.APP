@@ -1,10 +1,13 @@
-import React, { useState, useMemo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useState, useMemo, useRef } from 'react';
+import { motion } from 'framer-motion';
+import { toPng } from 'html-to-image';
+import download from 'downloadjs';
 import { 
-  Calendar, Clock, User, MapPin, Filter, Sparkles, BookOpen, Layers, CheckCircle2, AlertCircle 
+  Calendar, Clock, User, MapPin, Filter, Sparkles, CheckCircle2, Download
 } from 'lucide-react';
 import { Button } from '../components/ui/button';
 import { useTheme } from '../contexts/ThemeContext';
+import { PrintableSchedule } from '../components/Schedule/PrintableSchedule';
 
 interface PeriodTime {
   period: number;
@@ -22,12 +25,12 @@ const PERIODS: PeriodTime[] = [
 interface ScheduleItem {
   id: string;
   day: 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday';
-  periods: number[]; // الفترات
+  periods: number[];
   course: string;
   type: 'lecture' | 'section';
   instructor?: string;
   location?: string;
-  sections?: number[]; // لو سكشن، مخصص لسكاشن معينة. لو undefined يعني كل السكاشن (محاضرة عامة)
+  sections?: number[];
 }
 
 const DAYS_MAP = [
@@ -37,524 +40,80 @@ const DAYS_MAP = [
   { key: 'Thursday', label: 'الخميس' },
 ] as const;
 
-// بيانات الجدول المستخرجة بدقة متناهية من الجدول
+// الداتا الخاصة بالجدول
 const SCHEDULE_DATA: ScheduleItem[] = [
-  // --- يوم الأثنين ---
-  {
-    id: 'mon-lec-1',
-    day: 'Monday',
-    periods: [2],
-    course: 'التحكم بالحاسبات',
-    type: 'lecture',
-    instructor: 'د/ حامد حميدة',
-    location: 'مدرج م4'
-  },
-  {
-    id: 'mon-sec-1',
-    day: 'Monday',
-    periods: [1],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [1,2]
-  },
-  {
-    id: 'mon-sec-2',
-    day: 'Monday',
-    periods: [1],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [3]
-  },
-  {
-    id: 'mon-sec-3',
-    day: 'Monday',
-    periods: [4],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'د/ تقى',
-    location: 'ق الاختبارات',
-    sections: [3,4]
-  },
-  {
-    id: 'mon-sec-4-1',
-    day: 'Monday',
-    periods: [3],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل الهيدروليك',
-    sections: [4]
-  },
-  {
-    id: 'mon-sec-4-2',
-    day: 'Monday',
-    periods: [1],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ عبد القادر',
-    location: 'معمل الميكاترونيات',
-    sections: [4]
-  },
-  {
-    id: 'mon-sec-5',
-    day: 'Monday',
-    periods: [4],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ عبد القادر',
-    location: 'معمل الميكاترونيات',
-    sections: [5]
-  },
-  {
-    id: 'mon-sec-6',
-    day: 'Monday',
-    periods: [3],
-    course: 'PLC',
-    type: 'section',
-    instructor: '',
-    location: 'معمل الميكاترونيات',
-    sections: [6]
-  },
-  {
-    id: 'mon-sec-7-1',
-    day: 'Monday',
-    periods: [4],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل حاسب 1',
-    sections: [7]
-  },
-  {
-    id: 'mon-sec-7-2',
-    day: 'Monday',
-    periods: [1],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ محمد رمضان',
-    location: 'معمل PLC',
-    sections: [7]
-  },
-  {
-    id: 'mon-sec-9',
-    day: 'Monday',
-    periods: [1],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'د/ تقى',
-    location: 'ق الاختبارات',
-    sections: [9,10]
-  },
-  {
-    id: 'mon-sec-12',
-    day: 'Monday',
-    periods: [4],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [12]
-  },
-  {
-    id: 'mon-sec-13-1',
-    day: 'Monday',
-    periods: [1],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل ت حاسب 1',
-    sections: [13,12]
-  },
-  {
-    id: 'mon-sec-13-2',
-    day: 'Monday',
-    periods: [3],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [13]
-  },
-
-  // --- يوم الثلاثاء ---
-  {
-    id: 'tue-lec-1',
-    day: 'Tuesday',
-    periods: [1],
-    course: 'ت الهيدروليك',
-    type: 'lecture',
-    instructor: 'د/ محمد فرحات',
-    location: 'مدرج م5'
-  },
-  {
-    id: 'tue-lec-2',
-    day: 'Tuesday',
-    periods: [2],
-    course: 'برمجة تطبيقات الميكاترونكس',
-    type: 'lecture',
-    instructor: 'أ.د/ محمد عزت',
-    location: 'مدرج م5'
-  },
-  {
-    id: 'tue-sec-1',
-    day: 'Tuesday',
-    periods: [3],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [1,2]
-  },
-  {
-    id: 'tue-sec-2',
-    day: 'Tuesday',
-    periods: [4],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ عبد القادر',
-    location: 'معمل PLC',
-    sections: [2]
-  },
-  {
-    id: 'tue-sec-3',
-    day: 'Tuesday',
-    periods: [3],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'ق الاختبارات',
-    sections: [3]
-  },
-   {
-    id: 'tue-sec-4',
-    day: 'Tuesday',
-    periods: [3],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'ق الاختبارات',
-    sections: [6]
-  },
-  {
-    id: 'tue-sec-5',
-    day: 'Tuesday',
-    periods: [4],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'د/ تقى',
-    location: 'ق الاختبارات',
-    sections: [5,6]
-  },
-  {
-    id: 'tue-sec-6',
-    day: 'Tuesday',
-    periods: [3],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [13]
-  },
-  {
-    id: 'tue-sec-11-1',
-    day: 'Tuesday',
-    periods: [4],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل ت حاسب 1',
-    sections: [11]
-  },
-  {
-    id: 'tue-sec-11-2',
-    day: 'Tuesday',
-    periods: [3],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ عبد القادر',
-    location: 'معمل PLC',
-    sections: [11]
-  },
-  {
-    id: 'tue-sec-12',
-    day: 'Tuesday',
-    periods: [4],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ محمد رمضان',
-    location: 'معمل ميكاترونيات',
-    sections: [12]
-  },
-  {
-    id: 'tue-sec-13',
-    day: 'Tuesday',
-    periods: [4],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [7]
-  },
-
-  // --- يوم الأربعاء ---
-  {
-    id: 'wed-lec-1',
-    day: 'Wednesday',
-    periods: [1],
-    course: 'إختيار المواد',
-    type: 'lecture',
-    instructor: 'د/ أسماء سعد',
-    location: 'مدرج م5'
-  },
-  {
-    id: 'wed-lec-2',
-    day: 'Wednesday',
-    periods: [2],
-    course: 'PLC',
-    type: 'lecture',
-    instructor: 'أ.د/ هيثم عزازي',
-    location: 'مدرج م5'
-  },
-  {
-    id: 'wed-sec-4',
-    day: 'Wednesday',
-    periods: [3],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [5]
-  },
-  {
-    id: 'wed-sec-5',
-    day: 'Wednesday',
-    periods: [3],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'د/ تقى',
-    location: 'ق الاختبارات',
-    sections: [7,8]
-  },
-  {
-    id: 'wed-sec-7-1',
-    day: 'Wednesday',
-    periods: [3],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل الهيدروليك',
-    sections: [11]
-  },
-  {
-    id: 'wed-sec-7-2',
-    day: 'Wednesday',
-    periods: [4],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [8]
-  },
-  {
-    id: 'wed-sec-8-1',
-    day: 'Wednesday',
-    periods: [4],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ سيد',
-    location: 'معمل الهيدروليك',
-    sections: [9]
-  },
-
-  
-  {
-    id: 'wed-sec-13-2',
-    day: 'Wednesday',
-    periods: [4],
-    course: 'التحكم بالحاسبات',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'ق الاختبارات',
-    sections: [11,12,13]
-  },
-
-  // --- يوم الخميس ---
-  {
-    id: 'thu-sec-1',
-    day: 'Thursday',
-    periods: [3],
-    course: 'إختيار المواد',
-    type: 'section',
-    instructor: 'م/ فاطمة',
-    location: 'مدرج م4',
-    sections: [1,2,3,4,5,6]
-  },
-   {
-    id: 'thu-sec-2',
-    day: 'Thursday',
-    periods: [4],
-    course: 'إختيار المواد',
-    type: 'section',
-    instructor: 'م/ فاطمة',
-    location: 'مدرج م4',
-    sections: [7,8,9,10,11,12,13]
-  },
-  {
-    id: 'thu-sec-3',
-    day: 'Thursday',
-    periods: [4],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [1]
-  },
-  {
-    id: 'thu-sec-4',
-    day: 'Thursday',
-    periods: [2],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [1,2]
-  },
-  {
-    id: 'thu-sec-5',
-    day: 'Thursday',
-    periods: [2],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [3]
-  },
-  {
-    id: 'thu-sec-6',
-    day: 'Thursday',
-    periods: [4],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [4]
-  },
-  {
-    id: 'thu-sec-7',
-    day: 'Thursday',
-    periods: [1],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [5]
-  },
-  {
-    id: 'thu-sec-8',
-    day: 'Thursday',
-    periods: [4],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [6]
-  },
-  {
-    id: 'thu-sec-8-1',
-    day: 'Thursday',
-    periods: [3],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [8]
-  },
-  {
-    id: 'thu-sec-8-2',
-    day: 'Thursday',
-    periods: [1],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [8,9]
-  },
-  {
-    id: 'thu-sec-8-3',
-    day: 'Thursday',
-    periods: [1],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [10]
-  },
-  {
-    id: 'thu-sec-9-1',
-    day: 'Thursday',
-    periods: [3],
-    course: 'Matlab',
-    type: 'section',
-    instructor: 'م/ منار',
-    location: 'معمل CNC',
-    sections: [10]
-  },
-  {
-    id: 'thu-sec-9-2',
-    day: 'Thursday',
-    periods: [2],
-    course: 'هيدروليك',
-    type: 'section',
-    instructor: 'م/ صبري',
-    location: 'معمل الهيدروليك',
-    sections: [10]
-  },
-  {
-    id: 'thu-sec-9-3',
-    day: 'Thursday',
-    periods: [3],
-    course: 'PLC',
-    type: 'section',
-    instructor: 'م/ تقى',
-    location: 'معمل PLC',
-    sections: [9]
-  },
-
-
-  
+  // ... (نفس الداتا اللي كانت في الكود بتاعك زي ما هي بالضبط)
+  { id: 'mon-lec-1', day: 'Monday', periods: [2], course: 'التحكم بالحاسبات', type: 'lecture', instructor: 'د/ حامد حميدة', location: 'مدرج م4' },
+  { id: 'mon-sec-1', day: 'Monday', periods: [1], course: 'التحكم بالحاسبات', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [1,2] },
+  { id: 'mon-sec-2', day: 'Monday', periods: [1], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [3] },
+  { id: 'mon-sec-3', day: 'Monday', periods: [4], course: 'التحكم بالحاسبات', type: 'section', instructor: 'د/ تقى', location: 'ق الاختبارات', sections: [3,4] },
+  { id: 'mon-sec-4-1', day: 'Monday', periods: [3], course: 'هيدروليك', type: 'section', instructor: 'م/ سيد', location: 'معمل الهيدروليك', sections: [4] },
+  { id: 'mon-sec-4-2', day: 'Monday', periods: [1], course: 'PLC', type: 'section', instructor: 'م/ عبد القادر', location: 'معمل الميكاترونيات', sections: [4] },
+  { id: 'mon-sec-5', day: 'Monday', periods: [4], course: 'PLC', type: 'section', instructor: 'م/ عبد القادر', location: 'معمل الميكاترونيات', sections: [5] },
+  { id: 'mon-sec-6', day: 'Monday', periods: [3], course: 'PLC', type: 'section', instructor: '', location: 'معمل الميكاترونيات', sections: [6] },
+  { id: 'mon-sec-7-1', day: 'Monday', periods: [4], course: 'Matlab', type: 'section', instructor: 'م/ سيد', location: 'معمل حاسب 1', sections: [7] },
+  { id: 'mon-sec-7-2', day: 'Monday', periods: [1], course: 'PLC', type: 'section', instructor: 'م/ محمد رمضان', location: 'معمل PLC', sections: [7] },
+  { id: 'mon-sec-9', day: 'Monday', periods: [1], course: 'التحكم بالحاسبات', type: 'section', instructor: 'د/ تقى', location: 'ق الاختبارات', sections: [9,10] },
+  { id: 'mon-sec-12', day: 'Monday', periods: [4], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [12] },
+  { id: 'mon-sec-13-1', day: 'Monday', periods: [1], course: 'Matlab', type: 'section', instructor: 'م/ سيد', location: 'معمل ت حاسب 1', sections: [13,12] },
+  { id: 'mon-sec-13-2', day: 'Monday', periods: [3], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [13] },
+  { id: 'tue-lec-1', day: 'Tuesday', periods: [1], course: 'ت الهيدروليك', type: 'lecture', instructor: 'د/ محمد فرحات', location: 'مدرج م5' },
+  { id: 'tue-lec-2', day: 'Tuesday', periods: [2], course: 'برمجة تطبيقات الميكاترونكس', type: 'lecture', instructor: 'أ.د/ محمد عزت', location: 'مدرج م5' },
+  { id: 'tue-sec-1', day: 'Tuesday', periods: [3], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [1,2] },
+  { id: 'tue-sec-2', day: 'Tuesday', periods: [4], course: 'PLC', type: 'section', instructor: 'م/ عبد القادر', location: 'معمل PLC', sections: [2] },
+  { id: 'tue-sec-3', day: 'Tuesday', periods: [3], course: 'Matlab', type: 'section', instructor: 'م/ سيد', location: 'ق الاختبارات', sections: [3] },
+  { id: 'tue-sec-4', day: 'Tuesday', periods: [3], course: 'Matlab', type: 'section', instructor: 'م/ سيد', location: 'ق الاختبارات', sections: [6] },
+  { id: 'tue-sec-5', day: 'Tuesday', periods: [4], course: 'التحكم بالحاسبات', type: 'section', instructor: 'د/ تقى', location: 'ق الاختبارات', sections: [5,6] },
+  { id: 'tue-sec-6', day: 'Tuesday', periods: [3], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [13] },
+  { id: 'tue-sec-11-1', day: 'Tuesday', periods: [4], course: 'Matlab', type: 'section', instructor: 'م/ سيد', location: 'معمل ت حاسب 1', sections: [11] },
+  { id: 'tue-sec-11-2', day: 'Tuesday', periods: [3], course: 'PLC', type: 'section', instructor: 'م/ عبد القادر', location: 'معمل PLC', sections: [11] },
+  { id: 'tue-sec-12', day: 'Tuesday', periods: [4], course: 'PLC', type: 'section', instructor: 'م/ محمد رمضان', location: 'معمل ميكاترونيات', sections: [12] },
+  { id: 'tue-sec-13', day: 'Tuesday', periods: [4], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [7] },
+  { id: 'wed-lec-1', day: 'Wednesday', periods: [1], course: 'إختيار المواد', type: 'lecture', instructor: 'د/ أسماء سعد', location: 'مدرج م5' },
+  { id: 'wed-lec-2', day: 'Wednesday', periods: [2], course: 'PLC', type: 'lecture', instructor: 'أ.د/ هيثم عزازي', location: 'مدرج م5' },
+  { id: 'wed-sec-4', day: 'Wednesday', periods: [3], course: 'Matlab', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [5] },
+  { id: 'wed-sec-5', day: 'Wednesday', periods: [3], course: 'التحكم بالحاسبات', type: 'section', instructor: 'د/ تقى', location: 'ق الاختبارات', sections: [7,8] },
+  { id: 'wed-sec-7-1', day: 'Wednesday', periods: [3], course: 'هيدروليك', type: 'section', instructor: 'م/ سيد', location: 'معمل الهيدروليك', sections: [11] },
+  { id: 'wed-sec-7-2', day: 'Wednesday', periods: [4], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [8] },
+  { id: 'wed-sec-8-1', day: 'Wednesday', periods: [4], course: 'هيدروليك', type: 'section', instructor: 'م/ سيد', location: 'معمل الهيدروليك', sections: [9] },
+  { id: 'wed-sec-13-2', day: 'Wednesday', periods: [4], course: 'التحكم بالحاسبات', type: 'section', instructor: 'م/ منار', location: 'ق الاختبارات', sections: [11,12,13] },
+  { id: 'thu-sec-1', day: 'Thursday', periods: [3], course: 'إختيار المواد', type: 'section', instructor: 'م/ فاطمة', location: 'مدرج م4', sections: [1,2,3,4,5,6] },
+  { id: 'thu-sec-2', day: 'Thursday', periods: [4], course: 'إختيار المواد', type: 'section', instructor: 'م/ فاطمة', location: 'مدرج م4', sections: [7,8,9,10,11,12,13] },
+  { id: 'thu-sec-3', day: 'Thursday', periods: [4], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [1] },
+  { id: 'thu-sec-4', day: 'Thursday', periods: [2], course: 'Matlab', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [1,2] },
+  { id: 'thu-sec-5', day: 'Thursday', periods: [2], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [3] },
+  { id: 'thu-sec-6', day: 'Thursday', periods: [4], course: 'Matlab', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [4] },
+  { id: 'thu-sec-7', day: 'Thursday', periods: [1], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [5] },
+  { id: 'thu-sec-8', day: 'Thursday', periods: [4], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [6] },
+  { id: 'thu-sec-8-1', day: 'Thursday', periods: [3], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [8] },
+  { id: 'thu-sec-8-2', day: 'Thursday', periods: [1], course: 'Matlab', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [8,9] },
+  { id: 'thu-sec-8-3', day: 'Thursday', periods: [1], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [10] },
+  { id: 'thu-sec-9-1', day: 'Thursday', periods: [3], course: 'Matlab', type: 'section', instructor: 'م/ منار', location: 'معمل CNC', sections: [10] },
+  { id: 'thu-sec-9-2', day: 'Thursday', periods: [2], course: 'هيدروليك', type: 'section', instructor: 'م/ صبري', location: 'معمل الهيدروليك', sections: [10] },
+  { id: 'thu-sec-9-3', day: 'Thursday', periods: [3], course: 'PLC', type: 'section', instructor: 'م/ تقى', location: 'معمل PLC', sections: [9] }
 ];
 
 export function SchedulePage() {
   const { animationsEnabled } = useTheme();
-
-  // الحالة للسكشن المختار (0 تعني عرض جميع السكاشن)
   const [selectedSection, setSelectedSection] = useState<number>(1);
   const [selectedDay, setSelectedDay] = useState<'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday' | 'ALL'>('ALL');
+  const [isDownloading, setIsDownloading] = useState(false);
+  const scheduleRef = useRef<HTMLDivElement>(null);
 
-  // وظيفة لتحديد اليوم الحالي تلقائياً عند الضغط
   const handleSelectToday = () => {
-    const todayIndex = new Date().getDay(); // 1 = Monday, 2 = Tuesday, 3 = Wednesday, 4 = Thursday
+    const todayIndex = new Date().getDay();
     switch (todayIndex) {
       case 1: setSelectedDay('Monday'); break;
       case 2: setSelectedDay('Tuesday'); break;
       case 3: setSelectedDay('Wednesday'); break;
       case 4: setSelectedDay('Thursday'); break;
-      default: setSelectedDay('Monday'); break; // افتراضي لأول الأسبوع لو كان جمعة أو سبت
+      default: setSelectedDay('Monday'); break;
     }
   };
 
-  // فلترة المواد بناءً على السكشن واليوم
   const filteredSchedule = useMemo(() => {
     return SCHEDULE_DATA.filter((item) => {
-      // فلتر اليوم
-      if (selectedDay !== 'ALL' && item.day !== selectedDay) {
-        return false;
-      }
-      // فلتر السكشن
+      if (selectedDay !== 'ALL' && item.day !== selectedDay) return false;
       if (selectedSection !== 0) {
         if (item.type === 'section' && item.sections) {
           return item.sections.includes(selectedSection);
@@ -564,13 +123,52 @@ export function SchedulePage() {
     });
   }, [selectedSection, selectedDay]);
 
+  // فلترة الجدول بالكامل للسكشن المختار (عشان يتطبع كل الأيام في الصورة بغض النظر عن اليوم المختار في الشاشة)
+  const fullScheduleForPrint = useMemo(() => {
+    return SCHEDULE_DATA.filter((item) => {
+      if (selectedSection !== 0) {
+        if (item.type === 'section' && item.sections) {
+          return item.sections.includes(selectedSection);
+        }
+      }
+      return true;
+    });
+  }, [selectedSection]);
+
+  const handleDownloadSchedule = async () => {
+    if (!scheduleRef.current || selectedSection === 0) return;
+    
+    setIsDownloading(true);
+    try {
+      const dataUrl = await toPng(scheduleRef.current, { 
+        quality: 1, 
+        pixelRatio: 2,
+        backgroundColor: '#ffffff' 
+      });
+      download(dataUrl, `DTU-Schedule-Section-${selectedSection}.png`);
+    } catch (err) {
+      console.error('Failed to download schedule:', err);
+    } finally {
+      setIsDownloading(false);
+    }
+  };
+
   return (
     <div className="space-y-6 max-w-6xl mx-auto px-2 sm:px-4 py-4" dir="rtl">
+      
+      {/* المكون المخفي للطباعة - لا يظهر للمستخدم */}
+      <PrintableSchedule 
+        ref={scheduleRef} 
+        sectionNumber={selectedSection} 
+        scheduleData={fullScheduleForPrint} 
+        periods={PERIODS} 
+      />
+
       {/* Header */}
       <motion.div
         initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
-        className="text-center space-y-2 mb-6"
+        className="text-center space-y-2 mb-6 relative"
       >
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-primary/10 text-primary text-xs font-bold mb-2">
           <Sparkles className="h-4 w-4" />
@@ -593,16 +191,34 @@ export function SchedulePage() {
       >
         {/* Section Picker */}
         <div className="space-y-2.5">
-          <div className="flex items-center justify-between">
-            <span className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
-              <Filter className="h-4 w-4 text-primary" /> اختر رقم السكشن (1 - 13):
-            </span>
-            {selectedSection !== 0 && (
-              <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
-                تم اختيار سكشن {selectedSection}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xs sm:text-sm font-bold text-foreground flex items-center gap-1.5">
+                <Filter className="h-4 w-4 text-primary" /> اختر رقم السكشن (1 - 13):
               </span>
+              {selectedSection !== 0 && (
+                <span className="text-xs font-bold text-primary bg-primary/10 px-3 py-1 rounded-full">
+                  تم اختيار سكشن {selectedSection}
+                </span>
+              )}
+            </div>
+
+            {/* زر التنزيل - يظهر فقط عند اختيار سكشن */}
+            {selectedSection !== 0 && (
+              <Button
+                onClick={handleDownloadSchedule}
+                disabled={isDownloading}
+                className="rounded-xl font-bold shadow-lg shadow-primary/20 shrink-0"
+              >
+                {isDownloading ? (
+                  <span className="flex items-center gap-2">جاري التجهيز... <span className="animate-spin text-lg">⏳</span></span>
+                ) : (
+                  <span className="flex items-center gap-2"><Download className="h-4 w-4" /> تنزيل الجدول (صورة)</span>
+                )}
+              </Button>
             )}
           </div>
+
           <div className="flex items-center gap-1.5 overflow-x-auto pb-2 no-scrollbar">
             <button
               onClick={() => setSelectedSection(0)}
@@ -646,7 +262,7 @@ export function SchedulePage() {
             {DAYS_MAP.map((d) => (
               <button
                 key={d.key}
-                onClick={() => setSelectedDay(d.key as any)}
+                onClick={() => setSelectedDay(d.key as 'Monday' | 'Tuesday' | 'Wednesday' | 'Thursday')}
                 className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
                   selectedDay === d.key
                     ? 'bg-primary text-primary-foreground border-primary shadow-md'

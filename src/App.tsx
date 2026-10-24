@@ -15,7 +15,6 @@ const LearningPlatformsPage = lazy(() => import('./pages/LearningPlatformsPage')
 const CollegePage = lazy(() => import('./pages/CollegePage').then(m => ({ default: m.CollegePage })));
 const CollegeSubjectPage = lazy(() => import('./pages/CollegeSubjectPage').then(m => ({ default: m.CollegeSubjectPage })));
 const TimerPage = lazy(() => import('./pages/TimerPage').then(m => ({ default: m.TimerPage })));
-const EngineeringSoftwarePage = lazy(() => import('./pages/EngineeringSoftware').then(m => ({ default: m.EngineeringSoftware })));
 const StudyPlanPage = lazy(() => import('./pages/StudyPlanPage').then(m => ({ default: m.StudyPlanPage })));
 const SchedulePage = lazy(() => import('./pages/SchedulePage').then(m => ({ default: m.SchedulePage })));
 
@@ -105,7 +104,6 @@ function App() {
               <Route path="/platforms" element={<LearningPlatformsPage />} />
               <Route path="/college" element={<CollegePage />} />
               <Route path="/college/:yearId/:deptId" element={<CollegeSubjectPage />} />
-              <Route path="/engineering-software" element={<EngineeringSoftwarePage />} />
               <Route path="/timer" element={<TimerPage />} />
               <Route path="/study-plan" element={<StudyPlanPage />} />
               <Route path="/schedule" element={<SchedulePage />} />
