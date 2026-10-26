@@ -19,6 +19,7 @@ import {
   FileCheck,
   CheckSquare,
   Calendar,
+  Shield,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,7 +75,6 @@ const STATIC_SEARCH_ITEMS = [
     icon: BookOpen,
     keywords: "مواد محاضرة سكاشن امتحانات فرق دراسية",
   },
- 
   {
     id: "p-7",
     title: "تايمر الدراسة (بومودورو)",
@@ -99,7 +99,6 @@ const STATIC_SEARCH_ITEMS = [
     icon: CheckSquare,
     keywords: "مهام خطط مذاكرة تو دو ليست todo list أهداف",
   },
-
   {
     id: "ai-1",
     title: "ChatGPT",
@@ -124,7 +123,6 @@ const STATIC_SEARCH_ITEMS = [
     icon: Cpu,
     keywords: "جميناي جوجل",
   },
-
   {
     id: "sw-1",
     title: "AutoCAD",
@@ -153,7 +151,6 @@ export function Header() {
   const [searchQuery, setSearchQuery] = useState("");
   const [isTimerFullscreen, setIsTimerFullscreen] = useState(false);
 
-  // الاستماع لحدث الشاشة الكاملة الخاص بالتايمر لإخفاء الهيدر تماماً
   useEffect(() => {
     const handleFullscreenEvent = (e: Event) => {
       const customEvent = e as CustomEvent;
@@ -166,7 +163,6 @@ export function Header() {
     };
   }, []);
 
-  // لو مش في صفحة التايمر، نضمن إن الهيدر ظاهر عادي
   useEffect(() => {
     if (location.pathname !== "/timer") {
       setIsTimerFullscreen(false);
@@ -293,7 +289,6 @@ export function Header() {
       icon: CheckSquare,
       desc: "قائمة المهام والأهداف اليومية",
     },
-   
     {
       path: "/timer",
       label: "التايمر",
@@ -320,11 +315,12 @@ export function Header() {
         transition={{ type: "spring", stiffness: 100, damping: 22 }}
         className="fixed top-0 left-0 right-0 z-40 bg-background/85 backdrop-blur-xl border-b border-border/50 shadow-2xs"
       >
-        <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-14 sm:h-16 flex-row-reverse lg:flex-row">
-            {/* Logo Section */}
+        <div className="w-full px-4 md:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16 w-full gap-2">
+            
+            {/* 1. أقصى اليمين: اللوجو */}
             <motion.div
-              className="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer select-none"
+              className="flex items-center space-x-2 rtl:space-x-reverse cursor-pointer select-none shrink-0"
               onClick={() => {
                 navigate("/");
                 setMobileDrawerOpen(false);
@@ -341,8 +337,8 @@ export function Header() {
               </h1>
             </motion.div>
 
-            {/* Desktop Navigation Links */}
-            <div className="hidden lg:flex items-center space-x-1 rtl:space-x-reverse overflow-x-auto py-1 max-w-[62vw] no-scrollbar">
+            {/* 2. المنتصف: الروابط */}
+            <div className="hidden lg:flex flex-1 justify-center items-center gap-1 xl:gap-2">
               {navItems.map((item) => {
                 const isActive = location.pathname === item.path;
                 const Icon = item.icon;
@@ -365,13 +361,24 @@ export function Header() {
               })}
             </div>
 
-            {/* Desktop Actions (Search & Theme) */}
-            <div className="hidden lg:flex items-center space-x-2 rtl:space-x-reverse shrink-0">
+            {/* 3. أقصى اليسار: الأدمن، البحث، الدارك مود، وقائمة الموبايل */}
+            <div className="flex items-center gap-2 shrink-0">
+              
+              {/* زر لوحة التحكم (الأدمن) */}
+              <button
+                onClick={() => navigate("/admin")}
+                className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground transition-colors cursor-pointer shadow-2xs"
+                title="لوحة التحكم"
+              >
+                <Shield className="h-4 w-4" />
+              </button>
+
+              {/* بحث الديسكتوب */}
               <motion.button
                 onClick={() => setSearchModalOpen(true)}
                 whileHover={{ scale: 1.01 }}
                 whileTap={{ scale: 0.98 }}
-                className="flex items-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground hover:text-foreground bg-accent/40 hover:bg-accent/80 px-3.5 py-1.5 rounded-xl transition-all border border-border/50 cursor-pointer shadow-2xs"
+                className="hidden lg:flex items-center space-x-2 rtl:space-x-reverse text-xs text-muted-foreground hover:text-foreground bg-accent/40 hover:bg-accent/80 px-3.5 py-1.5 rounded-xl transition-all border border-border/50 cursor-pointer shadow-2xs"
               >
                 <Search className="h-3.5 w-3.5 text-primary" />
                 <span className="truncate max-w-[130px]">بحث سريع...</span>
@@ -380,31 +387,30 @@ export function Header() {
                 </kbd>
               </motion.button>
 
-              <ThemeToggle />
-            </div>
-
-            {/* Mobile Actions Header */}
-            <div className="flex items-center space-x-1.5 rtl:space-x-reverse lg:hidden">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => setMobileDrawerOpen(true)}
-                className="w-9 h-9 rounded-xl text-foreground hover:bg-accent/80 transition-colors"
-                aria-label="Toggle Menu"
-              >
-                <Menu className="h-5 w-5" />
-              </Button>
-
+              {/* بحث الموبايل */}
               <button
                 onClick={() => setSearchModalOpen(true)}
-                className="flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
+                className="lg:hidden flex items-center justify-center w-9 h-9 rounded-xl bg-accent/50 hover:bg-accent text-muted-foreground hover:text-foreground transition-colors cursor-pointer shadow-2xs"
                 aria-label="Search"
               >
                 <Search className="h-4 w-4 text-primary" />
               </button>
 
+              {/* زر الثيم (مشترك موبايل وديسكتوب) */}
               <ThemeToggle />
+
+              {/* زر قائمة الموبايل */}
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setMobileDrawerOpen(true)}
+                className="lg:hidden w-9 h-9 rounded-xl text-foreground hover:bg-accent/80 transition-colors"
+                aria-label="Toggle Menu"
+              >
+                <Menu className="h-5 w-5" />
+              </Button>
             </div>
+
           </div>
         </div>
       </motion.header>

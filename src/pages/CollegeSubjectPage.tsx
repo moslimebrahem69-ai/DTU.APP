@@ -18,6 +18,7 @@ import {
 import { Button } from '../components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../components/ui/tabs';
 import { useTheme } from '../contexts/ThemeContext';
+import { DynamicMaterials } from './DynamicMaterials';
 
 // Material type icon map
 const materialIcons: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -32,7 +33,8 @@ export function CollegeSubjectPage() {
   const { t } = useTranslation();
   const { animationsEnabled } = useTheme();
 
-  const getCourseData = () => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const getCourseData = (): any => {
     if (deptId === 'mechatronics') {
       if (yearId === 'year1') return year1MechatronicsCourses;
       if (yearId === 'year2') return year2MechatronicsCourses;
@@ -60,16 +62,15 @@ export function CollegeSubjectPage() {
   const yearTitle = yearId === 'year1' ? t('year1') : yearId === 'year2' ?  t('year2') : t('year3');
   const yearDescription = `جميع مواد الفرقة ${yearId === 'year1' ? 'الأولى' : yearId === 'year2' ? 'الثانية' : 'الثالثة'} قسم ${deptName}`;
 
-  // فتح رابط المحاضرة أو الدرايف في نفس التاب الحالية للتطبيق
   const handleOpenMaterial = (url: string) => {
     window.open(url, '_self');
   };
 
-  // Render course item card
-  const renderCourseCard = (course: any, index: number) => {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const renderCourseCard = (course: Record<string, unknown>, index: number, currentSemester: string) => {
     return (
       <motion.div
-        key={course.id}
+        key={(course.id as string) || (course.name as string)}
         initial={animationsEnabled ? { y: 15, opacity: 0 } : {}}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: animationsEnabled ? index * 0.05 : 0 }}
@@ -78,12 +79,13 @@ export function CollegeSubjectPage() {
         <div>
           {/* Header */}
           <div className="flex items-center justify-between gap-2 mb-3">
-            <h3 className="text-base sm:text-lg font-bold text-foreground">{course.name}</h3>
+            <h3 className="text-base sm:text-lg font-bold text-foreground">{course.name as string}</h3>
           </div>
 
-          {/* Material Items List */}
+          {/* Material Items List (Static) */}
           <div className="space-y-1.5">
-            {course.materials.map((material: any, materialIndex: number) => {
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {(course.materials as Array<Record<string, string>>)?.map((material, materialIndex: number) => {
               const IconComponent = materialIcons[material.type] || FileText;
 
               return (
@@ -98,7 +100,6 @@ export function CollegeSubjectPage() {
                     {material.name}
                   </span>
 
-                  {/* Actions */}
                   <div className="flex items-center gap-1 shrink-0">
                     <span className="p-1.5 text-muted-foreground group-hover:text-primary rounded-md transition-colors">
                       <ExternalLink className="h-4 w-4" />
@@ -108,6 +109,14 @@ export function CollegeSubjectPage() {
               );
             })}
           </div>
+
+          {/* Dynamic Materials from Supabase Admin Dashboard */}
+          <DynamicMaterials 
+            academicYear={yearId || 'year1'} 
+            department={deptId || 'mechatronics'} 
+            semester={currentSemester} 
+            courseName={course.name as string} 
+          />
         </div>
       </motion.div>
     );
@@ -147,13 +156,15 @@ export function CollegeSubjectPage() {
 
         <TabsContent value="semester1">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-            {courses.semester1.map((course: any, index: number) => renderCourseCard(course, index))}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {courses.semester1.map((course: Record<string, unknown>, index: number) => renderCourseCard(course, index, 'first'))}
           </div>
         </TabsContent>
 
         <TabsContent value="semester2">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 sm:gap-4">
-            {courses.semester2.map((course: any, index: number) => renderCourseCard(course, index))}
+            {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */}
+            {courses.semester2.map((course: Record<string, unknown>, index: number) => renderCourseCard(course, index, 'second'))}
           </div>
         </TabsContent>
       </Tabs>
