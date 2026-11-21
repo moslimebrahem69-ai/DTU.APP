@@ -61,6 +61,7 @@ interface MaterialRecord {
   course_name: string;
   file_url: string;
   views_count: number;
+  unique_views_count: number;
   created_at: string;
 }
 
@@ -270,7 +271,6 @@ export function AdminDashboard() {
   });
   const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementRecord | null>(null);
 
-  // نافذة إدارة تعليقات التنبيه والرد كـ أدمن
   const [managingCommentsAnn, setManagingCommentsAnn] = useState<AnnouncementRecord | null>(null);
   const [annCommentsList, setAnnCommentsList] = useState<AnnouncementComment[]>([]);
   const [loadingAnnComments, setLoadingAnnComments] = useState(false);
@@ -326,9 +326,9 @@ export function AdminDashboard() {
             action_url: row.action_url,
             action_label: row.action_label,
             is_active: row.is_active,
-            likes_count: row.likes_count || 0,
-            hearts_count: row.hearts_count || 0,
-            fires_count: row.fires_count || 0,
+            likes_count: Number(row.likes_count) || 0,
+            hearts_count: Number(row.hearts_count) || 0,
+            fires_count: Number(row.fires_count) || 0,
             created_at: row.created_at,
             comments_count: row.announcement_comments?.[0]?.count ?? 0,
           })
@@ -440,11 +440,14 @@ export function AdminDashboard() {
 
   const analytics = useMemo(() => {
     let materialViews = 0;
+    let materialUniqueViews = 0;
     let topMaterial: MaterialRecord | null = null;
 
     for (const item of materials) {
       const views = item.views_count || 0;
+      const uniqueViews = item.unique_views_count || 0;
       materialViews += views;
+      materialUniqueViews += uniqueViews;
       if (!topMaterial || views > (topMaterial.views_count || 0)) {
         topMaterial = item;
       }
@@ -468,6 +471,7 @@ export function AdminDashboard() {
       totalExams: exams.length,
       totalViews: materialViews + examViews,
       materialViews,
+      materialUniqueViews,
       examViews,
       activeAnnouncementsCount,
       topMaterial: topMaterial && (topMaterial.views_count || 0) > 0 ? topMaterial : null,
@@ -723,7 +727,6 @@ export function AdminDashboard() {
     }
   };
 
-  // دوال إدارة التنبيهات العاجلة والتعليقات عليها
   const handleSubmitAnnouncement = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!announcementForm.title.trim() || !announcementForm.message.trim()) {
@@ -755,6 +758,9 @@ export function AdminDashboard() {
       if (data) {
         const created: AnnouncementRecord = {
           ...(data as AnnouncementRow),
+          likes_count: 0,
+          hearts_count: 0,
+          fires_count: 0,
           comments_count: 0,
         };
         setAnnouncements((prev) => [created, ...prev]);
@@ -1149,7 +1155,9 @@ export function AdminDashboard() {
             <div>
               <p className="text-xs text-muted-foreground font-medium">الماتريال المرفوعة</p>
               <p className="text-2xl font-black">{analytics.totalMaterials}</p>
-              <p className="text-[10px] text-muted-foreground">{analytics.materialViews} تحميل/عرض</p>
+              <p className="text-[10px] text-muted-foreground">
+                {analytics.materialUniqueViews} طالب • {analytics.materialViews} فتح
+              </p>
             </div>
           </div>
 
@@ -1195,7 +1203,7 @@ export function AdminDashboard() {
                   </div>
                 </div>
                 <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-black shrink-0">
-                  {analytics.topMaterial.views_count} مرة
+                  {analytics.topMaterial.unique_views_count || 0} طالب ({analytics.topMaterial.views_count} فتح)
                 </span>
               </div>
             )}
@@ -1442,8 +1450,11 @@ export function AdminDashboard() {
                             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                               {CATEGORY_LABELS[item.category] || item.category}
                             </span>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 inline-flex items-center gap-1">
+                              👤 {item.unique_views_count || 0} طالب
+                            </span>
                             <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
-                              <Eye className="w-3 h-3" /> {item.views_count || 0}
+                              <Eye className="w-3 h-3" /> {item.views_count || 0} فتح
                             </span>
                           </div>
 
@@ -1949,7 +1960,7 @@ export function AdminDashboard() {
                 <div>
                   <h2 className="text-lg font-black">نشر تنبيه أو إعلان عاجل للطلاب</h2>
                   <p className="text-xs text-muted-foreground">
-                    يظهر فوراً في الصفحة الرئيسية مع تفاعلات وتعليقات الطلاب.
+                    يظهر فوراً في الصفحة الرئيسية مع تفاعلات وتعليقات الطلاب وإشعارات الموبايل.
                   </p>
                 </div>
               </div>

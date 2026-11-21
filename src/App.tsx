@@ -6,6 +6,8 @@ import { Layout } from './components/Layout/Layout';
 import { ThemeProvider } from './contexts/ThemeContext';
 import { Home } from './pages/Home';
 import { LoadingSpinner } from './components/Common/LoadingSpinner';
+import { supabase } from './lib/supabase';
+import { showPlatformNotification } from './lib/notifications';
 import './lib/i18n';
 
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -82,6 +84,38 @@ function App() {
     
     const animationsEnabled = localStorage.getItem('dtu-animations');
     document.documentElement.setAttribute('data-animations', animationsEnabled || 'true');
+  }, []);
+
+  // الاستماع اللحظي للإعلانات الجديدة على مستوى التطبيق بالكامل لإرسال إشعارات الموبايل
+  useEffect(() => {
+    const channel = supabase
+      .channel('global-announcements-notifications')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'announcements' },
+        (payload) => {
+          const newAnn = payload.new as {
+            id?: string;
+            title?: string;
+            message?: string;
+            action_url?: string | null;
+            is_active?: boolean;
+          };
+
+          if (newAnn && newAnn.is_active !== false && newAnn.title) {
+            void showPlatformNotification(
+              `📢 ${newAnn.title}`,
+              newAnn.message || '',
+              { url: newAnn.action_url, id: newAnn.id }
+            );
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, []);
 
   return (

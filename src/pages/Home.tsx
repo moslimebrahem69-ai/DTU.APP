@@ -20,11 +20,14 @@ import {
   MessageSquare,
   Send,
   ShieldCheck,
-  Loader2
+  Loader2,
+  Bell,
+  BellRing
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { supabase } from '../lib/supabase';
+import { showPlatformNotification } from '../lib/notifications';
 
 type ReactionKey = 'like' | 'heart' | 'fire';
 
@@ -75,7 +78,7 @@ const sections = [
   {
     id: 'ai-tools',
     titleKey: 'aiTools',
-    desc: 'أدوات ذكية للتوليد والتلخيص والبحث',
+    desc: 'أدوات ذكية للتلخيص والبحث',
     count: '100+',
     icon: Bot,
     gradient: 'from-amber-500 to-rose-500',
@@ -157,8 +160,13 @@ export function Home() {
     return localStorage.getItem('dtu-student-year') || 'all';
   });
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+  const [notifPermission, setNotifPermission] = useState<NotificationPermission>(() => {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      return Notification.permission;
+    }
+    return 'default';
+  });
 
-  // تفاعلات الطالب المحفوظة محلياً: { [announcementId]: ['like', 'heart'] }
   const [userReactions, setUserReactions] = useState<Record<string, ReactionKey[]>>(() => {
     try {
       const saved = localStorage.getItem('dtu-ann-reactions');
@@ -168,7 +176,6 @@ export function Home() {
     }
   });
 
-  // حالة التعليقات لكل إعلان
   const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
   const [commentsByAnn, setCommentsByAnn] = useState<Record<string, AnnouncementComment[]>>({});
   const [loadingCommentsId, setLoadingCommentsId] = useState<string | null>(null);
@@ -178,6 +185,7 @@ export function Home() {
   const [commentInput, setCommentInput] = useState<string>('');
   const [submittingComment, setSubmittingComment] = useState<boolean>(false);
 
+  // جلب الإعلانات + تحديث القائمة لحظياً عند إضافة إعلان جديد
   useEffect(() => {
     async function fetchAnnouncements() {
       const { data, error } = await supabase
@@ -197,9 +205,9 @@ export function Home() {
           action_url: row.action_url,
           action_label: row.action_label,
           is_active: row.is_active,
-          likes_count: row.likes_count || 0,
-          hearts_count: row.hearts_count || 0,
-          fires_count: row.fires_count || 0,
+          likes_count: Number(row.likes_count) || 0,
+          hearts_count: Number(row.hearts_count) || 0,
+          fires_count: Number(row.fires_count) || 0,
           created_at: row.created_at,
           comments_count: row.announcement_comments?.[0]?.count ?? 0,
         }));
@@ -208,14 +216,69 @@ export function Home() {
     }
 
     fetchAnnouncements();
+
+    const channel = supabase
+      .channel('home-announcements-feed')
+      .on(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'announcements' },
+        (payload) => {
+          const newRow = payload.new as AnnouncementRow;
+          if (!newRow.is_active) return;
+
+          const item: AnnouncementItem = {
+            id: newRow.id,
+            title: newRow.title,
+            message: newRow.message,
+            academic_year: newRow.academic_year,
+            department: newRow.department,
+            priority: newRow.priority,
+            action_url: newRow.action_url,
+            action_label: newRow.action_label,
+            is_active: newRow.is_active,
+            likes_count: Number(newRow.likes_count) || 0,
+            hearts_count: Number(newRow.hearts_count) || 0,
+            fires_count: Number(newRow.fires_count) || 0,
+            created_at: newRow.created_at,
+            comments_count: 0,
+          };
+
+          setAnnouncements((prev) =>
+            prev.some((a) => a.id === item.id) ? prev : [item, ...prev]
+          );
+
+          void showPlatformNotification(
+            `📢 ${newRow.title}`,
+            newRow.message,
+            { url: newRow.action_url, id: newRow.id }
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      void supabase.removeChannel(channel);
+    };
   }, []);
+
+  const handleEnableNotifications = async () => {
+    if (!('Notification' in window)) return;
+    const permission = await Notification.requestPermission();
+    setNotifPermission(permission);
+    if (permission === 'granted') {
+      void showPlatformNotification(
+        'تم تفعيل إشعارات DTU Hub ✅',
+        'هتوصلك التنبيهات والاختبارات الجديدة أول بأول.'
+      );
+    }
+  };
 
   const handleYearFilterChange = (yearId: string) => {
     setSelectedYearFilter(yearId);
     localStorage.setItem('dtu-student-year', yearId);
   };
 
-  const handleToggleReaction = (announcementId: string, key: ReactionKey) => {
+  const handleToggleReaction = async (announcementId: string, key: ReactionKey) => {
     const currentForAnn = userReactions[announcementId] || [];
     const alreadyReacted = currentForAnn.includes(key);
     const delta = alreadyReacted ? -1 : 1;
@@ -239,11 +302,36 @@ export function Home() {
       )
     );
 
-    void supabase.rpc('toggle_announcement_reaction', {
+    const { data, error } = await supabase.rpc('toggle_announcement_reaction', {
       row_id: announcementId,
       reaction_type: key,
       delta,
     });
+
+    if (error) {
+      console.error('Reaction update failed:', error.message);
+      return;
+    }
+
+    if (Array.isArray(data) && data[0]) {
+      const updatedCounts = data[0] as {
+        likes_count: number;
+        hearts_count: number;
+        fires_count: number;
+      };
+      setAnnouncements((prev) =>
+        prev.map((ann) =>
+          ann.id === announcementId
+            ? {
+                ...ann,
+                likes_count: Number(updatedCounts.likes_count) || 0,
+                hearts_count: Number(updatedCounts.hearts_count) || 0,
+                fires_count: Number(updatedCounts.fires_count) || 0,
+              }
+            : ann
+        )
+      );
+    }
   };
 
   const handleToggleCommentsSection = async (announcementId: string) => {
@@ -380,7 +468,6 @@ export function Home() {
 
   return (
     <div className="space-y-6 pb-12 px-2 sm:px-0">
-      
       {/* Hero Banner */}
       <motion.div
         ref={heroRef as React.RefObject<HTMLDivElement>}
@@ -404,12 +491,25 @@ export function Home() {
           </p>
         </div>
 
-        <div className="hidden sm:flex flex-col items-end gap-2 relative z-10">
-          <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/20 px-3 py-1.5 rounded-full border border-emerald-500/40">
-            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            جاهز للإنجاز
+        <div className="flex flex-col items-end gap-2 relative z-10">
+          {typeof window !== 'undefined' && 'Notification' in window && notifPermission !== 'granted' ? (
+            <button
+              type="button"
+              onClick={handleEnableNotifications}
+              className="inline-flex items-center gap-1.5 text-xs font-bold text-primary-foreground bg-primary px-3 py-1.5 rounded-full shadow-sm hover:opacity-90 transition-opacity cursor-pointer"
+            >
+              <Bell className="w-3.5 h-3.5" />
+              <span>تفعيل الإشعارات</span>
+            </button>
+          ) : (
+            <span className="inline-flex items-center gap-1.5 text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-500/20 px-3 py-1.5 rounded-full border border-emerald-500/40">
+              <BellRing className="w-3.5 h-3.5 text-emerald-500" />
+              <span>الإشعارات نشطة</span>
+            </span>
+          )}
+          <span className="hidden sm:inline text-[10px] text-muted-foreground font-semibold">
+            التحديث الأخير نشط 🚀
           </span>
-          <span className="text-[10px] text-muted-foreground font-semibold">التحديث الأخير نشط 🚀</span>
         </div>
       </motion.div>
 
@@ -456,7 +556,6 @@ export function Home() {
                   exit={{ opacity: 0, height: 0 }}
                   className={`rounded-2xl border p-3.5 sm:p-4 space-y-3 shadow-2xs ${style.container}`}
                 >
-                  {/* Top Row: Content & Action */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                     <div className="flex items-start gap-3">
                       <div className={`mt-0.5 shrink-0 ${style.iconColor}`}>
@@ -503,7 +602,6 @@ export function Home() {
                     </div>
                   </div>
 
-                  {/* Interactive Bar: Reactions + Comments Toggle */}
                   <div className="pt-2.5 border-t border-border/30 flex items-center justify-between gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5">
                       {REACTION_BUTTONS.map((btn) => {
@@ -519,7 +617,7 @@ export function Home() {
                           <button
                             key={btn.key}
                             type="button"
-                            onClick={() => handleToggleReaction(item.id, btn.key)}
+                            onClick={() => void handleToggleReaction(item.id, btn.key)}
                             className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
                               isSelected
                                 ? 'bg-primary/15 border-primary/50 text-primary scale-105'
@@ -548,7 +646,6 @@ export function Home() {
                     </button>
                   </div>
 
-                  {/* Collapsible Comments Drawer */}
                   <AnimatePresence>
                     {isCommentsOpen && (
                       <motion.div
@@ -600,7 +697,6 @@ export function Home() {
                             </div>
                           )}
 
-                          {/* Add Comment Form */}
                           <form
                             onSubmit={(e) => handleAddComment(e, item.id)}
                             className="flex flex-col sm:flex-row gap-2"
@@ -687,7 +783,6 @@ export function Home() {
           </motion.button>
         ))}
       </div>
-
     </div>
   );
 }
