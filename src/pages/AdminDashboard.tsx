@@ -36,6 +36,9 @@ import {
   Megaphone,
   TrendingUp,
   BarChart3,
+  MessageSquare,
+  Send,
+  ShieldCheck,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Session } from "@supabase/supabase-js";
@@ -82,7 +85,7 @@ interface ExamRecord {
   created_at: string;
 }
 
-interface AnnouncementRecord {
+interface AnnouncementRow {
   id: string;
   title: string;
   message: string;
@@ -92,6 +95,23 @@ interface AnnouncementRecord {
   action_url: string | null;
   action_label: string | null;
   is_active: boolean;
+  likes_count: number;
+  hearts_count: number;
+  fires_count: number;
+  created_at: string;
+  announcement_comments?: Array<{ count: number }>;
+}
+
+interface AnnouncementRecord extends Omit<AnnouncementRow, "announcement_comments"> {
+  comments_count: number;
+}
+
+interface AnnouncementComment {
+  id: string;
+  announcement_id: string;
+  student_name: string;
+  comment_text: string;
+  is_admin_reply: boolean;
   created_at: string;
 }
 
@@ -193,14 +213,12 @@ export function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("manage_materials");
 
-  // البيانات الأساسية
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
   const [exams, setExams] = useState<ExamRecord[]>([]);
   const [announcements, setAnnouncements] = useState<AnnouncementRecord[]>([]);
   const [fetchingData, setFetchingData] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // الفلاتر والترتيب
   const [searchQuery, setSearchQuery] = useState("");
   const [filterYear, setFilterYear] = useState("all");
   const [filterDept, setFilterDept] = useState("all");
@@ -208,7 +226,6 @@ export function AdminDashboard() {
   const [filterCategory, setFilterCategory] = useState("all");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
 
-  // رفع ماتريال
   const [uploadMode, setUploadMode] = useState<UploadMode>("file");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
@@ -223,7 +240,6 @@ export function AdminDashboard() {
     file_url: "",
   });
 
-  // إضافة اختبار
   const [showExamForm, setShowExamForm] = useState(false);
   const [examSourceMode, setExamSourceMode] = useState<ExamSourceMode>("html_paste");
   const [examForm, setExamForm] = useState({
@@ -243,7 +259,6 @@ export function AdminDashboard() {
     is_ai_generated: true,
   });
 
-  // إضافة تنبيه عاجل
   const [announcementForm, setAnnouncementForm] = useState({
     title: "",
     message: "",
@@ -255,7 +270,13 @@ export function AdminDashboard() {
   });
   const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementRecord | null>(null);
 
-  // نوافذ التعديل والمعاينة
+  // نافذة إدارة تعليقات التنبيه والرد كـ أدمن
+  const [managingCommentsAnn, setManagingCommentsAnn] = useState<AnnouncementRecord | null>(null);
+  const [annCommentsList, setAnnCommentsList] = useState<AnnouncementComment[]>([]);
+  const [loadingAnnComments, setLoadingAnnComments] = useState(false);
+  const [adminReplyText, setAdminReplyText] = useState("");
+  const [sendingAdminReply, setSendingAdminReply] = useState(false);
+
   const [editingItem, setEditingItem] = useState<MaterialRecord | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
   const [previewItem, setPreviewItem] = useState<MaterialRecord | null>(null);
@@ -280,7 +301,10 @@ export function AdminDashboard() {
       const [matRes, examRes, annRes] = await Promise.all([
         supabase.from("materials").select("*").order("created_at", { ascending: false }),
         supabase.from("exams").select("*").order("created_at", { ascending: false }),
-        supabase.from("announcements").select("*").order("created_at", { ascending: false }),
+        supabase
+          .from("announcements")
+          .select("*, announcement_comments(count)")
+          .order("created_at", { ascending: false }),
       ]);
 
       if (matRes.error) throw matRes.error;
@@ -291,7 +315,25 @@ export function AdminDashboard() {
       }
 
       if (!annRes.error && annRes.data) {
-        setAnnouncements(annRes.data as AnnouncementRecord[]);
+        const mappedAnns: AnnouncementRecord[] = (annRes.data as AnnouncementRow[]).map(
+          (row) => ({
+            id: row.id,
+            title: row.title,
+            message: row.message,
+            academic_year: row.academic_year,
+            department: row.department,
+            priority: row.priority,
+            action_url: row.action_url,
+            action_label: row.action_label,
+            is_active: row.is_active,
+            likes_count: row.likes_count || 0,
+            hearts_count: row.hearts_count || 0,
+            fires_count: row.fires_count || 0,
+            created_at: row.created_at,
+            comments_count: row.announcement_comments?.[0]?.count ?? 0,
+          })
+        );
+        setAnnouncements(mappedAnns);
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "فشل تحميل البيانات.";
@@ -396,7 +438,6 @@ export function AdminDashboard() {
     );
   }, [editingItem]);
 
-  // إحصائيات التفاعل والتحليلات الحقيقية (Real Analytics)
   const analytics = useMemo(() => {
     let materialViews = 0;
     let topMaterial: MaterialRecord | null = null;
@@ -682,7 +723,7 @@ export function AdminDashboard() {
     }
   };
 
-  // دوال إدارة التنبيهات العاجلة
+  // دوال إدارة التنبيهات العاجلة والتعليقات عليها
   const handleSubmitAnnouncement = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!announcementForm.title.trim() || !announcementForm.message.trim()) {
@@ -712,7 +753,11 @@ export function AdminDashboard() {
       if (error) throw error;
 
       if (data) {
-        setAnnouncements((prev) => [data as AnnouncementRecord, ...prev]);
+        const created: AnnouncementRecord = {
+          ...(data as AnnouncementRow),
+          comments_count: 0,
+        };
+        setAnnouncements((prev) => [created, ...prev]);
       } else {
         await fetchAllData();
       }
@@ -808,6 +853,89 @@ export function AdminDashboard() {
       showNotification("error", errorMsg);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const handleOpenManageComments = async (ann: AnnouncementRecord) => {
+    setManagingCommentsAnn(ann);
+    setAdminReplyText("");
+    try {
+      setLoadingAnnComments(true);
+      const { data, error } = await supabase
+        .from("announcement_comments")
+        .select("*")
+        .eq("announcement_id", ann.id)
+        .order("created_at", { ascending: true });
+
+      if (!error && data) {
+        setAnnCommentsList(data as AnnouncementComment[]);
+      }
+    } finally {
+      setLoadingAnnComments(false);
+    }
+  };
+
+  const handleSendAdminReply = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!managingCommentsAnn || !adminReplyText.trim() || sendingAdminReply) return;
+
+    try {
+      setSendingAdminReply(true);
+      const { data, error } = await supabase
+        .from("announcement_comments")
+        .insert([
+          {
+            announcement_id: managingCommentsAnn.id,
+            student_name: "مسلم إبراهيم (الأدمن)",
+            comment_text: adminReplyText.trim(),
+            is_admin_reply: true,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setAnnCommentsList((prev) => [...prev, data as AnnouncementComment]);
+        setAnnouncements((prev) =>
+          prev.map((a) =>
+            a.id === managingCommentsAnn.id
+              ? { ...a, comments_count: a.comments_count + 1 }
+              : a
+          )
+        );
+      }
+      setAdminReplyText("");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "فشل إرسال الرد.";
+      showNotification("error", errorMsg);
+    } finally {
+      setSendingAdminReply(false);
+    }
+  };
+
+  const handleDeleteComment = async (commentId: string) => {
+    if (!managingCommentsAnn) return;
+    try {
+      const { error } = await supabase
+        .from("announcement_comments")
+        .delete()
+        .eq("id", commentId);
+
+      if (error) throw error;
+
+      setAnnCommentsList((prev) => prev.filter((c) => c.id !== commentId));
+      setAnnouncements((prev) =>
+        prev.map((a) =>
+          a.id === managingCommentsAnn.id
+            ? { ...a, comments_count: Math.max(0, a.comments_count - 1) }
+            : a
+        )
+      );
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "فشل حذف التعليق.";
+      showNotification("error", errorMsg);
     }
   };
 
@@ -1001,7 +1129,7 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* KPI Stats & Real Analytics Cards */}
+        {/* KPI Stats Cards */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
           <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3.5">
             <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
@@ -1802,7 +1930,7 @@ export function AdminDashboard() {
         )}
 
         {/* ========================================================= */}
-        {/* TAB 3: URGENT ANNOUNCEMENTS CENTER */}
+        {/* TAB 3: URGENT ANNOUNCEMENTS & COMMENTS MANAGEMENT */}
         {/* ========================================================= */}
         {activeTab === "announcements" && (
           <motion.div
@@ -1810,7 +1938,6 @@ export function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-6"
           >
-            {/* Create Announcement Card */}
             <form
               onSubmit={handleSubmitAnnouncement}
               className="bg-card rounded-3xl border border-border/50 p-6 space-y-5 shadow-sm"
@@ -1822,7 +1949,7 @@ export function AdminDashboard() {
                 <div>
                   <h2 className="text-lg font-black">نشر تنبيه أو إعلان عاجل للطلاب</h2>
                   <p className="text-xs text-muted-foreground">
-                    يظهر فوراً في الصفحة الرئيسية للطلاب مع إمكانية إخفائه أو تعديله في أي وقت.
+                    يظهر فوراً في الصفحة الرئيسية مع تفاعلات وتعليقات الطلاب.
                   </p>
                 </div>
               </div>
@@ -1948,9 +2075,11 @@ export function AdminDashboard() {
               </button>
             </form>
 
-            {/* Existing Announcements List */}
+            {/* Announcements List with Reactions & Comments Control */}
             <div className="bg-card rounded-3xl border border-border/50 p-5 sm:p-6 space-y-4">
-              <h3 className="font-black text-base">سجل التنبيهات والإعلانات ({announcements.length})</h3>
+              <h3 className="font-black text-base">
+                سجل التنبيهات وتفاعلات الطلاب ({announcements.length})
+              </h3>
 
               {announcements.length === 0 ? (
                 <div className="py-10 text-center text-sm text-muted-foreground">
@@ -1961,13 +2090,13 @@ export function AdminDashboard() {
                   {announcements.map((ann) => (
                     <div
                       key={ann.id}
-                      className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                      className={`p-4 rounded-2xl border transition-all flex flex-col lg:flex-row lg:items-center justify-between gap-4 ${
                         ann.is_active
                           ? "bg-accent/15 border-border/60"
                           : "bg-muted/20 border-border/30 opacity-65"
                       }`}
                     >
-                      <div className="space-y-1">
+                      <div className="space-y-1.5">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span
                             className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
@@ -1985,11 +2114,31 @@ export function AdminDashboard() {
                             • {YEAR_LABELS[ann.academic_year] || ann.academic_year}
                           </span>
                         </div>
+
                         <h4 className="font-bold text-sm sm:text-base">{ann.title}</h4>
                         <p className="text-xs text-muted-foreground">{ann.message}</p>
+
+                        {/* Reactions & Comments Stats */}
+                        <div className="flex items-center gap-3 pt-1 text-xs font-bold text-muted-foreground">
+                          <span>👍 {ann.likes_count}</span>
+                          <span>❤️ {ann.hearts_count}</span>
+                          <span>🔥 {ann.fires_count}</span>
+                          <span>•</span>
+                          <span className="text-primary">
+                            💬 {ann.comments_count} تعليق
+                          </span>
+                        </div>
                       </div>
 
-                      <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                      <div className="flex items-center gap-2 flex-wrap shrink-0 self-end lg:self-center">
+                        <button
+                          type="button"
+                          onClick={() => handleOpenManageComments(ann)}
+                          className="px-3 py-2 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary text-xs font-bold flex items-center gap-1.5"
+                        >
+                          <MessageSquare className="w-3.5 h-3.5" /> التعليقات ({ann.comments_count})
+                        </button>
+
                         <button
                           type="button"
                           onClick={() => handleToggleAnnouncementActive(ann)}
@@ -2312,6 +2461,109 @@ export function AdminDashboard() {
           </motion.div>
         )}
       </div>
+
+      {/* MANAGE ANNOUNCEMENT COMMENTS & ADMIN REPLY MODAL */}
+      <AnimatePresence>
+        {managingCommentsAnn && (
+          <div className="fixed inset-0 z-50 bg-black/65 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-card border border-border rounded-3xl max-w-xl w-full p-6 space-y-4 shadow-2xl"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                <div className="overflow-hidden">
+                  <h3 className="text-base sm:text-lg font-black flex items-center gap-2">
+                    <MessageSquare className="w-5 h-5 text-primary shrink-0" />
+                    <span className="truncate">تعليقات: {managingCommentsAnn.title}</span>
+                  </h3>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    رد بشارة الأدمن الرسمية أو احذف أي تعليق غير مناسب
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setManagingCommentsAnn(null)}
+                  className="p-1.5 rounded-lg hover:bg-accent shrink-0"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <div className="max-h-72 overflow-y-auto space-y-2.5 pr-1">
+                {loadingAnnComments ? (
+                  <p className="text-center text-xs text-muted-foreground py-8">
+                    جاري تحميل التعليقات...
+                  </p>
+                ) : annCommentsList.length === 0 ? (
+                  <p className="text-center text-xs text-muted-foreground py-8">
+                    لا توجد تعليقات على هذا التنبيه حتى الآن.
+                  </p>
+                ) : (
+                  annCommentsList.map((comment) => (
+                    <div
+                      key={comment.id}
+                      className={`p-3 rounded-2xl border flex items-start justify-between gap-3 ${
+                        comment.is_admin_reply
+                          ? "bg-primary/10 border-primary/30"
+                          : "bg-accent/20 border-border/50"
+                      }`}
+                    >
+                      <div className="space-y-1 text-xs">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-black text-foreground">
+                            {comment.student_name}
+                          </span>
+                          {comment.is_admin_reply && (
+                            <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">
+                              <ShieldCheck className="w-3 h-3" /> الإدارة
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-foreground/90 leading-relaxed">
+                          {comment.comment_text}
+                        </p>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteComment(comment.id)}
+                        className="p-1.5 rounded-lg text-red-500 hover:bg-red-500/10 shrink-0"
+                        title="حذف التعليق"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))
+                )}
+              </div>
+
+              <form
+                onSubmit={handleSendAdminReply}
+                className="pt-3 border-t border-border/50 flex gap-2"
+              >
+                <input
+                  type="text"
+                  required
+                  value={adminReplyText}
+                  onChange={(e) => setAdminReplyText(e.target.value)}
+                  placeholder="اكتب رداً رسمياً كـ أدمن..."
+                  className={inputClasses}
+                />
+                <button
+                  type="submit"
+                  disabled={sendingAdminReply}
+                  className="px-5 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-xs flex items-center gap-1.5 shrink-0 disabled:opacity-50"
+                >
+                  <Send className="w-4 h-4" />
+                  <span>{sendingAdminReply ? "..." : "رد"}</span>
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       {/* EDIT MATERIAL MODAL */}
       <AnimatePresence>

@@ -16,13 +16,28 @@ import {
   CheckCircle2,
   Info,
   X,
-  ArrowUpLeft
+  ArrowUpLeft,
+  MessageSquare,
+  Send,
+  ShieldCheck,
+  Loader2
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { supabase } from '../lib/supabase';
 
-interface AnnouncementItem {
+type ReactionKey = 'like' | 'heart' | 'fire';
+
+interface AnnouncementComment {
+  id: string;
+  announcement_id: string;
+  student_name: string;
+  comment_text: string;
+  is_admin_reply: boolean;
+  created_at: string;
+}
+
+interface AnnouncementRow {
   id: string;
   title: string;
   message: string;
@@ -32,7 +47,15 @@ interface AnnouncementItem {
   action_url: string | null;
   action_label: string | null;
   is_active: boolean;
+  likes_count: number;
+  hearts_count: number;
+  fires_count: number;
   created_at: string;
+  announcement_comments?: Array<{ count: number }>;
+}
+
+interface AnnouncementItem extends Omit<AnnouncementRow, 'announcement_comments'> {
+  comments_count: number;
 }
 
 const YEAR_FILTER_OPTIONS = [
@@ -40,6 +63,12 @@ const YEAR_FILTER_OPTIONS = [
   { id: 'year1', label: 'الفرقة 1' },
   { id: 'year2', label: 'الفرقة 2' },
   { id: 'year3', label: 'الفرقة 3' },
+];
+
+const REACTION_BUTTONS: Array<{ key: ReactionKey; emoji: string; label: string }> = [
+  { key: 'like', emoji: '👍', label: 'تمام' },
+  { key: 'heart', emoji: '❤️', label: 'شكراً' },
+  { key: 'fire', emoji: '🔥', label: 'عاش' },
 ];
 
 const sections = [
@@ -106,6 +135,17 @@ const sections = [
   }
 ];
 
+function formatRelativeTime(isoDate: string): string {
+  const diffSec = Math.floor((Date.now() - new Date(isoDate).getTime()) / 1000);
+  if (diffSec < 60) return 'الآن';
+  const diffMin = Math.floor(diffSec / 60);
+  if (diffMin < 60) return `منذ ${diffMin} د`;
+  const diffHours = Math.floor(diffMin / 60);
+  if (diffHours < 24) return `منذ ${diffHours} س`;
+  const diffDays = Math.floor(diffHours / 24);
+  return `منذ ${diffDays} ي`;
+}
+
 export function Home() {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -118,16 +158,52 @@ export function Home() {
   });
   const [dismissedIds, setDismissedIds] = useState<string[]>([]);
 
+  // تفاعلات الطالب المحفوظة محلياً: { [announcementId]: ['like', 'heart'] }
+  const [userReactions, setUserReactions] = useState<Record<string, ReactionKey[]>>(() => {
+    try {
+      const saved = localStorage.getItem('dtu-ann-reactions');
+      return saved ? (JSON.parse(saved) as Record<string, ReactionKey[]>) : {};
+    } catch {
+      return {};
+    }
+  });
+
+  // حالة التعليقات لكل إعلان
+  const [expandedCommentsId, setExpandedCommentsId] = useState<string | null>(null);
+  const [commentsByAnn, setCommentsByAnn] = useState<Record<string, AnnouncementComment[]>>({});
+  const [loadingCommentsId, setLoadingCommentsId] = useState<string | null>(null);
+  const [studentName, setStudentName] = useState<string>(() => {
+    return localStorage.getItem('dtu-student-name') || '';
+  });
+  const [commentInput, setCommentInput] = useState<string>('');
+  const [submittingComment, setSubmittingComment] = useState<boolean>(false);
+
   useEffect(() => {
     async function fetchAnnouncements() {
       const { data, error } = await supabase
         .from('announcements')
-        .select('*')
+        .select('*, announcement_comments(count)')
         .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (!error && data) {
-        setAnnouncements(data as AnnouncementItem[]);
+        const mapped: AnnouncementItem[] = (data as AnnouncementRow[]).map((row) => ({
+          id: row.id,
+          title: row.title,
+          message: row.message,
+          academic_year: row.academic_year,
+          department: row.department,
+          priority: row.priority,
+          action_url: row.action_url,
+          action_label: row.action_label,
+          is_active: row.is_active,
+          likes_count: row.likes_count || 0,
+          hearts_count: row.hearts_count || 0,
+          fires_count: row.fires_count || 0,
+          created_at: row.created_at,
+          comments_count: row.announcement_comments?.[0]?.count ?? 0,
+        }));
+        setAnnouncements(mapped);
       }
     }
 
@@ -139,10 +215,118 @@ export function Home() {
     localStorage.setItem('dtu-student-year', yearId);
   };
 
+  const handleToggleReaction = (announcementId: string, key: ReactionKey) => {
+    const currentForAnn = userReactions[announcementId] || [];
+    const alreadyReacted = currentForAnn.includes(key);
+    const delta = alreadyReacted ? -1 : 1;
+
+    const updatedForAnn = alreadyReacted
+      ? currentForAnn.filter((r) => r !== key)
+      : [...currentForAnn, key];
+
+    const nextReactions = { ...userReactions, [announcementId]: updatedForAnn };
+    setUserReactions(nextReactions);
+    localStorage.setItem('dtu-ann-reactions', JSON.stringify(nextReactions));
+
+    const colName =
+      key === 'like' ? 'likes_count' : key === 'heart' ? 'hearts_count' : 'fires_count';
+
+    setAnnouncements((prev) =>
+      prev.map((ann) =>
+        ann.id === announcementId
+          ? { ...ann, [colName]: Math.max(0, (ann[colName] || 0) + delta) }
+          : ann
+      )
+    );
+
+    void supabase.rpc('toggle_announcement_reaction', {
+      row_id: announcementId,
+      reaction_type: key,
+      delta,
+    });
+  };
+
+  const handleToggleCommentsSection = async (announcementId: string) => {
+    if (expandedCommentsId === announcementId) {
+      setExpandedCommentsId(null);
+      return;
+    }
+
+    setExpandedCommentsId(announcementId);
+
+    if (!commentsByAnn[announcementId]) {
+      try {
+        setLoadingCommentsId(announcementId);
+        const { data, error } = await supabase
+          .from('announcement_comments')
+          .select('*')
+          .eq('announcement_id', announcementId)
+          .order('created_at', { ascending: true });
+
+        if (!error && data) {
+          setCommentsByAnn((prev) => ({
+            ...prev,
+            [announcementId]: data as AnnouncementComment[],
+          }));
+        }
+      } finally {
+        setLoadingCommentsId(null);
+      }
+    }
+  };
+
+  const handleAddComment = async (e: React.FormEvent, announcementId: string) => {
+    e.preventDefault();
+    const cleanName = studentName.trim();
+    const cleanText = commentInput.trim();
+    if (!cleanName || !cleanText || submittingComment) return;
+
+    try {
+      setSubmittingComment(true);
+      localStorage.setItem('dtu-student-name', cleanName);
+
+      const { data, error } = await supabase
+        .from('announcement_comments')
+        .insert([
+          {
+            announcement_id: announcementId,
+            student_name: cleanName,
+            comment_text: cleanText,
+            is_admin_reply: false,
+          },
+        ])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setCommentsByAnn((prev) => ({
+          ...prev,
+          [announcementId]: [...(prev[announcementId] || []), data as AnnouncementComment],
+        }));
+        setAnnouncements((prev) =>
+          prev.map((ann) =>
+            ann.id === announcementId
+              ? { ...ann, comments_count: ann.comments_count + 1 }
+              : ann
+          )
+        );
+      }
+      setCommentInput('');
+    } finally {
+      setSubmittingComment(false);
+    }
+  };
+
   const visibleAnnouncements = useMemo(() => {
     return announcements.filter((item) => {
       if (dismissedIds.includes(item.id)) return false;
-      if (selectedYearFilter !== 'all' && item.academic_year !== 'all' && item.academic_year !== selectedYearFilter) {
+      if (
+        selectedYearFilter !== 'all' &&
+        item.academic_year !== 'all' &&
+        item.academic_year !== selectedYearFilter
+      ) {
         return false;
       }
       return true;
@@ -197,7 +381,7 @@ export function Home() {
   return (
     <div className="space-y-6 pb-12 px-2 sm:px-0">
       
-      {/* Enhanced Hero Banner with Glowing Ambient Effect */}
+      {/* Hero Banner */}
       <motion.div
         ref={heroRef as React.RefObject<HTMLDivElement>}
         initial={animationsEnabled ? { y: 20, opacity: 0 } : {}}
@@ -229,7 +413,7 @@ export function Home() {
         </div>
       </motion.div>
 
-      {/* Smart Announcements Center Banner */}
+      {/* Interactive Announcements Center */}
       {announcements.length > 0 && (
         <div className="space-y-2.5">
           <div className="flex items-center justify-between gap-2 px-1">
@@ -260,6 +444,9 @@ export function Home() {
             {visibleAnnouncements.map((item) => {
               const style = getPriorityStyles(item.priority);
               const IconComp = style.icon;
+              const activeReactions = userReactions[item.id] || [];
+              const isCommentsOpen = expandedCommentsId === item.id;
+              const itemComments = commentsByAnn[item.id] || [];
 
               return (
                 <motion.div
@@ -267,48 +454,190 @@ export function Home() {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, height: 0 }}
-                  className={`rounded-2xl border p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs ${style.container}`}
+                  className={`rounded-2xl border p-3.5 sm:p-4 space-y-3 shadow-2xs ${style.container}`}
                 >
-                  <div className="flex items-start gap-3">
-                    <div className={`mt-0.5 shrink-0 ${style.iconColor}`}>
-                      <IconComp className="w-5 h-5" />
-                    </div>
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${style.badge}`}>
-                          {style.label}
-                        </span>
-                        <h3 className="text-xs sm:text-sm font-black text-foreground">
-                          {item.title}
-                        </h3>
+                  {/* Top Row: Content & Action */}
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                    <div className="flex items-start gap-3">
+                      <div className={`mt-0.5 shrink-0 ${style.iconColor}`}>
+                        <IconComp className="w-5 h-5" />
                       </div>
-                      <p className="text-xs text-muted-foreground leading-relaxed font-medium">
-                        {item.message}
-                      </p>
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${style.badge}`}>
+                            {style.label}
+                          </span>
+                          <h3 className="text-xs sm:text-sm font-black text-foreground">
+                            {item.title}
+                          </h3>
+                          <span className="text-[10px] text-muted-foreground">
+                            • {formatRelativeTime(item.created_at)}
+                          </span>
+                        </div>
+                        <p className="text-xs text-muted-foreground leading-relaxed font-medium">
+                          {item.message}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                      {item.action_url && (
+                        <button
+                          type="button"
+                          onClick={() => handleAnnouncementAction(item.action_url as string)}
+                          className="px-3.5 py-1.5 rounded-xl bg-card hover:bg-accent border border-border/60 text-foreground text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <span>{item.action_label || 'عرض التفاصيل'}</span>
+                          <ArrowUpLeft className="w-3.5 h-3.5" />
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => setDismissedIds((prev) => [...prev, item.id])}
+                        className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                        title="إخفاء التنبيه"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
-                    {item.action_url && (
-                      <button
-                        type="button"
-                        onClick={() => handleAnnouncementAction(item.action_url as string)}
-                        className="px-3.5 py-1.5 rounded-xl bg-card hover:bg-accent border border-border/60 text-foreground text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                      >
-                        <span>{item.action_label || 'عرض التفاصيل'}</span>
-                        <ArrowUpLeft className="w-3.5 h-3.5" />
-                      </button>
-                    )}
+                  {/* Interactive Bar: Reactions + Comments Toggle */}
+                  <div className="pt-2.5 border-t border-border/30 flex items-center justify-between gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5">
+                      {REACTION_BUTTONS.map((btn) => {
+                        const count =
+                          btn.key === 'like'
+                            ? item.likes_count
+                            : btn.key === 'heart'
+                            ? item.hearts_count
+                            : item.fires_count;
+                        const isSelected = activeReactions.includes(btn.key);
+
+                        return (
+                          <button
+                            key={btn.key}
+                            type="button"
+                            onClick={() => handleToggleReaction(item.id, btn.key)}
+                            className={`px-2.5 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-all cursor-pointer ${
+                              isSelected
+                                ? 'bg-primary/15 border-primary/50 text-primary scale-105'
+                                : 'bg-card/80 hover:bg-card border-border/50 text-muted-foreground hover:text-foreground'
+                            }`}
+                            title={btn.label}
+                          >
+                            <span>{btn.emoji}</span>
+                            <span>{count}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
 
                     <button
                       type="button"
-                      onClick={() => setDismissedIds((prev) => [...prev, item.id])}
-                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
-                      title="إخفاء التنبيه"
+                      onClick={() => handleToggleCommentsSection(item.id)}
+                      className={`px-3 py-1 rounded-xl text-xs font-bold flex items-center gap-1.5 border transition-colors cursor-pointer ${
+                        isCommentsOpen
+                          ? 'bg-primary text-primary-foreground border-primary'
+                          : 'bg-card/80 hover:bg-card border-border/50 text-foreground'
+                      }`}
                     >
-                      <X className="w-4 h-4" />
+                      <MessageSquare className="w-3.5 h-3.5" />
+                      <span>التعليقات ({item.comments_count})</span>
                     </button>
                   </div>
+
+                  {/* Collapsible Comments Drawer */}
+                  <AnimatePresence>
+                    {isCommentsOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="pt-3 border-t border-border/30 space-y-3">
+                          {loadingCommentsId === item.id ? (
+                            <div className="flex justify-center py-4">
+                              <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                            </div>
+                          ) : itemComments.length === 0 ? (
+                            <p className="text-center text-xs text-muted-foreground py-2">
+                              لا توجد تعليقات حتى الآن. كن أول من يعلق أو يسأل!
+                            </p>
+                          ) : (
+                            <div className="space-y-2 max-h-60 overflow-y-auto pr-1">
+                              {itemComments.map((c) => (
+                                <div
+                                  key={c.id}
+                                  className={`p-2.5 rounded-xl text-xs space-y-1 ${
+                                    c.is_admin_reply
+                                      ? 'bg-primary/10 border border-primary/30'
+                                      : 'bg-card/90 border border-border/50'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between gap-2">
+                                    <div className="flex items-center gap-1.5">
+                                      <span className="font-black text-foreground">
+                                        {c.student_name}
+                                      </span>
+                                      {c.is_admin_reply && (
+                                        <span className="inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-primary text-primary-foreground text-[10px] font-bold">
+                                          <ShieldCheck className="w-3 h-3" /> الإدارة
+                                        </span>
+                                      )}
+                                    </div>
+                                    <span className="text-[10px] text-muted-foreground">
+                                      {formatRelativeTime(c.created_at)}
+                                    </span>
+                                  </div>
+                                  <p className="text-foreground/90 leading-relaxed">
+                                    {c.comment_text}
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+
+                          {/* Add Comment Form */}
+                          <form
+                            onSubmit={(e) => handleAddComment(e, item.id)}
+                            className="flex flex-col sm:flex-row gap-2"
+                          >
+                            <input
+                              type="text"
+                              required
+                              maxLength={60}
+                              value={studentName}
+                              onChange={(e) => setStudentName(e.target.value)}
+                              placeholder="اسمك (مثال: أحمد - سكشن 4)"
+                              className="sm:w-44 bg-card border border-border/60 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50"
+                            />
+                            <div className="flex-1 flex gap-2">
+                              <input
+                                type="text"
+                                required
+                                maxLength={500}
+                                value={commentInput}
+                                onChange={(e) => setCommentInput(e.target.value)}
+                                placeholder="اكتب سؤالك أو تعليقك هنا..."
+                                className="flex-1 bg-card border border-border/60 rounded-xl px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-primary/50"
+                              />
+                              <button
+                                type="submit"
+                                disabled={submittingComment}
+                                className="px-4 py-2 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center gap-1.5 hover:opacity-90 transition-opacity shrink-0 disabled:opacity-50 cursor-pointer"
+                              >
+                                <Send className="w-3.5 h-3.5" />
+                                <span>إرسال</span>
+                              </button>
+                            </div>
+                          </form>
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
                 </motion.div>
               );
             })}
