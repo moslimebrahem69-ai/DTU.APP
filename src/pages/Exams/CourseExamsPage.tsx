@@ -11,6 +11,7 @@ import {
   Code2,
   X,
   Loader2,
+  Eye,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { EXAMS_DATA, ExamItem } from "../../data/examsData";
@@ -38,14 +39,16 @@ interface DynamicExamRow {
   html_code: string | null;
   exam_url: string | null;
   is_ai_generated: boolean;
+  views_count?: number;
 }
 
 interface UnifiedExamItem extends ExamItem {
   sourceType: "html" | "link";
   htmlCode?: string | null;
+  viewsCount?: number;
+  isDynamic?: boolean;
 }
 
-// ربط معرفات المواد في collegeData مع المفاتيح القديمة في examsData.ts لضمان عدم ضياع أي امتحان سابق
 const COURSE_ID_ALIASES: Record<string, string[]> = {
   plc: ["plc", "plc-control"],
   "material-selection": ["material-selection", "materials-selection"],
@@ -119,6 +122,8 @@ export function CourseExamsPage() {
             isAiGenerated: row.is_ai_generated,
             sourceType: row.source_type,
             htmlCode: row.html_code,
+            viewsCount: row.views_count || 0,
+            isDynamic: true,
           }));
           setDynamicExams(mapped);
         }
@@ -129,6 +134,18 @@ export function CourseExamsPage() {
 
     fetchDynamicExams();
   }, [courseId, semesterId]);
+
+  const trackExamStart = (exam: UnifiedExamItem) => {
+    if (!exam.isDynamic) return;
+    setDynamicExams((prev) =>
+      prev.map((item) =>
+        item.id === exam.id
+          ? { ...item, viewsCount: (item.viewsCount || 0) + 1 }
+          : item
+      )
+    );
+    void supabase.rpc("increment_exam_views", { row_id: exam.id });
+  };
 
   const staticExams: UnifiedExamItem[] = useMemo(() => {
     if (!courseId) return [];
@@ -142,6 +159,7 @@ export function CourseExamsPage() {
     return collected.map((item) => ({
       ...item,
       sourceType: "link",
+      isDynamic: false,
     }));
   }, [courseId]);
 
@@ -198,7 +216,7 @@ export function CourseExamsPage() {
                   </span>
 
                   {exam.sourceType === "html" && (
-                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] bg-indigo-500/10 text-indigo-500 font-bold">
+                    <span className="flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] bg-teal-500/10 text-teal-600 dark:text-teal-400 font-bold">
                       <Code2 className="w-3 h-3" />
                       اختبار تفاعلي مدمج
                     </span>
@@ -217,7 +235,7 @@ export function CourseExamsPage() {
                   <p className="text-xs text-muted-foreground">{exam.description}</p>
                 )}
 
-                <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1">
+                <div className="flex items-center gap-4 text-[11px] text-muted-foreground pt-1 flex-wrap">
                   {exam.questionCount && (
                     <span className="flex items-center gap-1">
                       <HelpCircle className="w-3.5 h-3.5" />
@@ -230,13 +248,22 @@ export function CourseExamsPage() {
                       {exam.durationMinutes} دقيقة
                     </span>
                   )}
+                  {(exam.viewsCount || 0) > 0 && (
+                    <span className="flex items-center gap-1 text-primary font-semibold">
+                      <Eye className="w-3.5 h-3.5" />
+                      {exam.viewsCount} محاولة
+                    </span>
+                  )}
                 </div>
               </div>
 
               {exam.sourceType === "html" && exam.htmlCode ? (
                 <button
                   type="button"
-                  onClick={() => setActiveHtmlExam(exam)}
+                  onClick={() => {
+                    trackExamStart(exam);
+                    setActiveHtmlExam(exam);
+                  }}
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shrink-0 shadow-sm cursor-pointer"
                 >
                   <span>بدء الاختبار الآن</span>
@@ -247,6 +274,7 @@ export function CourseExamsPage() {
                   href={exam.url}
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={() => trackExamStart(exam)}
                   className="w-full sm:w-auto px-5 py-2.5 rounded-xl bg-primary text-primary-foreground text-xs font-bold flex items-center justify-center gap-2 hover:opacity-90 transition-opacity shrink-0 shadow-sm"
                 >
                   <span>بدء الاختبار</span>

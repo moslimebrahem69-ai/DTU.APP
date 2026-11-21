@@ -1,4 +1,5 @@
-import { motion } from 'framer-motion';
+import { useState, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -9,10 +10,37 @@ import {
   Timer, 
   FileCheck2, 
   ChevronLeft,
-  Sparkles
+  Sparkles,
+  Megaphone,
+  AlertTriangle,
+  CheckCircle2,
+  Info,
+  X,
+  ArrowUpLeft
 } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
+import { supabase } from '../lib/supabase';
+
+interface AnnouncementItem {
+  id: string;
+  title: string;
+  message: string;
+  academic_year: string;
+  department: string;
+  priority: 'urgent' | 'warning' | 'success' | 'info';
+  action_url: string | null;
+  action_label: string | null;
+  is_active: boolean;
+  created_at: string;
+}
+
+const YEAR_FILTER_OPTIONS = [
+  { id: 'all', label: 'كل الفرق' },
+  { id: 'year1', label: 'الفرقة 1' },
+  { id: 'year2', label: 'الفرقة 2' },
+  { id: 'year3', label: 'الفرقة 3' },
+];
 
 const sections = [
   {
@@ -21,8 +49,8 @@ const sections = [
     desc: 'أدوات ذكية للتوليد والتلخيص والبحث',
     count: '100+',
     icon: Bot,
-    gradient: 'from-purple-500 to-pink-500',
-    bgLight: 'bg-purple-500/20 text-purple-800 dark:text-purple-200 border-purple-500/40',
+    gradient: 'from-amber-500 to-rose-500',
+    bgLight: 'bg-amber-500/20 text-amber-800 dark:text-amber-200 border-amber-500/40',
     route: '/ai-tools'
   },
   {
@@ -41,8 +69,8 @@ const sections = [
     desc: 'منصات تعليمية عالمية ومحلية',
     count: '25+',
     icon: GraduationCap,
-    gradient: 'from-blue-500 to-indigo-500',
-    bgLight: 'bg-blue-500/20 text-blue-800 dark:text-blue-200 border-blue-500/40',
+    gradient: 'from-teal-500 to-emerald-600',
+    bgLight: 'bg-teal-500/20 text-teal-800 dark:text-teal-200 border-teal-500/40',
     route: '/platforms'
   },
   {
@@ -62,7 +90,7 @@ const sections = [
     desc: 'اختبارات المحاضرات والامتحانات الذكية',
     count: 'جديد',
     icon: FileCheck2,
-    gradient: 'from-cyan-500 to-blue-600',
+    gradient: 'from-cyan-600 to-teal-600',
     bgLight: 'bg-cyan-500/20 text-cyan-800 dark:text-cyan-200 border-cyan-500/40',
     route: '/exams'
   },
@@ -84,6 +112,88 @@ export function Home() {
   const { animationsEnabled } = useTheme();
   const { elementRef: heroRef, isIntersecting: heroInView } = useIntersectionObserver();
 
+  const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
+  const [selectedYearFilter, setSelectedYearFilter] = useState<string>(() => {
+    return localStorage.getItem('dtu-student-year') || 'all';
+  });
+  const [dismissedIds, setDismissedIds] = useState<string[]>([]);
+
+  useEffect(() => {
+    async function fetchAnnouncements() {
+      const { data, error } = await supabase
+        .from('announcements')
+        .select('*')
+        .eq('is_active', true)
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        setAnnouncements(data as AnnouncementItem[]);
+      }
+    }
+
+    fetchAnnouncements();
+  }, []);
+
+  const handleYearFilterChange = (yearId: string) => {
+    setSelectedYearFilter(yearId);
+    localStorage.setItem('dtu-student-year', yearId);
+  };
+
+  const visibleAnnouncements = useMemo(() => {
+    return announcements.filter((item) => {
+      if (dismissedIds.includes(item.id)) return false;
+      if (selectedYearFilter !== 'all' && item.academic_year !== 'all' && item.academic_year !== selectedYearFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [announcements, dismissedIds, selectedYearFilter]);
+
+  const getPriorityStyles = (priority: AnnouncementItem['priority']) => {
+    switch (priority) {
+      case 'urgent':
+        return {
+          container: 'bg-rose-500/10 border-rose-500/30 text-foreground',
+          badge: 'bg-rose-500 text-white',
+          icon: AlertTriangle,
+          iconColor: 'text-rose-500',
+          label: 'عاجل',
+        };
+      case 'warning':
+        return {
+          container: 'bg-amber-500/10 border-amber-500/30 text-foreground',
+          badge: 'bg-amber-500 text-white',
+          icon: Megaphone,
+          iconColor: 'text-amber-500',
+          label: 'تنبيه هام',
+        };
+      case 'success':
+        return {
+          container: 'bg-emerald-500/10 border-emerald-500/30 text-foreground',
+          badge: 'bg-emerald-600 text-white',
+          icon: CheckCircle2,
+          iconColor: 'text-emerald-500',
+          label: 'تم التحديث',
+        };
+      default:
+        return {
+          container: 'bg-primary/10 border-primary/25 text-foreground',
+          badge: 'bg-primary text-primary-foreground',
+          icon: Info,
+          iconColor: 'text-primary',
+          label: 'إعلان',
+        };
+    }
+  };
+
+  const handleAnnouncementAction = (url: string) => {
+    if (url.startsWith('/')) {
+      navigate(url);
+    } else {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
+  };
+
   return (
     <div className="space-y-6 pb-12 px-2 sm:px-0">
       
@@ -95,7 +205,6 @@ export function Home() {
         transition={{ duration: 0.4, ease: "easeOut" }}
         className="relative overflow-hidden rounded-3xl border border-border/60 bg-gradient-to-br from-card/80 via-card/50 to-primary/5 backdrop-blur-xl px-5 py-5 sm:px-8 sm:py-6 flex items-center justify-between shadow-sm"
       >
-        {/* Ambient background glow */}
         <div className="absolute -left-10 -top-10 w-32 h-32 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
 
         <div className="relative z-10 space-y-1.5">
@@ -120,6 +229,93 @@ export function Home() {
         </div>
       </motion.div>
 
+      {/* Smart Announcements Center Banner */}
+      {announcements.length > 0 && (
+        <div className="space-y-2.5">
+          <div className="flex items-center justify-between gap-2 px-1">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
+              <Megaphone className="w-3.5 h-3.5 text-primary" />
+              <span>تنبيهات وإعلانات المنصة</span>
+            </div>
+
+            <div className="flex items-center gap-1 bg-card border border-border/50 p-1 rounded-xl">
+              {YEAR_FILTER_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  type="button"
+                  onClick={() => handleYearFilterChange(opt.id)}
+                  className={`px-2.5 py-1 rounded-lg text-[10px] sm:text-xs font-bold transition-all ${
+                    selectedYearFilter === opt.id
+                      ? 'bg-primary text-primary-foreground shadow-2xs'
+                      : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {opt.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <AnimatePresence>
+            {visibleAnnouncements.map((item) => {
+              const style = getPriorityStyles(item.priority);
+              const IconComp = style.icon;
+
+              return (
+                <motion.div
+                  key={item.id}
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0 }}
+                  className={`rounded-2xl border p-3.5 sm:p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-2xs ${style.container}`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className={`mt-0.5 shrink-0 ${style.iconColor}`}>
+                      <IconComp className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className={`text-[10px] font-black px-2 py-0.5 rounded-full ${style.badge}`}>
+                          {style.label}
+                        </span>
+                        <h3 className="text-xs sm:text-sm font-black text-foreground">
+                          {item.title}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed font-medium">
+                        {item.message}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                    {item.action_url && (
+                      <button
+                        type="button"
+                        onClick={() => handleAnnouncementAction(item.action_url as string)}
+                        className="px-3.5 py-1.5 rounded-xl bg-card hover:bg-accent border border-border/60 text-foreground text-xs font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                      >
+                        <span>{item.action_label || 'عرض التفاصيل'}</span>
+                        <ArrowUpLeft className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => setDismissedIds((prev) => [...prev, item.id])}
+                      className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                      title="إخفاء التنبيه"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
+      )}
+
       {/* Grid Sections */}
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-5">
         {sections.map((section, index) => (
@@ -133,7 +329,6 @@ export function Home() {
             whileTap={animationsEnabled ? { scale: 0.96 } : {}}
             className="group relative bg-card/90 hover:bg-card border border-border/70 hover:border-primary/50 rounded-2xl p-4 sm:p-6 text-right shadow-xs hover:shadow-xl transition-all duration-300 flex flex-col justify-between overflow-hidden cursor-pointer"
           >
-            {/* Top Glowing Line on Hover */}
             <div className={`absolute top-0 right-0 left-0 h-1 bg-gradient-to-r ${section.gradient} opacity-0 group-hover:opacity-100 transition-opacity duration-300`} />
 
             <div>

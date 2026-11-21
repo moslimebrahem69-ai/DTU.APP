@@ -22,6 +22,7 @@ import {
   Video,
   Image as ImageIcon,
   Eye,
+  EyeOff,
   X,
   PlusCircle,
   Database,
@@ -32,6 +33,9 @@ import {
   Code2,
   Clock,
   HelpCircle,
+  Megaphone,
+  TrendingUp,
+  BarChart3,
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Session } from "@supabase/supabase-js";
@@ -53,6 +57,7 @@ interface MaterialRecord {
   semester: string;
   course_name: string;
   file_url: string;
+  views_count: number;
   created_at: string;
 }
 
@@ -73,13 +78,28 @@ interface ExamRecord {
   html_code: string | null;
   exam_url: string | null;
   is_ai_generated: boolean;
+  views_count: number;
+  created_at: string;
+}
+
+interface AnnouncementRecord {
+  id: string;
+  title: string;
+  message: string;
+  academic_year: string;
+  department: string;
+  priority: "urgent" | "warning" | "success" | "info";
+  action_url: string | null;
+  action_label: string | null;
+  is_active: boolean;
   created_at: string;
 }
 
 type MediaKind = "video" | "image" | "document" | "link";
 type UploadMode = "file" | "video" | "image" | "link";
 type ExamSourceMode = "html_paste" | "html_file" | "link";
-type ActiveTab = "manage_materials" | "upload_material" | "manage_exams";
+type ActiveTab = "manage_materials" | "manage_exams" | "announcements" | "upload_material";
+type SortMode = "newest" | "most_viewed";
 
 const CATEGORY_LABELS: Record<string, string> = {
   lecture: "محاضرة",
@@ -100,7 +120,15 @@ const EXAM_TYPE_LABELS: Record<string, string> = {
   quiz: "كويز سريع",
 };
 
+const PRIORITY_LABELS: Record<string, string> = {
+  urgent: "عاجل (أحمر)",
+  warning: "تنبيه هام (ذهبي)",
+  success: "تحديث جديد (أخضر)",
+  info: "إعلان عام",
+};
+
 const YEAR_LABELS: Record<string, string> = {
+  all: "كل الفرق",
   year1: "الفرقة الأولى",
   year2: "الفرقة الثانية",
   year3: "الفرقة الثالثة",
@@ -108,6 +136,7 @@ const YEAR_LABELS: Record<string, string> = {
 };
 
 const DEPT_LABELS: Record<string, string> = {
+  all: "كل الأقسام",
   mechatronics: "ميكاترونكس",
   renewable: "طاقة متجددة",
 };
@@ -164,23 +193,22 @@ export function AdminDashboard() {
 
   const [activeTab, setActiveTab] = useState<ActiveTab>("manage_materials");
 
-  // بيانات الماتريال
+  // البيانات الأساسية
   const [materials, setMaterials] = useState<MaterialRecord[]>([]);
-  const [fetchingMaterials, setFetchingMaterials] = useState(false);
+  const [exams, setExams] = useState<ExamRecord[]>([]);
+  const [announcements, setAnnouncements] = useState<AnnouncementRecord[]>([]);
+  const [fetchingData, setFetchingData] = useState(false);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  // بيانات الاختبارات
-  const [exams, setExams] = useState<ExamRecord[]>([]);
-  const [fetchingExams, setFetchingExams] = useState(false);
-
-  // فلاتر البحث
+  // الفلاتر والترتيب
   const [searchQuery, setSearchQuery] = useState("");
   const [filterYear, setFilterYear] = useState("all");
   const [filterDept, setFilterDept] = useState("all");
   const [filterSemester, setFilterSemester] = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
+  const [sortMode, setSortMode] = useState<SortMode>("newest");
 
-  // حالة رفع الماتريال
+  // رفع ماتريال
   const [uploadMode, setUploadMode] = useState<UploadMode>("file");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [filePreviewUrl, setFilePreviewUrl] = useState<string | null>(null);
@@ -195,7 +223,7 @@ export function AdminDashboard() {
     file_url: "",
   });
 
-  // حالة إضافة امتحان جديد
+  // إضافة اختبار
   const [showExamForm, setShowExamForm] = useState(false);
   const [examSourceMode, setExamSourceMode] = useState<ExamSourceMode>("html_paste");
   const [examForm, setExamForm] = useState({
@@ -214,6 +242,18 @@ export function AdminDashboard() {
     exam_url: "",
     is_ai_generated: true,
   });
+
+  // إضافة تنبيه عاجل
+  const [announcementForm, setAnnouncementForm] = useState({
+    title: "",
+    message: "",
+    academic_year: "all",
+    department: "all",
+    priority: "urgent" as "urgent" | "warning" | "success" | "info",
+    action_url: "",
+    action_label: "",
+  });
+  const [editingAnnouncement, setEditingAnnouncement] = useState<AnnouncementRecord | null>(null);
 
   // نوافذ التعديل والمعاينة
   const [editingItem, setEditingItem] = useState<MaterialRecord | null>(null);
@@ -235,26 +275,29 @@ export function AdminDashboard() {
 
   const fetchAllData = useCallback(async () => {
     try {
-      setFetchingMaterials(true);
-      setFetchingExams(true);
+      setFetchingData(true);
 
-      const [matRes, examRes] = await Promise.all([
+      const [matRes, examRes, annRes] = await Promise.all([
         supabase.from("materials").select("*").order("created_at", { ascending: false }),
         supabase.from("exams").select("*").order("created_at", { ascending: false }),
+        supabase.from("announcements").select("*").order("created_at", { ascending: false }),
       ]);
 
       if (matRes.error) throw matRes.error;
       setMaterials((matRes.data as MaterialRecord[]) || []);
 
-      if (!examRes.error) {
-        setExams((examRes.data as ExamRecord[]) || []);
+      if (!examRes.error && examRes.data) {
+        setExams(examRes.data as ExamRecord[]);
+      }
+
+      if (!annRes.error && annRes.data) {
+        setAnnouncements(annRes.data as AnnouncementRecord[]);
       }
     } catch (err: unknown) {
       const errorMsg = err instanceof Error ? err.message : "فشل تحميل البيانات.";
       setMessage({ type: "error", text: errorMsg });
     } finally {
-      setFetchingMaterials(false);
-      setFetchingExams(false);
+      setFetchingData(false);
     }
   }, []);
 
@@ -274,7 +317,6 @@ export function AdminDashboard() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [selectedFile]);
 
-  // الأقسام والمواد لفورم الماتريال
   const availableDepartments = useMemo(() => {
     const yearObj = collegeData.find((y) => y.id === formData.academic_year);
     return yearObj ? yearObj.departments.filter((d) => d.enabled) : [];
@@ -308,7 +350,6 @@ export function AdminDashboard() {
     }
   }, [availableCourses, formData.course_name]);
 
-  // الأقسام والمواد لفورم الاختبارات
   const examAvailableDepartments = useMemo(() => {
     const yearObj = collegeData.find((y) => y.id === examForm.academic_year);
     return yearObj ? yearObj.departments.filter((d) => d.enabled) : [];
@@ -355,28 +396,46 @@ export function AdminDashboard() {
     );
   }, [editingItem]);
 
-  // إحصائيات الـ ERP
-  const stats = useMemo(() => {
-    let videos = 0;
-    let images = 0;
-    let docs = 0;
+  // إحصائيات التفاعل والتحليلات الحقيقية (Real Analytics)
+  const analytics = useMemo(() => {
+    let materialViews = 0;
+    let topMaterial: MaterialRecord | null = null;
+
     for (const item of materials) {
-      const kind = detectMediaKind(item.file_url, item.category);
-      if (kind === "video") videos++;
-      else if (kind === "image") images++;
-      else docs++;
+      const views = item.views_count || 0;
+      materialViews += views;
+      if (!topMaterial || views > (topMaterial.views_count || 0)) {
+        topMaterial = item;
+      }
     }
+
+    let examViews = 0;
+    let topExam: ExamRecord | null = null;
+
+    for (const ex of exams) {
+      const views = ex.views_count || 0;
+      examViews += views;
+      if (!topExam || views > (topExam.views_count || 0)) {
+        topExam = ex;
+      }
+    }
+
+    const activeAnnouncementsCount = announcements.filter((a) => a.is_active).length;
+
     return {
       totalMaterials: materials.length,
       totalExams: exams.length,
-      videos,
-      images,
-      docs,
+      totalViews: materialViews + examViews,
+      materialViews,
+      examViews,
+      activeAnnouncementsCount,
+      topMaterial: topMaterial && (topMaterial.views_count || 0) > 0 ? topMaterial : null,
+      topExam: topExam && (topExam.views_count || 0) > 0 ? topExam : null,
     };
-  }, [materials, exams]);
+  }, [materials, exams, announcements]);
 
   const filteredMaterials = useMemo(() => {
-    return materials.filter((item) => {
+    const list = materials.filter((item) => {
       if (filterYear !== "all" && item.academic_year !== filterYear) return false;
       if (filterDept !== "all" && item.department !== filterDept) return false;
       if (filterSemester !== "all" && item.semester !== filterSemester) return false;
@@ -392,10 +451,15 @@ export function AdminDashboard() {
       }
       return true;
     });
-  }, [materials, filterYear, filterDept, filterSemester, filterCategory, searchQuery]);
+
+    if (sortMode === "most_viewed") {
+      return [...list].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    }
+    return list;
+  }, [materials, filterYear, filterDept, filterSemester, filterCategory, searchQuery, sortMode]);
 
   const filteredExams = useMemo(() => {
-    return exams.filter((item) => {
+    const list = exams.filter((item) => {
       if (filterYear !== "all" && item.academic_year !== filterYear) return false;
       if (filterDept !== "all" && item.department !== filterDept) return false;
       if (filterSemester !== "all" && item.semester !== filterSemester) return false;
@@ -410,7 +474,12 @@ export function AdminDashboard() {
       }
       return true;
     });
-  }, [exams, filterYear, filterDept, filterSemester, searchQuery]);
+
+    if (sortMode === "most_viewed") {
+      return [...list].sort((a, b) => (b.views_count || 0) - (a.views_count || 0));
+    }
+    return list;
+  }, [exams, filterYear, filterDept, filterSemester, searchQuery, sortMode]);
 
   const showNotification = (type: "success" | "error", text: string) => {
     setMessage({ type, text });
@@ -523,7 +592,6 @@ export function AdminDashboard() {
     }
   };
 
-  // قراءة ملف .html عند اختياره من الجهاز
   const handleHtmlFileUpload = async (file: File | null) => {
     if (!file) return;
     try {
@@ -541,7 +609,6 @@ export function AdminDashboard() {
     }
   };
 
-  // حفظ امتحان جديد (HTML أو رابط)
   const handleSubmitExam = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!examForm.course_id || !examForm.course_name) {
@@ -557,7 +624,7 @@ export function AdminDashboard() {
     }
 
     if (!isHtml && !examForm.exam_url.trim()) {
-      showNotification("error", "يرجى إدخال رابط الامتحان (مثل رابط Vercel).");
+      showNotification("error", "يرجى إدخال رابط الامتحان.");
       return;
     }
 
@@ -595,7 +662,7 @@ export function AdminDashboard() {
         await fetchAllData();
       }
 
-      showNotification("success", "تم نشر الاختبار بنجاح وسيظهر فوراً في صفحة الاختبارات!");
+      showNotification("success", "تم نشر الاختبار بنجاح!");
       setExamForm((prev) => ({
         ...prev,
         title: "",
@@ -612,6 +679,135 @@ export function AdminDashboard() {
       showNotification("error", errorMsg);
     } finally {
       setLoading(false);
+    }
+  };
+
+  // دوال إدارة التنبيهات العاجلة
+  const handleSubmitAnnouncement = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!announcementForm.title.trim() || !announcementForm.message.trim()) {
+      showNotification("error", "يرجى إدخال عنوان ونص التنبيه.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const payload = {
+        title: announcementForm.title.trim(),
+        message: announcementForm.message.trim(),
+        academic_year: announcementForm.academic_year,
+        department: announcementForm.department,
+        priority: announcementForm.priority,
+        action_url: announcementForm.action_url.trim() || null,
+        action_label: announcementForm.action_label.trim() || null,
+        is_active: true,
+      };
+
+      const { data, error } = await supabase
+        .from("announcements")
+        .insert([payload])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      if (data) {
+        setAnnouncements((prev) => [data as AnnouncementRecord, ...prev]);
+      } else {
+        await fetchAllData();
+      }
+
+      showNotification("success", "تم نشر التنبيه العاجل في الصفحة الرئيسية!");
+      setAnnouncementForm({
+        title: "",
+        message: "",
+        academic_year: "all",
+        department: "all",
+        priority: "urgent",
+        action_url: "",
+        action_label: "",
+      });
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "فشل نشر التنبيه.";
+      showNotification("error", errorMsg);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleToggleAnnouncementActive = async (item: AnnouncementRecord) => {
+    try {
+      const nextState = !item.is_active;
+      const { error } = await supabase
+        .from("announcements")
+        .update({ is_active: nextState })
+        .eq("id", item.id);
+
+      if (error) throw error;
+
+      setAnnouncements((prev) =>
+        prev.map((a) => (a.id === item.id ? { ...a, is_active: nextState } : a))
+      );
+      showNotification(
+        "success",
+        nextState ? "تم تفعيل ظهور التنبيه للطلاب." : "تم إخفاء التنبيه من الرئيسية."
+      );
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "تعذر تغيير حالة التنبيه.";
+      showNotification("error", errorMsg);
+    }
+  };
+
+  const handleSaveAnnouncementEdit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingAnnouncement) return;
+
+    try {
+      setSavingEdit(true);
+      const { error } = await supabase
+        .from("announcements")
+        .update({
+          title: editingAnnouncement.title.trim(),
+          message: editingAnnouncement.message.trim(),
+          academic_year: editingAnnouncement.academic_year,
+          department: editingAnnouncement.department,
+          priority: editingAnnouncement.priority,
+          action_url: editingAnnouncement.action_url?.trim() || null,
+          action_label: editingAnnouncement.action_label?.trim() || null,
+        })
+        .eq("id", editingAnnouncement.id);
+
+      if (error) throw error;
+
+      setAnnouncements((prev) =>
+        prev.map((a) => (a.id === editingAnnouncement.id ? editingAnnouncement : a))
+      );
+      setEditingAnnouncement(null);
+      showNotification("success", "تم تحديث التنبيه بنجاح.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "فشل حفظ التعديلات.";
+      showNotification("error", errorMsg);
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+
+  const handleDeleteAnnouncement = async (item: AnnouncementRecord) => {
+    const confirmed = window.confirm(`حذف التنبيه "${item.title}" نهائياً؟`);
+    if (!confirmed) return;
+
+    try {
+      setDeletingId(item.id);
+      const { error } = await supabase.from("announcements").delete().eq("id", item.id);
+      if (error) throw error;
+
+      setAnnouncements((prev) => prev.filter((a) => a.id !== item.id));
+      showNotification("success", "تم حذف التنبيه.");
+    } catch (err: unknown) {
+      const errorMsg = err instanceof Error ? err.message : "فشل حذف التنبيه.";
+      showNotification("error", errorMsg);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -790,13 +986,11 @@ export function AdminDashboard() {
             <button
               type="button"
               onClick={fetchAllData}
-              disabled={fetchingMaterials || fetchingExams}
+              disabled={fetchingData}
               className="p-3 bg-accent/50 text-foreground rounded-xl hover:bg-accent transition-colors"
-              title="تحديث البيانات"
+              title="تحديث الإحصائيات والبيانات"
             >
-              <RefreshCw
-                className={`w-4 h-4 ${fetchingMaterials || fetchingExams ? "animate-spin" : ""}`}
-              />
+              <RefreshCw className={`w-4 h-4 ${fetchingData ? "animate-spin" : ""}`} />
             </button>
             <button
               onClick={handleLogout}
@@ -807,58 +1001,99 @@ export function AdminDashboard() {
           </div>
         </div>
 
-        {/* KPI Stats Cards */}
-        <div className="grid grid-cols-2 lg:grid-cols-5 gap-3">
-          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+        {/* KPI Stats & Real Analytics Cards */}
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+              <BarChart3 className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-xs text-muted-foreground font-medium">إجمالي التفاعل</p>
+              <p className="text-2xl font-black">{analytics.totalViews}</p>
+              <p className="text-[10px] text-muted-foreground">مشاهدة وتحميل</p>
+            </div>
+          </div>
+
+          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
               <FolderOpen className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] text-muted-foreground font-medium">إجمالي الماتريال</p>
-              <p className="text-xl font-black">{stats.totalMaterials}</p>
+              <p className="text-xs text-muted-foreground font-medium">الماتريال المرفوعة</p>
+              <p className="text-2xl font-black">{analytics.totalMaterials}</p>
+              <p className="text-[10px] text-muted-foreground">{analytics.materialViews} تحميل/عرض</p>
             </div>
           </div>
 
-          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-500/10 text-indigo-500 flex items-center justify-center shrink-0">
+          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
               <FileCheck2 className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] text-muted-foreground font-medium">الاختبارات المرفوعة</p>
-              <p className="text-xl font-black">{stats.totalExams}</p>
+              <p className="text-xs text-muted-foreground font-medium">الاختبارات المرفوعة</p>
+              <p className="text-2xl font-black">{analytics.totalExams}</p>
+              <p className="text-[10px] text-muted-foreground">{analytics.examViews} محاولة حل</p>
             </div>
           </div>
 
-          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
-              <FileText className="w-5 h-5" />
+          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3.5">
+            <div className="w-11 h-11 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+              <Megaphone className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-[11px] text-muted-foreground font-medium">ملفات وروابط</p>
-              <p className="text-xl font-black">{stats.docs}</p>
-            </div>
-          </div>
-
-          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
-              <Video className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium">فيديوهات شرح</p>
-              <p className="text-xl font-black">{stats.videos}</p>
-            </div>
-          </div>
-
-          <div className="bg-card p-4 rounded-2xl border border-border/50 flex items-center gap-3 col-span-2 lg:col-span-1">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
-              <ImageIcon className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[11px] text-muted-foreground font-medium">صور وسبورات</p>
-              <p className="text-xl font-black">{stats.images}</p>
+              <p className="text-xs text-muted-foreground font-medium">التنبيهات النشطة</p>
+              <p className="text-2xl font-black">{analytics.activeAnnouncementsCount}</p>
+              <p className="text-[10px] text-muted-foreground">من إجمالي {announcements.length}</p>
             </div>
           </div>
         </div>
+
+        {/* Top Performing Content Highlight */}
+        {(analytics.topMaterial || analytics.topExam) && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {analytics.topMaterial && (
+              <div className="bg-card/80 border border-border/50 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-500 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-bold text-amber-600 dark:text-amber-400">
+                      أكثر ماتريال تحميلاً ومشاهدة
+                    </p>
+                    <p className="text-xs sm:text-sm font-black truncate">
+                      {analytics.topMaterial.title}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-black shrink-0">
+                  {analytics.topMaterial.views_count} مرة
+                </span>
+              </div>
+            )}
+
+            {analytics.topExam && (
+              <div className="bg-card/80 border border-border/50 rounded-2xl p-3.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 overflow-hidden">
+                  <div className="w-9 h-9 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shrink-0">
+                    <TrendingUp className="w-4 h-4" />
+                  </div>
+                  <div className="overflow-hidden">
+                    <p className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                      أكثر اختبار تفاعلاً من الطلاب
+                    </p>
+                    <p className="text-xs sm:text-sm font-black truncate">
+                      {analytics.topExam.title}
+                    </p>
+                  </div>
+                </div>
+                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-black shrink-0">
+                  {analytics.topExam.views_count} محاولة
+                </span>
+              </div>
+            )}
+          </div>
+        )}
 
         {/* Global Alert Banner */}
         <AnimatePresence>
@@ -884,41 +1119,53 @@ export function AdminDashboard() {
         </AnimatePresence>
 
         {/* Main Navigation Tabs */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 p-1.5 bg-card rounded-2xl border border-border/50 gap-2">
+        <div className="grid grid-cols-2 lg:grid-cols-4 p-1.5 bg-card rounded-2xl border border-border/50 gap-2">
           <button
             type="button"
             onClick={() => setActiveTab("manage_materials")}
-            className={`py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
               activeTab === "manage_materials"
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
             }`}
           >
-            <Database className="w-4 h-4" /> أرشيف الماتريال ({materials.length})
+            <Database className="w-4 h-4 shrink-0" /> أرشيف الماتريال ({materials.length})
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("manage_exams")}
-            className={`py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
               activeTab === "manage_exams"
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
             }`}
           >
-            <FileCheck2 className="w-4 h-4" /> الاختبارات الإلكترونية ({exams.length})
+            <FileCheck2 className="w-4 h-4 shrink-0" /> الاختبارات ({exams.length})
+          </button>
+
+          <button
+            type="button"
+            onClick={() => setActiveTab("announcements")}
+            className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+              activeTab === "announcements"
+                ? "bg-primary text-primary-foreground shadow-md"
+                : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
+            }`}
+          >
+            <Megaphone className="w-4 h-4 shrink-0" /> التنبيهات العاجلة ({analytics.activeAnnouncementsCount})
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab("upload_material")}
-            className={`py-3 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
+            className={`py-3 px-3 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2 transition-all ${
               activeTab === "upload_material"
                 ? "bg-primary text-primary-foreground shadow-md"
                 : "text-muted-foreground hover:text-foreground hover:bg-accent/40"
             }`}
           >
-            <PlusCircle className="w-4 h-4" /> رفع ماتريال جديد
+            <PlusCircle className="w-4 h-4 shrink-0" /> رفع ماتريال جديد
           </button>
         </div>
 
@@ -932,15 +1179,26 @@ export function AdminDashboard() {
             className="bg-card rounded-3xl border border-border/50 p-5 sm:p-6 space-y-5 shadow-sm"
           >
             <div className="space-y-3">
-              <div className="relative">
-                <Search className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث باسم الملف أو اسم المادة..."
-                  className="w-full bg-accent/20 border border-border/50 rounded-xl pr-11 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="ابحث باسم الملف أو اسم المادة..."
+                    className="w-full bg-accent/20 border border-border/50 rounded-xl pr-11 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as SortMode)}
+                  className="bg-accent/20 border border-border/50 rounded-xl px-4 py-3 text-xs font-bold focus:outline-none"
+                >
+                  <option value="newest">الترتيب: الأحدث رفعاً</option>
+                  <option value="most_viewed">الترتيب: الأكثر تحميلاً ومشاهدة</option>
+                </select>
               </div>
 
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
@@ -1002,7 +1260,7 @@ export function AdminDashboard() {
               </div>
             </div>
 
-            {fetchingMaterials ? (
+            {fetchingData ? (
               <div className="py-16 text-center text-muted-foreground text-sm">
                 جاري تحميل سجلات الماتريال...
               </div>
@@ -1056,6 +1314,9 @@ export function AdminDashboard() {
                             <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
                               {CATEGORY_LABELS[item.category] || item.category}
                             </span>
+                            <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                              <Eye className="w-3 h-3" /> {item.views_count || 0}
+                            </span>
                           </div>
 
                           <div className="flex items-center gap-2 flex-wrap text-xs text-muted-foreground">
@@ -1108,7 +1369,7 @@ export function AdminDashboard() {
         )}
 
         {/* ========================================================= */}
-        {/* TAB 2: MANAGE & ADD EXAMS (HTML / VERCEL LINKS) */}
+        {/* TAB 2: MANAGE & ADD EXAMS */}
         {/* ========================================================= */}
         {activeTab === "manage_exams" && (
           <motion.div
@@ -1116,7 +1377,6 @@ export function AdminDashboard() {
             animate={{ opacity: 1, y: 0 }}
             className="space-y-5"
           >
-            {/* Header & Toggle Add Exam Form */}
             <div className="bg-card rounded-3xl border border-border/50 p-5 sm:p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div>
                 <h2 className="text-lg font-black flex items-center gap-2">
@@ -1143,7 +1403,6 @@ export function AdminDashboard() {
               </button>
             </div>
 
-            {/* Add Exam Form */}
             <AnimatePresence>
               {showExamForm && (
                 <motion.div
@@ -1160,7 +1419,6 @@ export function AdminDashboard() {
                       بيانات الاختبار الجديد
                     </h3>
 
-                    {/* Year / Dept / Semester */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-accent/15 rounded-2xl border border-border/30">
                       <div>
                         <label className={labelClasses}>
@@ -1219,7 +1477,6 @@ export function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Course & Exam Type */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className={labelClasses}>
@@ -1280,7 +1537,6 @@ export function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Title & Description */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
                         <label className={labelClasses}>
@@ -1310,7 +1566,6 @@ export function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Optional Metadata: Lecture #, Questions Count, Duration */}
                     <div className="grid grid-cols-3 gap-3">
                       <div>
                         <label className={labelClasses}>رقم المحاضرة (اختياري)</label>
@@ -1359,7 +1614,6 @@ export function AdminDashboard() {
                       </div>
                     </div>
 
-                    {/* Source Mode: HTML Paste / HTML File / Vercel Link */}
                     <div className="space-y-3">
                       <label className={labelClasses}>
                         <Code2 className="w-4 h-4 text-primary" /> مصدر الاختبار (كود HTML أو رابط Vercel)
@@ -1455,17 +1709,26 @@ export function AdminDashboard() {
               )}
             </AnimatePresence>
 
-            {/* Exams Archive List */}
             <div className="bg-card rounded-3xl border border-border/50 p-5 sm:p-6 space-y-4">
-              <div className="relative">
-                <Search className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2" />
-                <input
-                  type="text"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="ابحث في الاختبارات المرفوعة..."
-                  className="w-full bg-accent/20 border border-border/50 rounded-xl pr-11 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
-                />
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="w-4 h-4 text-muted-foreground absolute right-4 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="text"
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    placeholder="ابحث في الاختبارات المرفوعة..."
+                    className="w-full bg-accent/20 border border-border/50 rounded-xl pr-11 pl-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
+                  />
+                </div>
+                <select
+                  value={sortMode}
+                  onChange={(e) => setSortMode(e.target.value as SortMode)}
+                  className="bg-accent/20 border border-border/50 rounded-xl px-4 py-3 text-xs font-bold focus:outline-none"
+                >
+                  <option value="newest">الترتيب: الأحدث</option>
+                  <option value="most_viewed">الترتيب: الأكثر محاولة</option>
+                </select>
               </div>
 
               {filteredExams.length === 0 ? (
@@ -1490,11 +1753,14 @@ export function AdminDashboard() {
                           <span
                             className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
                               exam.source_type === "html"
-                                ? "bg-indigo-500/10 text-indigo-500"
+                                ? "bg-teal-500/10 text-teal-600 dark:text-teal-400"
                                 : "bg-emerald-500/10 text-emerald-500"
                             }`}
                           >
                             {exam.source_type === "html" ? "كود HTML مدمج" : "رابط خارجي"}
+                          </span>
+                          <span className="text-[11px] font-bold px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 inline-flex items-center gap-1">
+                            <Eye className="w-3 h-3" /> {exam.views_count || 0} محاولة
                           </span>
                         </div>
 
@@ -1536,7 +1802,237 @@ export function AdminDashboard() {
         )}
 
         {/* ========================================================= */}
-        {/* TAB 3: UPLOAD NEW MATERIAL */}
+        {/* TAB 3: URGENT ANNOUNCEMENTS CENTER */}
+        {/* ========================================================= */}
+        {activeTab === "announcements" && (
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="space-y-6"
+          >
+            {/* Create Announcement Card */}
+            <form
+              onSubmit={handleSubmitAnnouncement}
+              className="bg-card rounded-3xl border border-border/50 p-6 space-y-5 shadow-sm"
+            >
+              <div className="flex items-center gap-3 pb-4 border-b border-border/40">
+                <div className="w-11 h-11 rounded-2xl bg-rose-500/10 text-rose-500 flex items-center justify-center shrink-0">
+                  <Megaphone className="w-5 h-5" />
+                </div>
+                <div>
+                  <h2 className="text-lg font-black">نشر تنبيه أو إعلان عاجل للطلاب</h2>
+                  <p className="text-xs text-muted-foreground">
+                    يظهر فوراً في الصفحة الرئيسية للطلاب مع إمكانية إخفائه أو تعديله في أي وقت.
+                  </p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className={labelClasses}>الفرقة المستهدفة</label>
+                  <select
+                    value={announcementForm.academic_year}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, academic_year: e.target.value })
+                    }
+                    className={inputClasses}
+                  >
+                    <option value="all">جميع الفرق الدراسية</option>
+                    <option value="year1">الفرقة الأولى فقط</option>
+                    <option value="year2">الفرقة الثانية فقط</option>
+                    <option value="year3">الفرقة الثالثة فقط</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClasses}>القسم المستهدف</label>
+                  <select
+                    value={announcementForm.department}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, department: e.target.value })
+                    }
+                    className={inputClasses}
+                  >
+                    <option value="all">جميع الأقسام</option>
+                    <option value="mechatronics">ميكاترونكس</option>
+                    <option value="renewable">طاقة متجددة</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className={labelClasses}>نوع وأولوية التنبيه</label>
+                  <select
+                    value={announcementForm.priority}
+                    onChange={(e) =>
+                      setAnnouncementForm({
+                        ...announcementForm,
+                        priority: e.target.value as "urgent" | "warning" | "success" | "info",
+                      })
+                    }
+                    className={inputClasses}
+                  >
+                    <option value="urgent">عاجل (أحمر)</option>
+                    <option value="warning">تنبيه هام (ذهبي)</option>
+                    <option value="success">تم التحديث (أخضر)</option>
+                    <option value="info">إعلان عام</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClasses}>عنوان التنبيه</label>
+                  <input
+                    type="text"
+                    required
+                    value={announcementForm.title}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, title: e.target.value })
+                    }
+                    placeholder="مثال: تم إضافة امتحان محاضرة 6 PLC"
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClasses}>رابط انتقال سريع (اختياري)</label>
+                  <input
+                    type="text"
+                    value={announcementForm.action_url}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, action_url: e.target.value })
+                    }
+                    placeholder="مثال: /exams أو /college/year2/mechatronics"
+                    className={inputClasses}
+                    dir="ltr"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <label className={labelClasses}>نص الرسالة للطلاب</label>
+                  <input
+                    type="text"
+                    required
+                    value={announcementForm.message}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, message: e.target.value })
+                    }
+                    placeholder="مثال: الامتحان متاح الآن في قسم الاختبارات الإلكترونية بالتوفيق للجميع."
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClasses}>نص زرار الانتقال (اختياري)</label>
+                  <input
+                    type="text"
+                    value={announcementForm.action_label}
+                    onChange={(e) =>
+                      setAnnouncementForm({ ...announcementForm, action_label: e.target.value })
+                    }
+                    placeholder="مثال: ابدأ الامتحان الآن"
+                    className={inputClasses}
+                  />
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full py-3.5 bg-primary text-primary-foreground rounded-2xl font-black text-sm hover:opacity-90 transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              >
+                <Megaphone className="w-4 h-4" />
+                {loading ? "جاري النشر..." : "نشر التنبيه في الرئيسية فوراً"}
+              </button>
+            </form>
+
+            {/* Existing Announcements List */}
+            <div className="bg-card rounded-3xl border border-border/50 p-5 sm:p-6 space-y-4">
+              <h3 className="font-black text-base">سجل التنبيهات والإعلانات ({announcements.length})</h3>
+
+              {announcements.length === 0 ? (
+                <div className="py-10 text-center text-sm text-muted-foreground">
+                  لا توجد تنبيهات مسجلة حتى الآن.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {announcements.map((ann) => (
+                    <div
+                      key={ann.id}
+                      className={`p-4 rounded-2xl border transition-all flex flex-col md:flex-row md:items-center justify-between gap-4 ${
+                        ann.is_active
+                          ? "bg-accent/15 border-border/60"
+                          : "bg-muted/20 border-border/30 opacity-65"
+                      }`}
+                    >
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span
+                            className={`text-[10px] font-black px-2.5 py-0.5 rounded-full ${
+                              ann.is_active
+                                ? "bg-emerald-500/15 text-emerald-600 dark:text-emerald-400"
+                                : "bg-muted text-muted-foreground"
+                            }`}
+                          >
+                            {ann.is_active ? "ظاهر للطلاب" : "مخفي"}
+                          </span>
+                          <span className="text-[11px] font-bold px-2.5 py-0.5 rounded-full bg-primary/10 text-primary">
+                            {PRIORITY_LABELS[ann.priority] || ann.priority}
+                          </span>
+                          <span className="text-xs text-muted-foreground font-semibold">
+                            • {YEAR_LABELS[ann.academic_year] || ann.academic_year}
+                          </span>
+                        </div>
+                        <h4 className="font-bold text-sm sm:text-base">{ann.title}</h4>
+                        <p className="text-xs text-muted-foreground">{ann.message}</p>
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                        <button
+                          type="button"
+                          onClick={() => handleToggleAnnouncementActive(ann)}
+                          className="px-3 py-2 rounded-xl bg-accent hover:bg-accent/80 text-foreground text-xs font-bold flex items-center gap-1.5"
+                        >
+                          {ann.is_active ? (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5" /> إخفاء
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-3.5 h-3.5" /> إظهار
+                            </>
+                          )}
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={() => setEditingAnnouncement(ann)}
+                          className="px-3 py-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 text-amber-600 dark:text-amber-400 text-xs font-bold flex items-center gap-1.5"
+                        >
+                          <Edit3 className="w-3.5 h-3.5" /> تعديل
+                        </button>
+
+                        <button
+                          type="button"
+                          disabled={deletingId === ann.id}
+                          onClick={() => handleDeleteAnnouncement(ann)}
+                          className="px-3 py-2 rounded-xl bg-red-500/10 hover:bg-red-500/20 text-red-500 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" /> حذف
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ========================================================= */}
+        {/* TAB 4: UPLOAD NEW MATERIAL */}
         {/* ========================================================= */}
         {activeTab === "upload_material" && (
           <motion.div
@@ -1987,6 +2483,161 @@ export function AdminDashboard() {
         )}
       </AnimatePresence>
 
+      {/* EDIT ANNOUNCEMENT MODAL */}
+      <AnimatePresence>
+        {editingAnnouncement && (
+          <div className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-card border border-border rounded-3xl max-w-lg w-full p-6 space-y-4 shadow-2xl"
+            >
+              <div className="flex items-center justify-between pb-3 border-b border-border/50">
+                <h3 className="text-lg font-black flex items-center gap-2">
+                  <Edit3 className="w-5 h-5 text-primary" /> تعديل التنبيه
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setEditingAnnouncement(null)}
+                  className="p-1.5 rounded-lg hover:bg-accent"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleSaveAnnouncementEdit} className="space-y-4">
+                <div>
+                  <label className={labelClasses}>عنوان التنبيه</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingAnnouncement.title}
+                    onChange={(e) =>
+                      setEditingAnnouncement({
+                        ...editingAnnouncement,
+                        title: e.target.value,
+                      })
+                    }
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelClasses}>نص الرسالة</label>
+                  <input
+                    type="text"
+                    required
+                    value={editingAnnouncement.message}
+                    onChange={(e) =>
+                      setEditingAnnouncement({
+                        ...editingAnnouncement,
+                        message: e.target.value,
+                      })
+                    }
+                    className={inputClasses}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClasses}>الفرقة المستهدفة</label>
+                    <select
+                      value={editingAnnouncement.academic_year}
+                      onChange={(e) =>
+                        setEditingAnnouncement({
+                          ...editingAnnouncement,
+                          academic_year: e.target.value,
+                        })
+                      }
+                      className={inputClasses}
+                    >
+                      <option value="all">جميع الفرق</option>
+                      <option value="year1">الفرقة الأولى</option>
+                      <option value="year2">الفرقة الثانية</option>
+                      <option value="year3">الفرقة الثالثة</option>
+                    </select>
+                  </div>
+
+                  <div>
+                    <label className={labelClasses}>الأولوية</label>
+                    <select
+                      value={editingAnnouncement.priority}
+                      onChange={(e) =>
+                        setEditingAnnouncement({
+                          ...editingAnnouncement,
+                          priority: e.target.value as
+                            | "urgent"
+                            | "warning"
+                            | "success"
+                            | "info",
+                        })
+                      }
+                      className={inputClasses}
+                    >
+                      <option value="urgent">عاجل</option>
+                      <option value="warning">تنبيه هام</option>
+                      <option value="success">تحديث جديد</option>
+                      <option value="info">إعلان عام</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className={labelClasses}>رابط (اختياري)</label>
+                    <input
+                      type="text"
+                      value={editingAnnouncement.action_url || ""}
+                      onChange={(e) =>
+                        setEditingAnnouncement({
+                          ...editingAnnouncement,
+                          action_url: e.target.value,
+                        })
+                      }
+                      className={inputClasses}
+                      dir="ltr"
+                    />
+                  </div>
+                  <div>
+                    <label className={labelClasses}>نص الزرار</label>
+                    <input
+                      type="text"
+                      value={editingAnnouncement.action_label || ""}
+                      onChange={(e) =>
+                        setEditingAnnouncement({
+                          ...editingAnnouncement,
+                          action_label: e.target.value,
+                        })
+                      }
+                      className={inputClasses}
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 pt-2">
+                  <button
+                    type="submit"
+                    disabled={savingEdit}
+                    className="flex-1 py-3 bg-primary text-primary-foreground rounded-xl font-bold text-sm flex items-center justify-center gap-2"
+                  >
+                    <Check className="w-4 h-4" />
+                    {savingEdit ? "جاري الحفظ..." : "حفظ التعديلات"}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setEditingAnnouncement(null)}
+                    className="px-5 py-3 bg-accent text-foreground rounded-xl font-bold text-sm"
+                  >
+                    إلغاء
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
       {/* PREVIEW MATERIAL MODAL */}
       <AnimatePresence>
         {previewItem && (
@@ -2048,7 +2699,7 @@ export function AdminDashboard() {
         )}
       </AnimatePresence>
 
-      {/* PREVIEW EXAM MODAL (HTML / LINK) */}
+      {/* PREVIEW EXAM MODAL */}
       <AnimatePresence>
         {previewExam && (
           <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col">

@@ -27,6 +27,7 @@ interface MaterialItem {
   title: string;
   category: string;
   file_url: string;
+  views_count?: number;
   created_at: string;
 }
 
@@ -129,6 +130,15 @@ export function DynamicMaterials({
     }
   }, [academicYear, department, semester, courseName]);
 
+  const trackView = (id: string) => {
+    setMaterials((prev) =>
+      prev.map((m) =>
+        m.id === id ? { ...m, views_count: (m.views_count || 0) + 1 } : m
+      )
+    );
+    void supabase.rpc("increment_material_views", { row_id: id });
+  };
+
   if (loading) {
     return (
       <div className="flex justify-center items-center py-6">
@@ -195,17 +205,28 @@ export function DynamicMaterials({
                     <p className="font-bold text-xs sm:text-sm truncate text-foreground">
                       {item.title}
                     </p>
-                    <span className="text-[11px] text-muted-foreground">
-                      {CATEGORY_LABELS[item.category] || item.category}
-                    </span>
+                    <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
+                      <span>{CATEGORY_LABELS[item.category] || item.category}</span>
+                      {(item.views_count || 0) > 0 && (
+                        <>
+                          <span>•</span>
+                          <span className="inline-flex items-center gap-1">
+                            <Eye className="w-3 h-3" /> {item.views_count}
+                          </span>
+                        </>
+                      )}
+                    </div>
                   </div>
                 </div>
 
                 {kind === "video" || kind === "image" ? (
                   <button
                     type="button"
-                    onClick={() => setActiveMedia(item)}
-                    className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 shrink-0"
+                    onClick={() => {
+                      trackView(item.id);
+                      setActiveMedia(item);
+                    }}
+                    className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 shrink-0 cursor-pointer"
                   >
                     {kind === "video" ? (
                       <>
@@ -222,6 +243,7 @@ export function DynamicMaterials({
                     href={item.file_url}
                     target="_blank"
                     rel="noopener noreferrer"
+                    onClick={() => trackView(item.id)}
                     className="px-3 py-1.5 bg-primary text-primary-foreground rounded-lg text-xs font-bold hover:opacity-90 transition-opacity flex items-center gap-1.5 shrink-0"
                   >
                     {item.file_url.includes("supabase") ? (
@@ -241,7 +263,7 @@ export function DynamicMaterials({
         </div>
       </div>
 
-      {/* Inline Student Media Modal (Video Player / Image Viewer) */}
+      {/* Inline Student Media Modal */}
       <AnimatePresence>
         {activeMedia && (
           <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
