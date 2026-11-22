@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabase";
+import { trackMaterialView } from "../lib/trackView";
 import {
   FileText,
   Download,
@@ -28,6 +29,7 @@ interface MaterialItem {
   category: string;
   file_url: string;
   views_count?: number;
+  unique_views_count?: number;
   created_at: string;
 }
 
@@ -131,12 +133,29 @@ export function DynamicMaterials({
   }, [academicYear, department, semester, courseName]);
 
   const trackView = (id: string) => {
+    let isUnique = false;
+    try {
+      const raw = localStorage.getItem("dtu-viewed-materials");
+      const viewedIds: string[] = raw ? (JSON.parse(raw) as string[]) : [];
+      isUnique = !viewedIds.includes(id);
+    } catch {
+      isUnique = false;
+    }
+
     setMaterials((prev) =>
       prev.map((m) =>
-        m.id === id ? { ...m, views_count: (m.views_count || 0) + 1 } : m
+        m.id === id
+          ? {
+              ...m,
+              views_count: (m.views_count || 0) + 1,
+              unique_views_count:
+                (m.unique_views_count || 0) + (isUnique ? 1 : 0),
+            }
+          : m
       )
     );
-    void supabase.rpc("increment_material_views", { row_id: id });
+
+    void trackMaterialView(id);
   };
 
   if (loading) {

@@ -27,7 +27,7 @@ import {
 import { useTheme } from '../contexts/ThemeContext';
 import { useIntersectionObserver } from '../hooks/useIntersectionObserver';
 import { supabase } from '../lib/supabase';
-import { showPlatformNotification } from '../lib/notifications';
+import { showPlatformNotification, subscribeToPushNotifications } from '../lib/notifications';
 
 type ReactionKey = 'like' | 'heart' | 'fire';
 
@@ -262,13 +262,12 @@ export function Home() {
   }, []);
 
   const handleEnableNotifications = async () => {
-    if (!('Notification' in window)) return;
-    const permission = await Notification.requestPermission();
+    const permission = await subscribeToPushNotifications(selectedYearFilter);
     setNotifPermission(permission);
     if (permission === 'granted') {
       void showPlatformNotification(
         'تم تفعيل إشعارات DTU Hub ✅',
-        'هتوصلك التنبيهات والاختبارات الجديدة أول بأول.'
+        'هتوصلك التنبيهات والاختبارات الجديدة على تليفونك حتى لو التطبيق مقفول.'
       );
     }
   };
@@ -276,6 +275,13 @@ export function Home() {
   const handleYearFilterChange = (yearId: string) => {
     setSelectedYearFilter(yearId);
     localStorage.setItem('dtu-student-year', yearId);
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      void subscribeToPushNotifications(yearId);
+    }
   };
 
   const handleToggleReaction = async (announcementId: string, key: ReactionKey) => {

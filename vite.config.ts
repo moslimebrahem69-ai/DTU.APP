@@ -7,7 +7,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'robots.txt'],
+      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg', 'robots.txt', 'push-sw.js'],
       manifest: {
         name: 'DTU Learning Hub',
         short_name: 'DTU Hub',
@@ -32,6 +32,7 @@ export default defineConfig({
         ]
       },
       workbox: {
+        importScripts: ['/push-sw.js'],
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,json,jpg,jpeg}'],
         cleanupOutdatedCaches: true,
         clientsClaim: true,

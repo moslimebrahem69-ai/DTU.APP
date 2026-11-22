@@ -7,7 +7,7 @@ import { ThemeProvider } from './contexts/ThemeContext';
 import { Home } from './pages/Home';
 import { LoadingSpinner } from './components/Common/LoadingSpinner';
 import { supabase } from './lib/supabase';
-import { showPlatformNotification } from './lib/notifications';
+import { showPlatformNotification, subscribeToPushNotifications } from './lib/notifications';
 import './lib/i18n';
 
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -86,8 +86,16 @@ function App() {
     document.documentElement.setAttribute('data-animations', animationsEnabled || 'true');
   }, []);
 
-  // الاستماع اللحظي للإعلانات الجديدة على مستوى التطبيق بالكامل لإرسال إشعارات الموبايل
+  // مزامنة اشتراك الـ Web Push + الاستماع اللحظي للإعلانات الجديدة على مستوى التطبيق
   useEffect(() => {
+    if (
+      typeof window !== 'undefined' &&
+      'Notification' in window &&
+      Notification.permission === 'granted'
+    ) {
+      void subscribeToPushNotifications();
+    }
+
     const channel = supabase
       .channel('global-announcements-notifications')
       .on(
